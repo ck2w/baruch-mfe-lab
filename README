@@ -21,3 +21,20 @@ git push -u origin master
 …or import code from another repository
 
 You can initialize this repository with code from a Subversion, Mercurial, or TFS project.
+
+To restore to the status before the last commit:
+  
+  git reset --hard HEAD
+
+To remove a file from the last commit:
+
+    git rm --cached path/to/your/file
+ or git rm -r --cached path/to/your/directory
+
+ then git commit.
+
+To view the committed files:
+   
+  git diff HEAD origin/master
+
+
