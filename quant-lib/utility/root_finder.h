@@ -5,8 +5,10 @@ class Root_finder
 {
     public:
 
-        Root_finder( double (*function)(double), double (*derivative)(double) )
-                   : d_function(function), d_derivative(derivative)
+        Root_finder( double (*function)(double), 
+                     double (*derivative)(double)=0 )
+                   : d_function(function), 
+                     d_derivative(derivative)
         {}
 
         double newton_find_root(double initial_guess,
@@ -17,7 +19,8 @@ class Root_finder
         double secant_find_root(double first_guess,
                                 double second_guess,
                                 double tol,  // largest admissible |func(x)|
-                                double eps); // largest admissible |x'-x|
+                                double eps,  // largest admissible |x'-x|
+                                bool print);                        
 
     private:
 
