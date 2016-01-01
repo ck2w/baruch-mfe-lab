@@ -1,0 +1,10 @@
+Application i): the interpretation of the model parameters is more like intuitively, "can solve solve beta_0 and beta_1 setting t to 0 and infinity" is not a suitable answer for this.
+Application v): the question ask for "return" on each cash flow and portfolio. You compared the PV of each scenario, as a result, the graph doesn't look right then. But I checked the return based on your PVs, it looks fine. So I only deduct two points here.
+ 
+I'm glad to see you used the curve class in your code, it shows that you put an effort on reading sandBox.
+The whole design of your homework is really good, I want to share the screenshot for the exercises part as a sample on the forum later.
+ 
+Keep up the good work!
+ 
+Cheers,
+Susan 
