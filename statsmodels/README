@@ -1,0 +1,33 @@
+Prepare all your data files in the following example csv format:
+
+Date,Value
+01-01-1990,10.0
+01-02-1990,20.0
+01-03-1990,30.0
+...
+
+Run the Python code in the following way:
+
+./regress.py -y <dependent variable file>
+             -x <independent variable file 1> -l #-#
+             -x <independent variable file 2> -l #-#
+             -x <independent variable file 3> -l #-#
+             ......
+             -x <independent variable file n> -l #-#
+             -r YYYYMMDD-YYYYMMDD
+             -r YYYYMMDD-YYYYMMDD
+             -r YYYYMMDD-YYYYMMDD
+             ......
+             -r YYYYMMDD-YYYYMMDD
+
+where #-# is the tag for lags. You are allowed to specify the lag
+parameters for each independent file. For example,
+
+    no lag: 0-0
+    lag 1 day: 1-1
+    lag 1 day including contemporaneous: 0-1
+    lag 3 days: 3-3
+    lag 3 days, 2 days, 1 day and contemporaneous: 0-3
+
+and YYYYMMDD-YYYYMMDD is the tag for regression date ranges. You 
+are allowed to specify multiple date ranges at one run.
