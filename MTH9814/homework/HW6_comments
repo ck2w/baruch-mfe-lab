@@ -1,0 +1,7 @@
+Q2 c) There are two kinds of power option, you priced the one with payoff V=max(S^2-K^2, 0), this is OK. But for this particular question, I think Bob means V=max(S^2-K, 0).
+Q2 d) You missed the part that strike is equal to the forward price of the asset. The result should be -0.5*exp(-rT)*(sigma^2)*T.
+
+As always, great work!
+
+Regards,
+Susan

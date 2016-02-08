@@ -1,0 +1,13 @@
+Q1 a) For a FRA, all rates are quoted using simple interest. So here the forward rate should be calculated as (Pt/PT-1)* reset rate frequency, (0.99782972/0.994845185-1)*4=1.20%
+
+Q1 b) Same thing as part a, the right answer should be 12319.77. I didn't deduct point for the same mistake, just make sure you get the right answer.
+
+Q1 c) the terminal value for this FRA from 6M to 1Y receiving fixed should be N*r_k*0.5-N* [(1 + r_1 * 0.25) * (1 + r_2 * 0.25) -1], instead of N*r_k*0.25-N* [(1 + r_1 * 0.25) * (1 + r_2 * 0.25) -1]. So your result is actually 2 times larger. Well, I count it as fat finger, just be careful next time.
+
+
+Good job guys! And it's really nice to see people actually applied sandBox.
+
+
+Regards,
+
+Susan
