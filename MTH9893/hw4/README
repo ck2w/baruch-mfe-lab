@@ -1,0 +1,39 @@
+Team: ShengQuan Zhou, Chi (Franklin) Ma
+
+===========================================
+
+Impulse responses:
+
+(1) box.py
+(2) ema.py
+(3) comb.py
+
+===========================================
+
+1. Sampling in time:
+
+Code and answer to questions
+
+- sampling.py
+
+Graph
+
+- sampling_in_time.png
+
+===========================================
+
+2. Replication in time:
+
+Code and answer to questions
+
+- replication.py
+
+Graph
+
+- replication_in_time.png
+
+===========================================
+
+3. z-transform
+
+MTH9893_HW4_Problem3.pdf

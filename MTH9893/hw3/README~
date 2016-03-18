@@ -1,0 +1,71 @@
+Team: ShengQuan Zhou, Chi (Franklin) Ma
+
+Impulse responses:
+
+(1) box.py
+(2) box_diff.py --- new in hw3
+(3) delta.py
+(4) diff.py
+(5) ema.py
+(6) ema_poly1.py --- new in hw3
+(7) int_macd_poly.py --- new in hw3
+(8) macd.py
+(9) macd_poly.py
+(10) step.py
+
+===========================================
+
+Utility Code
+
+switch_to_composite_unit_gauge.py
+
+===========================================
+
+1. Box and Ema Comparison:
+
+Code
+
+(1) calc_box_ema_spectra_mse.py
+(2) box_ema_comparison.py
+
+Graph
+
+box_ema_comparison.png
+
+===========================================
+
+2. Ema and Integrated Macd-Poly Comparison
+
+Code
+
+(1) calc_ema_imacd_spectra_mse.py
+(2) ema_int_macd_poly_comparison.py
+
+Graph
+
+ema_int_macd_comparison.png
+
+===========================================
+
+3. Box-Difference and Macd Comparison
+
+Code
+
+(1) calc_box_diff_macd_spectra_mse.py
+(2) box_diff_macd_comparison.py
+
+Graph
+
+box_diff_macd_comparison.png
+
+===========================================
+
+4. Phase spectra
+
+Analytic derivation
+
+- MTH9893_HW3_Problem4.pdf
+
+Graph
+
+- Group_Delay_Spectra.png

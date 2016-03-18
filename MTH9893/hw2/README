@@ -1,0 +1,172 @@
+1. Impulse Responses:
+
+Code
+
+(1) Delta Function: delta.py
+(2) Unit Step Function: step.py
+(3) Box Function: box.py
+(4) Ema Function: ema.py
+(5) Macd Function: macd.py
+(6) Macd M1 Function: diff.py
+
+Graph
+
+plot_responses.png
+
+===========================================
+
+2. Data:
+
+Graph - plot_quote_trade_data.png
+
+===========================================
+
+3. Trunction:
+
+Code - truncation.py
+
+Graph - plot_truncation.png
+
+Answers:
+
+(a) Length of the price series = 391,
+    Length of the cand series = 490.
+
+(b) The truncated series has the same length as the 
+    original price series. The part corresponding to
+    the convolution of the partial tail of the response
+    with the price series is removed.
+
+
+===========================================
+
+4. Initialization:
+
+Code - initialization.py
+
+Graph - plot_initialization.png
+
+Answers: 
+
+(a) The spurious transient is observed in this case.
+(b) Input intial conditioning is imposed. The spurious
+    transient is removed.
+(c) Since macd is a differencer, the gain is zero.
+    There is no need to add back the initial conditioning
+    because the difference operator h_macd operating on
+    the initial constant yields a zero result.
+
+===========================================
+
+5. Gain:
+
+Code - gain.py
+
+Graph - plot_gain.png
+
+Answers:
+
+(a) The gain = 1 is the correct choice.
+    The factor g must be multiplied with the offset prices[0]
+    because 
+    conv(g h_ema, px[n]-px[0]) = conv(g h_ema, px[n]) - g px[0]
+    produces a term g px[0] because the gain of the ema impulse
+    response itself is one.
+
+(b) Again, macd is a differencer.
+    The gain of the macd impulse response itself is zero.
+    There is no need to add the term g px[0] back.
+
+===========================================
+
+6. Ema of a Price Series:
+
+Code - ema_price_series.py
+
+Graph - plot_ema_price_series.png
+
+Answers:
+
+The larger the Neff value we choose, the smoother is resulting
+series is. The smoothed series is also delayed by an amount 
+determined by the Neff.
+
+===========================================
+
+7. Ema and Delay:
+
+Code - ema_and_delay_price_series.py
+
+Graph - plot_ema_and_delay_price_series.png
+
+Answers:
+
+When compared with delta-delayed original series, the implicit
+delay in the ema smooth is matched. Basically, delta-delayed
+series and ema smoothed series have the same amount of delay.
+
+===========================================
+
+8. Macd-M1 of a Log-Price Series
+
+Code - macd_m1_log_price_series.py
+
+Graph - plot_macd_m1_log_price_series.png
+
+===========================================
+
+9. Macd of a Log-Price Series
+
+Code - macd_log_price_series.py
+
+Graph - macd_log_price_series.png
+
+Answers:
+
+Macd differencer has a smoother output than the Macd M1 has.
+This is because Macd M1 is a combination of two delta delays
+with opposite signs but has not smoothing functionality.
+
+===========================================
+
+10. Smoothing a Trade-Bin Series
+
+Code - 
+
+(1) compound_smooth_impulse_response.py
+(2) compound_smooth_trade_volumes.py
+
+Graph -
+
+(1) plot_step_macd_compound_impulse_response.png
+(2) plot_compound_smoothing_trade_volumes.png
+
+Answers:
+
+(b) The compound smoothing has a smoother resulting series than
+    the one from ema.
+
+    The unit step impulse response has a gain equal to the length
+    of window. The macd impulse response has zero gain. That's
+    the reason why you need to add the term len(tr)*tr[0] back
+    for the convolution with unit step impulse response, but no need
+    to add a similar term back for the convolution with macd.
+
+(c) The gain of h_cmp is one. This compound impulse response has an
+    effect identical to the two-step compound smoothing in part (b). 
+    
+    The Delta-N factor is needed to adjust the gain of the impulse
+    response to be unity.
+        
+===========================================
+
+11. Circular Convolution
+
+Code - circular_convolution.py
+
+Graph - plot_circular_convolution.png
+
+Answers:
+
+(d) The left-end region is the non-causality region where impact from
+    the right-end part of the series is incorrectly included.

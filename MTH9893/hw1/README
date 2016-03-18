@@ -1,0 +1,10 @@
+Team: ShengQuan Zhou, Chi (Franklin) Ma
+
+0) hw1_2016.pdf is the homework problem file assigned.
+1) q-script is in hw1.q
+2) Answers to questions are incorporated into the comments in hw1.q, 
+   after each question.
+3) quote count, trade count, and trade volume data for question 4 and 5 
+   are stored in quote_count.csv and volume.csv
+4) plot of quote count, trade count, and trade volume versus time are 
+   in quote_count.jpg, trade_count.jpg, and trade_volume.jpg.

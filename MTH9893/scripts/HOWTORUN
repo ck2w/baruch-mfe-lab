@@ -1,0 +1,15 @@
+Either use \l or system l to load q script files.
+
+C:\>echo “show `helloWorld” >> hi.q
+
+C:\>q
+KDB+ 2.8 2012.02.05 Copyright (C) 1993-2012 Kx Systems
+w64/ 8()core 8169MB admin box 192.168.0.2 EXPIRE 2013.12.31
+
+q)\l hi.q
+“show `helloWorld”
+q)system “l hi.q”
+“show `helloWorld”
+
+Multi-line commands are tricky, I would instead use the qStudio KDB GUI that allows highlighting the text you want and executing it.
+

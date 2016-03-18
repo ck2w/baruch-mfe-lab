@@ -1,0 +1,77 @@
+Team: ShengQuan Zhou, Chi (Franklin) Ma
+
+===========================================
+
+Problem 1
+
+Code
+
+- partial_fraction_expansion.py
+- analyze_ar3_fde.py
+
+Graph
+
+- analysis_of_an_AR3_equation.png
+
+Analytics
+
+- MTH9893_HW6_Analytic_Part.pdf, Page (1-2)
+
+===========================================
+
+Problem 2 (a-h)
+
+Code
+
+- poly_ema.py
+- compute_M0_M1_RHW.py
+- apply_poly_ema_m1_filter.py
+- apply_poly_ema_m2_filter.py
+- apply_poly_ema_m3_filter.py
+- apply_poly_ema_m4_filter.py
+- apply_poly_ema_m5_filter.py
+- plot_poly_ema_impulse_responses.py
+
+Graph
+- plot_poly_ema_impulse_responses.png
+
+Analytics
+
+- MTH9893_HW6_Analytic_Part.pdf, Page (3-6)
+
+(f) Table:
+
+M0 - M1 --- RHW
+1.0  50.000 1.00995
+1.0  50.000 0.72111
+1.0  50.000 0.594418
+1.0  50.000 0.519615
+1.0  50.000 0.469042
+
+===========================================
+
+Problem 2 (i-k)
+
+Code
+
+- compute_system_acf.py
+- plot_poly_ema_system_acf.py
+
+Graph
+
+- plot_poly_ema_system_acf.png
+
+Analytics
+
+- MTH9893_HW6_Analytic_Part.pdf, Page (7)
+
+(j) Table
+
+m = 1: l* =  152
+m = 2: l* =  121
+m = 3: l* =  102
+m = 4: l* =  90
+m = 5: l* =  81
+
+~                                                                                                                                                 
+~                                                                                                                       

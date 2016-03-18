@@ -1,0 +1,99 @@
+Team: ShengQuan Zhou, Chi (Franklin) Ma
+
+===========================================
+
+Data file used in this homework:
+
+- jpm_trades.csv
+- jpm_quotes.csv
+
+===========================================
+
+Impulse responses used in this homework:
+
+- delta.py
+- step.py
+- box.py
+- ema.py
+- macd.py
+- ema_poly1.py
+- macd_poly.py
+- int_macd_poly.py
+
+===========================================
+
+1. Analytic Derivation of FDE representation
+
+See file HW9893_HW5_Problem1.pdf
+
+===========================================
+
+2. FDE Implementation
+
+Code
+
+- apply_delayed_impulse_filter.py
+- apply_unit_step_filter.py
+- apply_box_filter.py
+- apply_ema_filter.py
+- apply_ema_poly1_filter.py
+- apply_integrated_macd_poly_filter.py
+- apply_macd_filter.py
+
+===========================================
+
+3. Verify the FDE Impulse Response
+
+Code
+
+- verify_fde_impulse_responses.py
+
+Graph 
+
+(lines are from fde, open circles are from direct evaluation of impulse responses)
+
+- verify_fde_impulse_responses.png
+
+===========================================
+
+4. Apply FDE's to a Price Series, Compare with Convolution
+
+Code
+
+- apply_fde_filters_to_price_series.py
+
+Graph
+
+(lines are from fde, open circles are from direct evaluation of impulse responses)
+
+- apply_fde_filters_to_price_series.png
+
+===========================================
+
+5. VWAP equation
+
+Code
+
+- compute_ab_ema.py
+- vwap.py
+
+Graph
+
+- vwap.png
+
+Answers to questions
+
+(c) The VWAP ema goes unstable when the magnitude of intenstiies are small
+    because the effective first moment of VWAP smoother is
+
+        M*[n] = M1 * B[n-1] / b[n]
+
+    which grows to infinity as the weighting series b[n] vanishes.
+
+(d) VWAP ema series is as smooth as the ema series, while VWAP series tracks
+    the original price series more closely than the ema series when the 
+    intensity series b[n] level is above its local average, and more loosely
+    when b[n] is below its local average.
+
+    On the other hand, the usual ema series has no accelerating mechanism. 
+
