@@ -51,8 +51,8 @@ std::tuple<Eigen::VectorXi, Eigen::MatrixXd, Eigen::MatrixXd>
     assert(n == Acopy.cols());
 
     Eigen::VectorXi p = Eigen::VectorXi::LinSpaced(n,1,n);
-    Eigen::MatrixXd L = Eigen::MatrixXd::Zero(n,n);;
-    Eigen::MatrixXd U = Eigen::MatrixXd::Zero(n,n);;
+    Eigen::MatrixXd L = Eigen::MatrixXd::Zero(n,n);
+    Eigen::MatrixXd U = Eigen::MatrixXd::Zero(n,n);
 
     for (int k=0; k<n-1; k++) {
         int maxRow, maxCol;
