@@ -38,7 +38,7 @@ Eigen::MatrixXd cholesky_banded(const Eigen::MatrixXd & A, int m)
 Eigen::MatrixXd cholesky(const Eigen::MatrixXd & A)
 {
     int n = A.rows();
-    return cholesky_banded(A, n); 
+    return cholesky_banded(A, n-1); 
 }
 
 Eigen::MatrixXd cholesky_tridiagonal(const Eigen::MatrixXd & A)

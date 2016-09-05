@@ -28,7 +28,7 @@ Eigen::VectorXd forward_subst(const Eigen::MatrixXd & L,
                               const Eigen::VectorXd & b)
 {
     int n = b.size();
-    return forward_subst_banded(L, n, b);
+    return forward_subst_banded(L, n-1, b);
 }
 
 Eigen::VectorXd forward_subst_tridiagonal(const Eigen::MatrixXd & L, 
@@ -62,7 +62,7 @@ Eigen::VectorXd backward_subst(const Eigen::MatrixXd & U,
                                const Eigen::VectorXd & b)
 {
     int n = b.size();
-    return backward_subst_banded(U, n, b);
+    return backward_subst_banded(U, n-1, b);
 }
 
 Eigen::VectorXd backward_subst_tridiagonal(const Eigen::MatrixXd & U, 

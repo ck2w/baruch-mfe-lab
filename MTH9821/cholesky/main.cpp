@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
                       << std::setw(p+3) 
                       << std::fixed 
                       << std::setprecision(p) 
-                      << U(i,j) 
+                      << U(j,i) 
                       << " ";
         }
         std::cout << " | ";
@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
                       << std::setw(p+3) 
                       << std::fixed 
                       << std::setprecision(p) 
-                      << U(j,i) 
+                      << U(i,j) 
                       << " ";
         }
         std::cout << " | " << std::endl;
