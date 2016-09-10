@@ -11,8 +11,7 @@ std::tuple<Eigen::VectorXd, int> linear_iterate(const Eigen::VectorXd & x0,
                                                 double tol)
 {
     Eigen::VectorXd c = forward_subst(M,b);
-    Eigen::VectorXd x = x0;
-    Eigen::VectorXd x_old = x;
+    Eigen::VectorXd x = x0, x_old = x0;
     Eigen::VectorXd r = b-(M+N)*x0; 
     double stop_resid = tol*r.norm();
 
@@ -35,8 +34,7 @@ std::tuple<Eigen::VectorXd, int> linear_iterate(const Eigen::VectorXd & x0,
 {
     Eigen::MatrixXd D = d.asDiagonal();
     Eigen::VectorXd c = forward_subst_banded(D,0,b);
-    Eigen::VectorXd x = x0;
-    Eigen::VectorXd x_old = x;
+    Eigen::VectorXd x = x0, x_old = x0;
     Eigen::VectorXd r = b-(D+N)*x0; 
     double stop_resid = tol*r.norm();
 
