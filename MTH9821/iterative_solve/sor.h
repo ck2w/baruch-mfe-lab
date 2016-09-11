@@ -15,13 +15,17 @@ std::tuple<Eigen::VectorXd, int> sor(double omega,
                                      const Eigen::VectorXd & b,
                                      double tol);
 
+std::tuple<Eigen::VectorXd, int> sor(double omega,
+                                     const Eigen::ArrayXXd & A, int m, 
+                                     const Eigen::VectorXd & b, 
+                                     double tol);
+
 std::tuple<Eigen::VectorXd, int> gs(const Eigen::MatrixXd & A, 
                                     const Eigen::VectorXd & b,
                                     double tol);
 
-//std::tuple<Eigen::VectorXd, int> sor_banded(double omega,
-//                                            const Eigen::MatrixXd & A, int m, 
-//                                            const Eigen::VectorXd & b, 
-//                                            double tol);
+std::tuple<Eigen::VectorXd, int> gs(const Eigen::ArrayXXd & A, int m,
+                                    const Eigen::VectorXd & b,
+                                    double tol);
 
 #endif /* SOR_H */

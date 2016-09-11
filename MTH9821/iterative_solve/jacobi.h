@@ -13,10 +13,8 @@ std::tuple<Eigen::VectorXd, int> jacobi(const Eigen::MatrixXd & A,
                                         const Eigen::VectorXd & b,
                                         double tol);
 
-/*
-std::tuple<Eigen::VectorXd, int> jacobi_banded(const Eigen::MatrixXd & A, int m, 
-                                               const Eigen::VectorXd & b, 
-                                               double tol);
-*/
+std::tuple<Eigen::VectorXd, int> jacobi(const Eigen::ArrayXXd & A, int m, 
+                                        const Eigen::VectorXd & b, 
+                                        double tol);
 
 #endif /* JACOBI_H */
