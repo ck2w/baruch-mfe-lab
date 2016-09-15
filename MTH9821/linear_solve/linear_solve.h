@@ -13,6 +13,10 @@ Eigen::VectorXd spd_solve(const Eigen::MatrixXd & A,
 Eigen::VectorXd banded_spd_solve(const Eigen::MatrixXd & A, int m, 
                                  const Eigen::VectorXd & b);
 
+// use upper-triangular band storage for A
+Eigen::VectorXd banded_spd_solve(const Eigen::ArrayXXd & A, int m, 
+                                 const Eigen::VectorXd & b);
+
 Eigen::VectorXd tridiagonal_spd_solve(const Eigen::MatrixXd & A,
                                       const Eigen::VectorXd & b);
 

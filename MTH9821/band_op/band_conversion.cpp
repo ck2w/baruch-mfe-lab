@@ -39,3 +39,22 @@ Eigen::ArrayXXd band_from_dense(const Eigen::MatrixXd & A, int m1, int m2)
 
     return a;
 }
+
+Eigen::ArrayXXd band_transpose(const Eigen::ArrayXXd & a, int m1, int m2)
+{
+    int n = a.rows();
+    int m = m1+m2+1;
+    assert( a.cols() == m );
+
+    Eigen::ArrayXXd b = Eigen::ArrayXXd::Zero(n,m);
+
+    b.col(m2) = a.col(m1);
+    for (int i=1; i<=m1; i++) {
+        b.col(m2+i).block(0,0,n-i,1) = a.col(m1-i).block(i,0,n-i,1);
+    }
+    for (int i=1; i<=m2; i++) {
+        b.col(m2-i).block(i,0,n-i,1) = a.col(m1+i).block(0,0,n-i,1);
+    }
+
+    return b;
+}

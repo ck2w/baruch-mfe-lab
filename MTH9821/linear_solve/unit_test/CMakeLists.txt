@@ -6,6 +6,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wno-long-long -Wno-dep
 find_package(GTest REQUIRED)
 include_directories(${GTEST_INCLUDE_DIRS} 
                     ../../cholesky 
+                    ../../band_op
                     ../../triangular_solve
                     ../ 
                     ../../../../lib/eigen/)
@@ -14,6 +15,7 @@ include_directories(${GTEST_INCLUDE_DIRS}
 add_executable(runTests
                ./linear_solve.t.cpp
                ../../cholesky/cholesky.cpp
+               ../../band_op/band_conversion.cpp
                ../../triangular_solve/triangular_solve.cpp
                ../linear_solve.cpp)
 

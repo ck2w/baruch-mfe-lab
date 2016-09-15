@@ -35,6 +35,39 @@ Eigen::MatrixXd cholesky_banded(const Eigen::MatrixXd & A, int m)
     return U; 
 }
 
+Eigen::MatrixXd cholesky_banded(const Eigen::ArrayXXd & A, int m)
+{
+    Eigen::ArrayXXd Acopy = A;
+    int n = Acopy.rows();
+    assert(m+1 == Acopy.cols());
+
+    // upper triangular matrix
+    // with lower band width = 0
+    // with upper band width = m
+    Eigen::ArrayXXd U = Eigen::ArrayXXd::Zero(n,m+1);
+
+    for (int k=0; k<n-1; k++) {
+        assert(Acopy(k,0)>0);
+
+        U(k,0) = std::sqrt(Acopy(k,0));
+
+        int boundary = std::min(k+m+1,n);
+        for (int i=k+1; i<boundary; i++) {
+            U(k,i-k) = Acopy(k,i-k)/U(k,0);
+        }
+
+        for (int i=k+1; i<boundary; i++) {
+            for (int j=i; j<boundary; j++) {
+                Acopy(i,j-i) -= U(k,i-k)*U(k,j-k);
+            }
+        }
+    }
+
+    U(n-1,0) = std::sqrt(Acopy(n-1,0));
+
+    return U; 
+}
+
 Eigen::MatrixXd cholesky(const Eigen::MatrixXd & A)
 {
     int n = A.rows();

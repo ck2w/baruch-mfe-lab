@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <fstream>
 #include <string>
+#include <cmath>
 #include <cassert>
 #include <load.h>
 #include <linear_solve.h>
@@ -24,14 +25,11 @@ int main(int argc, char* argv[])
 
     int N = countRows(argv[1]);
     assert(N>0);
-    
     Eigen::MatrixXd mat = readCSV(argv[1], N, N);
     Eigen::VectorXd vec = readCSV(argv[2], N);
 
-    Eigen::VectorXd x;
-    std::string mode = argv[1];
-    x = spd_solve(mat, vec);
-
+    Eigen::VectorXd x = spd_solve(mat, vec);
+    
     for (int i=0; i<N; i++) {
         std::cout << " | ";
         for (int j=0; j<N; j++) {

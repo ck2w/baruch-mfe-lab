@@ -18,6 +18,7 @@
 // m2: width of upper band
 Eigen::MatrixXd dense_from_band(const Eigen::ArrayXXd & a, int m1, int m2);
 Eigen::ArrayXXd band_from_dense(const Eigen::MatrixXd & A, int m1, int m2);
+Eigen::ArrayXXd band_transpose(const Eigen::ArrayXXd & a, int m1, int m2);
 
 #endif /* BAND_CONVERSION_H */
 

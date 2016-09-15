@@ -1,4 +1,5 @@
 #include <linear_solve.h>
+#include <band_conversion.h>
 #include <triangular_solve.h>
 #include <cholesky.h>
 #include <Eigen/Dense>
@@ -28,6 +29,21 @@ Eigen::VectorXd banded_spd_solve(const Eigen::MatrixXd & A, int m,
     Eigen::MatrixXd U = cholesky_banded(A, m);
     Eigen::VectorXd y = forward_subst_banded(U.transpose(), m, b);
     Eigen::VectorXd x = backward_subst_banded(U, m, y);
+    
+    return x;
+}
+
+Eigen::VectorXd banded_spd_solve(const Eigen::ArrayXXd & A, int m,
+                                 const Eigen::VectorXd & b)
+{
+    int n = b.size();
+    assert(A.rows() == n);
+    assert(A.cols() == m+1);
+
+    Eigen::ArrayXXd U = cholesky_banded(A, m);
+    Eigen::ArrayXXd L = band_transpose(U,0,m);
+    Eigen::VectorXd y = forward_subst_banded(L,b);
+    Eigen::VectorXd x = backward_subst_banded(U,y);
     
     return x;
 }
