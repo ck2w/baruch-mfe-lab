@@ -14,6 +14,7 @@ std::tuple<int, double, double> laplace2d(const Eigen::ArrayXXd & a,
                                           Eigen::ArrayXXd * u,
                                           double omega,
                                           double tol,
+                                          bool redblack,
                                           bool chebyshev)
 {
     assert(omega<2);  // required by convergence
@@ -47,20 +48,54 @@ std::tuple<int, double, double> laplace2d(const Eigen::ArrayXXd & a,
     // factor. Assume the initial values of u are all zero.
     for (int i=1; i<imax-1; i++) {
         for (int j=1; j<jmax-1; j++) {
-            anormf += f(i,j)*f(i,j);
+            resid = a(i,j)*(*u)(i+1,j)
+                  + b(i,j)*(*u)(i-1,j)
+                  + c(i,j)*(*u)(i,j+1)
+                  + d(i,j)*(*u)(i,j-1)
+                  + e(i,j)*(*u)(i,j)
+                  - f(i,j);
+            anormf += resid*resid;
         }
     }
     anormf = std::sqrt(anormf);
-    if (anormf < 1e-16) {anormf = 1.0;}
 
     for (int n=0; n<MAXITS; n++) {
         anorm = 0.0;
-        int isw=1;
         //red-black checkerboard ordering
-        for (int ipass=0; ipass<2; ipass++) {
-            int jsw=isw;
+        if (redblack) {
+            int isw=1;
+            for (int ipass=0; ipass<2; ipass++) {
+                int jsw=isw;
+                for (int i=1; i<imax-1; i++) {
+                    for (int j=jsw; j<jmax-1; j+=2) {
+                        resid = a(i,j)*(*u)(i+1,j)
+                              + b(i,j)*(*u)(i-1,j)
+                              + c(i,j)*(*u)(i,j+1)
+                              + d(i,j)*(*u)(i,j-1)
+                              + e(i,j)*(*u)(i,j)
+                              - f(i,j);
+                        anorm += resid*resid;
+                        (*u)(i,j) -= omega*resid/e(i,j);
+                    }
+                    jsw=3-jsw; //switch between 1 and 2
+                }
+                isw=3-isw; //switch between 1 and 2
+
+                // chebyshev acceleration
+                if (chebyshev) {
+                    if (n==0 && ipass==0) {
+                        omega = 1.0/(1.0-0.5*rjac*rjac);
+                    }
+                    else {
+                        omega = 1.0/(1.0-0.25*rjac*rjac*omega);
+                    }
+                }
+            }
+        }
+        //row-major ordering
+        else {
             for (int i=1; i<imax-1; i++) {
-                for (int j=jsw; j<jmax-1; j+=2) {
+                for (int j=1; j<jmax-1; j++) {
                     resid = a(i,j)*(*u)(i+1,j)
                           + b(i,j)*(*u)(i-1,j)
                           + c(i,j)*(*u)(i,j+1)
@@ -70,23 +105,15 @@ std::tuple<int, double, double> laplace2d(const Eigen::ArrayXXd & a,
                     anorm += resid*resid;
                     (*u)(i,j) -= omega*resid/e(i,j);
                 }
-                jsw=3-jsw; //switch between 1 and 2
-            }
-            isw=3-isw; //switch between 1 and 2
-
-            // chebyshev acceleration
-            if (chebyshev) {
-                if (n==0 && ipass==0) {
-                    omega = 1.0/(1.0-0.5*rjac*rjac);
-                }
-                else {
-                    omega = 1.0/(1.0-0.25*rjac*rjac*omega);
-                }
             }
         }
-
+        
         anorm = std::sqrt(anorm);
-        if (anorm < tol*anormf) {
+        std::cout << "n = " << n
+                  << ", rnorm = " << anorm 
+                  << ", relative error = " << anorm/anormf 
+                  << ", initial norm = " << anormf << std::endl;
+        if (anorm <= tol*anormf) {
             return std::make_tuple(n,anorm, anorm/anormf);
         }
     }

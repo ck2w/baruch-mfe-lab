@@ -6,6 +6,7 @@ include_directories(./
                     ../load/
                     ../cholesky 
                     ../triangular_solve
+                    ../band_op
                     ../../../lib/eigen/)
  
 # Link runTests with what we want to test and the GTest and pthread library
@@ -14,5 +15,6 @@ add_executable(run
                ./linear_solve.cpp
                ../load/load.cpp
                ../cholesky/cholesky.cpp
+               ../band_op/band_conversion.cpp
                ../triangular_solve/triangular_solve.cpp)
 

@@ -10,7 +10,7 @@
 int main(int argc, char* argv[])
 {
     double w=1.0;
-    int n=512;
+    int n=1024;
 
     int N=n*n;
     double dx = w/(n+1);

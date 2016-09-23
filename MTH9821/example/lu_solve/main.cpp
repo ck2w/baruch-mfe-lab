@@ -4,40 +4,59 @@
 #include <string>
 #include <cassert>
 #include <cmath>
-#include <cholesky.h>
+#include <lu.h>
 #include <triangular_solve.h>
 #include <Eigen/Dense>
 
 int main(int argc, char* argv[])
 {
+    // LU without pivoting or with row-pivoting
+    bool pivoting = true;
     // Output precision
     int p=9;
     // Matrix dimension
     int N=9;
     // Matrix specification
     Eigen::MatrixXd A = Eigen::MatrixXd::Zero(N,N); 
-    Eigen::MatrixXd A1 = Eigen::MatrixXd::Zero(N,N); 
     for (int i=0; i<N; i++) {
-        A1(i,i) = 4.0;
-        if (i>=1) A1(i,i-1) = -1.0;
-        if (i>=2) A1(i,i-2) = 3.0;
-        if (i<=6) A1(i,i+2) = -2.0;
+        A(i,i) = 4.0;
+        if (i>=1) A(i,i-1) = -1.0;
+        if (i>=2) A(i,i-2) = 3.0;
+        if (i<=6) A(i,i+2) = -2.0;
     }
-    // Could be AT+A or AT*A
-    A = A1.transpose()+A1;
     // Vector specification
     Eigen::VectorXd b = Eigen::VectorXd::Zero(N);
     for (int i=0; i<N; i++) {
-        b(i) = (i*i-9.0)/(i+5.0); 
+        b(i) = std::sqrt(0.5*i*i-i+6.0);
     }
 
-    // Cholesky decomposition
-    Eigen::MatrixXd U = cholesky(A);
-    Eigen::MatrixXd L = U.transpose();
+    // Implementation details
+    Eigen::VectorXd Pb = b;
+    Eigen::MatrixXd L;
+    Eigen::MatrixXd U;
+    Eigen::MatrixXd P;
+
+    if (pivoting) {
+        std::tuple<Eigen::VectorXi, Eigen::MatrixXd, Eigen::MatrixXd> res 
+            = lu_row_pivoting(A);
+        Eigen::VectorXi p = std::get<0>(res);
+        L = std::get<1>(res);
+        U = std::get<2>(res);
+        P = Eigen::MatrixXd::Zero(N,N);
+        for (int i=0; i<N; i++) {
+            P(i,p(i)-1) = 1;
+        }
+
+        Pb = P*b;
+    }
+    else {
+        std::tuple<Eigen::MatrixXd, Eigen::MatrixXd> res = lu_no_pivoting(A);
+        L = std::get<0>(res);
+        U = std::get<1>(res);
+    }
 
     // Perform forward substitution and backward substitution
-    // Using Eigen's library method: Eigen::VectorXd x = A.llt().solve(b);
-    Eigen::VectorXd y = forward_subst(L, b);
+    Eigen::VectorXd y = forward_subst(L, Pb);
     Eigen::VectorXd x = backward_subst(U, y);
 
     // Compute residual error
@@ -69,6 +88,7 @@ int main(int argc, char* argv[])
     for (int i=0; i<N; i++) {
         Eigen::VectorXd ei = Eigen::VectorXd::Zero(N);
         ei(i) = 1;
+        if (pivoting) {ei = P*ei;}
         Eigen::VectorXd y = forward_subst(L, ei);
         Eigen::VectorXd x = backward_subst(U, y);
         A_inv.col(i) = x;
@@ -82,8 +102,19 @@ int main(int argc, char* argv[])
               << R
               << std::endl;
 
-    std::cout << "Cholesky decomposition" << std::endl;
+    std::cout << "LU - decomposition" << std::endl;
     for (int i=0; i<N; i++) {
+        if (pivoting) {
+            std::cout << " |, ";
+            for (int j=0; j<N; j++) {
+                std::cout << std::right 
+                          << std::setw(p+3) 
+                          << std::fixed 
+                          << std::setprecision(p) 
+                          << P(i,j)
+                          << ", ";
+            }
+        }
         std::cout << " |, ";
         for (int j=0; j<N; j++) {
             std::cout << std::right 
@@ -134,6 +165,17 @@ int main(int argc, char* argv[])
                       << std::setprecision(p) 
                       << A_inv(i,j) 
                       << ", ";
+        }
+        if (pivoting) {
+            std::cout << " |, ";
+            for (int j=0; j<N; j++) {
+                std::cout << std::right 
+                          << std::setw(p+3) 
+                          << std::fixed 
+                          << std::setprecision(p) 
+                          << P.transpose()(i,j)
+                          << ", ";
+            }
         }
         std::cout << " |, =, |, ";
         for (int j=0; j<N; j++) {

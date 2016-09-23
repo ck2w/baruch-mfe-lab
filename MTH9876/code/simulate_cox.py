@@ -19,7 +19,7 @@ ns = 1000000   # number of samples
 # time points to record counts
 timer = np.array([1,2,3,4,5,6,7,8,9,10])
 
-dt = 0.001     # time step width
+dt = 0.01      # time step width
 n = int(t/dt)  # time step number
 dt_root = math.sqrt(dt)
 theta_dt = theta*dt

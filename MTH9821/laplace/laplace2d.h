@@ -34,6 +34,7 @@ std::tuple<int, double, double> laplace2d(const Eigen::ArrayXXd & a,
                                           Eigen::ArrayXXd * u,
                                           double omega=1,
                                           double tol=1e-6,
+                                          bool redblack=false,
                                           bool chebyshev=false);
 
 #endif /* LAPLACE2D_H */

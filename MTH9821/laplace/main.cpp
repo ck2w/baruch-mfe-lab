@@ -14,10 +14,13 @@ int main(int argc, char* argv[])
     /******************* grid **********************/
     double wx = 1.0;      // x-width
     double wy = 1.0;      // y-width 
-    int nx = 64;           // # of interior x-points
-    int ny = 64;           // # of interior y-points
+    int nx = 4;         // # of interior x-points
+    int ny = 4;         // # of interior y-points
     /**************** relaxation *******************/
-    double omega = 1.0;   // relaxation parameter
+    double omega_start = 1.0;   // relaxation parameter
+    double omega_delta = 0.0;
+    int    omega_count = 1;
+    /**************** convergence ******************/
     double tol   = 1e-6;  // tolerance factor
     bool cheby   = false; // chebyshev acceleration
     /***********************************************/
@@ -74,23 +77,35 @@ int main(int argc, char* argv[])
         u(0,j)    = 0;
         u(Ny-1,j) = 0.5*(y*y+1)*std::sin(y)*std::sin(wy); 
     }
-    /**************************************************/
 
-    std::tuple<int, double, double> res 
-        = laplace2d(a,b,c,d,e,f,&u,omega,tol,cheby);
+    double omega = omega_start;
+    for (int k=0; k<omega_count; k++) {
+        /****************** initial ***********************/
+        for (int i=1; i<Nx-1; i++) {
+            for (int j=1; j<Ny-1; j++) {
+                u(i,j) = 0.0;
+            }
+        }
+        /**************************************************/
 
-    std::cout << "X-dimension:          " << wx << std::endl;
-    std::cout << "Y-dimension:          " << wy << std::endl;
-    std::cout << "X-grid size:          " << Nx << std::endl;
-    std::cout << "Y-grid size:          " << Ny << std::endl;
-    std::cout << "x-pixel:              " << dx << std::endl;
-    std::cout << "y-pixel:              " << dy << std::endl;
-    std::cout << "Relaxation parameter: " << omega << std::endl;
-    std::cout << "Tolerance factor:     " << tol << std::endl;
-    std::cout << "Chebyshev accelerate: " << (cheby ? "YES":"NO") << std::endl;
-    std::cout << "Number of iterations: " << std::get<0>(res) << std::endl;
-    std::cout << "Absolute residual:    " << std::get<1>(res) << std::endl;
-    std::cout << "Relative residual:    " << std::get<2>(res) << std::endl;
+        omega += omega_delta;
+        std::tuple<int, double, double> res 
+            = laplace2d(a,b,c,d,e,f,&u,omega,tol,cheby);
+        std::cout << omega << "," << std::get<0>(res) << std::endl;
+        //std::cout << "X-dimension:          " << wx << std::endl;
+        //std::cout << "Y-dimension:          " << wy << std::endl;
+        //std::cout << "X-grid size:          " << Nx << std::endl;
+        //std::cout << "Y-grid size:          " << Ny << std::endl;
+        //std::cout << "x-pixel:              " << dx << std::endl;
+        //std::cout << "y-pixel:              " << dy << std::endl;
+        //std::cout << "Relaxation parameter: " << omega << std::endl;
+        //std::cout << "Tolerance factor:     " << tol << std::endl;
+        //std::cout << "Chebyshev accelerate: " << (cheby ? "YES":"NO") << std::endl;
+        std::cout << "Number of iterations: " << std::get<0>(res) << std::endl;
+        std::cout << "Absolute residual:    " << std::get<1>(res) << std::endl;
+        std::cout << "Relative residual:    " << std::get<2>(res) << std::endl;
+    }
+
     //std::cout << u << std::endl;
     
     /*************** exact solution *******************/
@@ -108,11 +123,12 @@ int main(int argc, char* argv[])
     double error=0.0;
     for (int i=1; i<Nx-1; i++) {
         for (int j=1; j<Ny-1; j++) {
-            double diff = u(i,j)-u_exact(i,j);
-            error += diff*diff*dx*dy;
+            double diff = std::fabs(u(i,j)-u_exact(i,j));
+            if (diff>error) {
+                error = diff;
+            }
         }
     }
-    error = std::sqrt(error);
     std::cout << "Approximation error:  " << error << std::endl;
    
     return 0;
