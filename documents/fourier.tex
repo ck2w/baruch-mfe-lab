@@ -1,0 +1,225 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Arsclassica Article
+% LaTeX Template
+% Version 1.1 (10/6/14)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Original author:
+% Lorenzo Pantieri (http://www.lorenzopantieri.net) with extensive modifications by:
+% Vel (vel@latextemplates.com)
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[
+10pt, % Main document font size
+a4paper, % Paper type, use 'letterpaper' for US Letter paper
+oneside, % One page layout (no page indentation)
+%twoside, % Two page layout (page indentation for binding and different headers)
+headinclude,footinclude, % Extra spacing for the header and footer
+BCOR5mm, % Binding correction
+]{scrartcl}
+
+\usepackage{cancel}
+
+\input{structure.tex} % Include the structure.tex file which specified the document structure and layout
+
+\hyphenation{Fortran hy-phen-ation} % Specify custom hyphenation points in words with dashes where you would like hyphenation to occur, or alternatively, don't put any dashes in a word to stop hyphenation altogether
+
+%----------------------------------------------------------------------------------------
+%	TITLE AND AUTHOR(S)
+%----------------------------------------------------------------------------------------
+
+\title{\normalfont\spacedallcaps{Fourier Analysis Notes}} % The article title
+
+\author{\spacedlowsmallcaps{ShengQuan Zhou}} % The article author(s) - author affiliations need to be specified in the AUTHOR AFFILIATIONS block
+
+\date{} % An optional date to appear under the author(s)
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+%----------------------------------------------------------------------------------------
+%	HEADERS
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\sectionmark}[1]{\markright{\spacedlowsmallcaps{#1}}} % The header for all pages (oneside) or for even pages (twoside)
+%\renewcommand{\subsectionmark}[1]{\markright{\thesubsection~#1}} % Uncomment when using the twoside option - this modifies the header on odd pages
+\lehead{\mbox{\llap{\small\thepage\kern1em\color{halfgray} \vline}\color{halfgray}\hspace{0.5em}\rightmark\hfil}} % The header style
+
+\pagestyle{scrheadings} % Enable the headers specified in this block
+
+%----------------------------------------------------------------------------------------
+%	TABLE OF CONTENTS & LISTS OF FIGURES AND TABLES
+%----------------------------------------------------------------------------------------
+
+\maketitle % Print the title/author/date block
+
+\setcounter{tocdepth}{2} % Set the depth of the table of contents to show sections and subsections only
+
+
+%----------------------------------------------------------------------------------------
+
+%\newpage % Start the article content on the second page, remove this if you have a longer abstract that goes onto the second page
+
+%----------------------------------------------------------------------------------------
+%	INTRODUCTION
+%----------------------------------------------------------------------------------------
+
+\section{Introduction}
+The general Fourier transform in one dimension is written as
+\begin{align}
+\label{analysis}\tilde{f}(\omega) &= \int_{-\infty}^{+\infty} f(t) e^{-i\omega t}dt, \\
+\label{synthesis}f(t) &= \int_{-\infty}^{+\infty} \tilde{f}(\omega)e^{i\omega t}\frac{d\omega}{2\pi}.
+\end{align}
+Here the notation is motivated by a transform between \textit{time} domain and \textit{frequency} domain. In the language of engineers, Equation \ref{analysis} is called \textit{analysis} and Equation \ref{synthesis} is called \textit{synthesis}. Another common pair of domains for Fourier transform is space and wave vector, also known as the \textit{reciprocal} space, typically in higher dimensions,
+\begin{align}
+\tilde{f}(\mathbf{k}) &= \int f(\mathbf{r}) e^{-i\mathbf{k}\cdot \mathbf{r}}d^D \mathbf{r}, \\
+f(\mathbf{r}) &= \int \tilde{f}(\mathbf{k}) e^{i\mathbf{k}\cdot \mathbf{r}} \frac{d^D\mathbf{k}}{(2\pi)^D},
+\end{align}
+where $D$ is the number of spatial dimensions. A change in sign convention $\omega \longleftrightarrow -\omega$ will be made when Fourier transform is performed in space and time together, such as in relativistic theories.
+
+\section{Periodicity in time}
+Suppose the function $f(t)$ is periodic in time domain
+\begin{equation}
+f(t+nT) = f(t), \quad \forall n\in \mathcal{N},
+\end{equation}
+where $T$ is the time period. According to the theory of Fourier series, the spectral decomposition of periodic function reduces to a Fourier series of a discrete set of frequencies. Here is a proof:
+\begin{align}
+\nonumber \tilde{f}(\omega) &= \int_{-\infty}^{+\infty} f(t) e^{-i\omega t}dt\\
+\nonumber &= \int_{-\infty}^{+\infty} f(t+T) e^{-i\omega t}dt\\
+\nonumber &= \int_{-\infty}^{+\infty} f(t) e^{-i\omega (t-T)}dt\\
+\nonumber &= e^{i\omega T}\int_{-\infty}^{+\infty} f(t) e^{-i\omega t}dt\\
+\nonumber &= e^{i\omega T}\tilde{f}(\omega).
+\end{align}
+The above condition can be satisfied only when
+\begin{equation}
+\omega T = 2\pi\times\text{Integer}\quad \text{or} \quad f(\omega)=0.
+\end{equation}
+Thus, we proved that $\tilde{f}(\omega)\neq 0$ only when the $\omega$ takes on a discrete set frequencies
+\begin{equation}
+\omega_m = \frac{2\pi m}{T}, \quad m \in \mathcal{N}.
+\end{equation}
+The above results can be generalized to higher dimensions in reciprocal space.\\
+
+Based on the above results, we can write the synthesis integral reduces to a series
+\begin{align}\label{fourierseries}
+\nonumber f(t) &= \sum_{m} \int_{\omega_m -\epsilon}^{\omega_m+ \epsilon} \tilde{f}(\omega) e^{i\omega t}\frac{d\omega}{2\pi}\\
+\nonumber &= \sum_{m} e^{i\omega_m t} \int_{\omega_m -\epsilon}^{\omega_m+ \epsilon} \tilde{f}(\omega) \frac{d\omega}{2\pi}\\
+ &\triangleq \sum_{m} \tilde{f}_m e^{i\omega_m t}
+\end{align}
+where $(\omega_m -\epsilon, \omega_m +-\epsilon)$ denotes an infinitesimal neighborhood of $\omega_m$ in frequency domain. The integral 
+\begin{equation}\label{fouriercomponents}
+\tilde{f}_m \triangleq \int_{\omega_m -\epsilon}^{\omega_m+ \epsilon} \tilde{f}(\omega)\frac{d\omega}{2\pi}
+\end{equation}
+should be finite and independent of $\epsilon$ based on intuition, such that $\tilde{f}(\omega)$ has to be a series of Dirac Delta located at the discrete set of frequencies. This can be verified by the corresponding analysis equation
+\begin{align}
+\nonumber \tilde{f}(\omega) &= \int f(t)e^{-i\omega t}dt \\
+\nonumber &= \sum_{m} \tilde{f}_m \int e^{i(\omega_m-\omega) t}dt\\
+\nonumber &= 2\pi \sum_{m} \tilde{f}_m \delta(\omega - \omega_m).
+\end{align}
+It is easy to check that the Fourier series Equation \ref{fourierseries} does possess the assumed periodicity. The Fourier coefficients can be determined by the analysis integral over one period in time
+\begin{align}
+\nonumber \int_T f(t) e^{-i\omega_m t} dt &= \sum_{m'} \tilde{f}_{m'} \int_T e^{i(\omega_m'-\omega_m) t}dt \\
+\nonumber &= \sum_{m'} \tilde{f}_{m'} T\delta_{mm'}\\
+\nonumber &= T\tilde{f}_{m}.
+\end{align}
+Thus, the Fourier transform of a periodic function takes the following form
+\begin{align}
+\tilde{f}_{m} &= \frac{1}{T}\int_T f(t) e^{-i\omega_m t} dt, \\
+f(t) &= \sum_{m} \tilde{f}_m e^{i\omega_m t}.
+\end{align}
+In summary
+$$
+\boxed{\text{Periodicity in time with period }T \Leftrightarrow \text{Discretiztion in frequency at } \omega_m = \frac{2\pi m}{T}}
+$$
+
+\section{Replication with different periods}
+Suppose $f(t)$ represents a signal localized in time such that it's vanishingly small beyond a certain extent, then we are allowed to replicate $f(t)$ along the time axis with different lengths of time period without losing much information as long as the replication period is larger than the length of the localization window. How would the resulting spectra in frequency domain compare?
+
+\section{Sampling in time}
+Sampling in continuous time produces an \textit{impulse train}
+\begin{equation}
+f(t) = \sum_{n=1}^N f_n \delta(t-t_n).
+\end{equation} 
+Note that the Dirac Delta is necessary here in order for function $f(t)$ to have a non-zero integral over time, or \textit{gain} in the language of engineers. The Fourier transform to frequency domain is
+\begin{align}
+ \tilde{f}(\omega) &= \sum_n f_n \int \delta(t-t_n)e^{-i\omega t} dt = \sum_n f_n e^{-i\omega t_n}.
+\end{align}
+If we further assume that the function in time domain is uniformly sampled, i.e. $t_n = n\Delta t$, $n\in\mathcal{N}$, the spectrum in frequency domain
+\begin{equation}\label{samplingintime}
+\tilde{f}(\omega) = \sum_n f_n e^{-i\omega n \Delta t}.
+\end{equation}
+is replicated with period $2\pi/\Delta t$
+\begin{equation}
+\tilde{f}\left(\omega + \frac{2\pi m}{\Delta t}\right) = \tilde{f}(\omega), \quad m \in \mathcal{N}.
+\end{equation}
+Equation \ref{samplingintime} can be inverted by the synthesis integral over one replication period in frequency
+\begin{align}
+\nonumber \int_{-\pi/\Delta t}^{+\pi/\Delta t} \tilde{f}(\omega)e^{i\omega n\Delta t}\frac{d\omega}{2\pi}
+&= \int_{-\pi/\Delta t}^{+\pi/\Delta t}  \sum_{n'} f_{n'} e^{i\omega (n-n') \Delta t} \frac{d\omega}{2\pi}\\
+\nonumber &=  \sum_{n'} f_{n'} \int_{-\pi/\Delta t}^{+\pi/\Delta t}  e^{i\omega (n-n') \Delta t} \frac{d\omega}{2\pi} \\
+\nonumber &=  \frac{1}{\Delta t}\sum_{n'} f_{n'} \int_{-\pi}^{+\pi}  e^{i\phi (n-n')} \frac{d\phi}{2\pi} \\
+\nonumber &=  \frac{1}{\Delta t}\sum_{n'} f_{n'} \delta_{nn'} \\
+ &=  \frac{1}{\Delta t}f_n.
+\end{align}
+Thus, the Fourier transform of a uniformly sampled function in time takes the form
+\begin{align}\label{samplingpair}
+\tilde{f}(\omega) &= \sum_n f_n e^{-i\omega n \Delta t}, \\
+f_n &= \Delta t\int_{-\pi/\Delta t}^{+\pi/\Delta t} \tilde{f}(\omega)e^{i\omega n\Delta t}\frac{d\omega}{2\pi}.
+\end{align}
+In summary
+$$
+\boxed{\text{Sampling in time at }t=n\Delta t \Leftrightarrow \text{Replication in frequency with period }  \frac{2\pi}{\Delta t}}
+$$
+ 
+\section{Sampling at different intervals}
+Discretization differs from sampling in that the time domain is a discrete. This is achieved by incorporating the time pixel $\Delta t$ into the angular frequency $\omega$ in Equation \ref{samplingpair} to form the phase change per time pixel
+\begin{align}
+\phi &\triangleq \omega \Delta t,
+\end{align}
+leaving the index $n$ alone to represent time, and
+\begin{equation}
+\tilde{f}(\phi) \triangleq \tilde{f}\left(\omega = \frac{\phi}{\Delta t}\right),
+\end{equation}
+where we are overloading the symbol $\tilde{f}$ in frequency domain and phase-change domain. The Fourier transform takes the following form
+\begin{align}
+\tilde{f}(\phi) &= \sum_n f_n e^{-i\phi n }, \\
+f_n &= \int_{-\pi}^{+\pi} \tilde{f}(\phi)e^{i\phi n}\frac{d\phi}{2\pi}.
+\end{align}
+The question then arises: how to compare the discrete Fourier transform sampled at different intervals, say $\Delta t$ and $\Delta t'$. Suppose that the total time window is $T$, sampling at two different intervals $\Delta t$ and $\Delta t'$ produces two series with different lengths
+\begin{align}
+\nonumber &\text{Sampling at } \Delta t: f_1, f_2, f_3, f_4, \cdots, f_N, \quad N = T/\Delta t,\\
+\nonumber &\text{Sampling at } \Delta t': f_{1'}, f_{2'}, f_{3'}, f_{4'}, \cdots, f_{N'}, \quad N = T/\Delta t'.
+\end{align}
+Notices that in the above two series, for a given index $n$, $f_n$ and $f_{n'}$ are not comparable because they represent different time points $n\Delta t$ and $n\Delta t'$. Similarly, in the domain of phase changes, the Fourier transforms are not directly comparable corresponding to different sampling intervals
+\begin{equation}
+\sum_{n=1}^{N} f_n e^{-i\phi n } \cancel{\sim} \sum_{n=1}^{N'} f_n e^{-i\phi n }.
+\end{equation}
+In the simplest case where $\phi=0$, the two summations involve different number terms, $\sum_{n=1}^{N} f_n \cancel{\sim} \sum_{n=1}^{N'} f_n$. This discrepancy for comparison is not surprising at all because the two impulse trains we start with
+\begin{equation}
+\sum_{n=1}^{N} f_n \delta(t-t_n) \cancel{\sim} \sum_{n=1}^{N'} f_n \delta(t-t_n)
+\end{equation}
+are totally different functions, and of course, their spectra in frequency domain are different. Because the two impulse trains are defined to approximate some smooth function to different levels of accuracies, each sampling point represent a neighbourhood with length $\Delta t$, the comparable quantities are impulse trains weighted by the length of time interval
+\begin{equation}
+\sum_{n=1}^{N} f_n \delta(t-t_n) \Delta t \sim \sum_{n=1}^{N'} f_n \delta(t-t_n) \Delta t'
+\end{equation}
+such that the integrals of the above two expressions over any finite time intervals are comparable approximations to the integral of the same smooth function. Similarly, in the frequency domain, the fair comparison is
+\begin{equation}
+\Delta t\sum_{n=1}^{N} f_n e^{-i\phi n } \sim \Delta t'\sum_{n=1}^{N'} f_n e^{-i\phi n }.
+\end{equation}
+
+
+
+%----------------------------------------------------------------------------------------
+
+\end{document}

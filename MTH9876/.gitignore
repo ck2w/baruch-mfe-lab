@@ -1,0 +1,17 @@
+run*
+*.cmake
+*.log
+*/driver/*
+*/build/*
+*/*/save/*
+CMakeLists.txt
+CMakeCache.txt
+Makefile
+CMakeFiles
+prob*csv
+test*log
+test*csv
+*.xls
+*.xlsx
+*.aux
+*.gz
