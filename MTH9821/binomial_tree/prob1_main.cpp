@@ -15,8 +15,8 @@ int main(int argc, char* argv[])
     double r = 0.03;
     double q = 0.01;
     double vol = 0.3;
-    bool isAmerican = false;
-    int N=100;
+    bool isAmerican = true;
+    int N=101;
 
     // print precision
     int p=9;

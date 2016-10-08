@@ -8,9 +8,9 @@ include_directories(${GTEST_INCLUDE_DIRS} ../ ../../options/)
  
 # Link runTests with what we want to test and the GTest and pthread library
 add_executable(runTests
-               ./binomial.t.cpp
+               ./trinomial.t.cpp
                ../../options/black_scholes.cpp
-               ../binomial.cpp)
+               ../trinomial.cpp)
 
 target_link_libraries(runTests 
                       ${GTEST_LIBRARIES} 

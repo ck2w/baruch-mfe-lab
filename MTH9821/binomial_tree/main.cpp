@@ -8,8 +8,7 @@
 #include <binomial.h>
 
 /**********************************
- *  Run variance reduction method *
- *  On binomial American options  *
+ *  Run binomial European option  *
  **********************************/
 int main(int argc, char* argv[])
 {
@@ -20,6 +19,7 @@ int main(int argc, char* argv[])
     double r = 0.03;
     double q = 0.01;
     double vol = 0.3;
+    bool isAmerican = false;
     int N=8;
 
     // print precision
@@ -27,12 +27,13 @@ int main(int argc, char* argv[])
 
     PutPayoff vanillaPut(K);
     BinomialTree b1(vanillaPut, T, S, r, q, vol);
-    double bsPrice = 3.969988406;
-    double bsDelta = -0.388621062;
-    double bsGamma = 0.032101612;
-    double bsTheta = -1.990567871;
+    OptionValue vBS = b1.BlackScholesValue();
+    double bsPrice = vBS.price;
+    double bsDelta = vBS.delta;
+    double bsGamma = vBS.gamma;
+    double bsTheta = vBS.theta;
 
-    std::cout << "Exact solution:,"
+    std::cout << "Black-Scholes:,"
               << std::fixed
               << std::setprecision(p)
               << "," << bsPrice
@@ -44,7 +45,7 @@ int main(int argc, char* argv[])
     int n=10;
     for (int k=0; k<N; k++) {
         std::cout << n << std::fixed << std::setprecision(p);
-        OptionValue v = b1.evaluateVarReduction(n);
+        OptionValue v = b1.evaluate(n,isAmerican);
         std::cout << "," << v.price
                   << "," << std::fabs(v.price-bsPrice)
                   << "," << n*std::fabs(v.price-bsPrice)
@@ -54,7 +55,7 @@ int main(int argc, char* argv[])
                   << "," << v.theta << "," << std::fabs(v.theta-bsTheta); 
 
         // Average of odd/even
-        OptionValue vNext = b1.evaluateVarReduction(n+1);
+        OptionValue vNext = b1.evaluate(n+1,isAmerican);
         double vAverage = (v.price+vNext.price)/2;
         double aveDelta = (v.delta+vNext.delta)/2;
         double aveGamma = (v.gamma+vNext.gamma)/2;
@@ -66,9 +67,8 @@ int main(int argc, char* argv[])
                   << "," << aveDelta << "," << std::fabs(aveDelta-bsDelta)
                   << "," << aveGamma << "," << std::fabs(aveGamma-bsGamma)
                   << "," << aveTheta << "," << std::fabs(aveTheta-bsTheta); 
-
         // Binomial Black-Scholes (BBS)
-        OptionValue vBBS = b1.evaluateVarReductionBBS(n);
+        OptionValue vBBS = b1.evaluateBBS(n,isAmerican);
         std::cout << "," << vBBS.price
                   << "," << std::fabs(vBBS.price-bsPrice)
                   << "," << n*std::fabs(vBBS.price-bsPrice)
@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
         // Binomial Black-Scholes 
         // with Richardson extrapolation (BBSR)
         if (n/2>0) {
-            OptionValue vBbsOld = b1.evaluateVarReductionBBS(n/2);
+            OptionValue vBbsOld = b1.evaluateBBS(n/2,isAmerican);
             double vBBSR = 2*vBBS.price-vBbsOld.price;
             double bbsrDelta = 2*vBBS.delta-vBbsOld.delta;
             double bbsrGamma = 2*vBBS.gamma-vBbsOld.gamma;
