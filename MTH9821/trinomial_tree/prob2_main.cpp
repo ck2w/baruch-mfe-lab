@@ -27,10 +27,10 @@ int main(int argc, char* argv[])
 
     PutPayoff vanillaPut(K);
     TrinomialTree b1(vanillaPut, T, S, r, q, vol);
-    double bsPrice = 3.969988406;
-    double bsDelta = -0.388621062;
-    double bsGamma = 0.032101612;
-    double bsTheta = -1.990567871;
+    double bsPrice = 3.970043924;
+    double bsDelta = -0.388620465;
+    double bsGamma = 0.032101174;
+    double bsTheta = -1.990533559;
 
     std::cout << "Exact solution:,"
               << std::fixed
