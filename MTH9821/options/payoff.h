@@ -10,6 +10,7 @@ class Payoff
 
         Payoff() {}
         virtual double operator()(double s) const=0;
+        virtual double operator()(double s1, double s2) const=0;
         virtual double strike() const=0;
 };
 
@@ -22,6 +23,11 @@ class CallPayoff : public Payoff
         virtual double operator()(double s) const
         {
             return std::max(s-d_strike, 0.0);
+        }
+        
+        virtual double operator()(double s1, double s2) const
+        {
+            return std::max(s1+s2-d_strike, 0.0);
         }
 
         virtual double strike() const
@@ -43,6 +49,11 @@ class PutPayoff : public Payoff
         virtual double operator()(double s) const
         {
             return std::max(d_strike-s, 0.0);
+        }
+        
+        virtual double operator()(double s1, double s2) const
+        {
+            return std::max(d_strike-s1-s2, 0.0);
         }
         
         virtual double strike() const

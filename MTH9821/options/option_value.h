@@ -10,6 +10,10 @@ struct OptionValue
     double delta;
     double gamma;
     double theta;
+
+    // used by Monte Carlo methods only
+    double priceStd;
+    double priceErr;
 };
 
 #endif /* OPTION_H */
