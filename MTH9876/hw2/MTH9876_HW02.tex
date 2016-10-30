@@ -1,0 +1,238 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Short Sectioned Assignment
+% LaTeX Template
+% Version 1.0 (5/5/12)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Original author:
+% Frits Wenneker (http://www.howtotex.com)
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[paper=a4, fontsize=11pt]{scrartcl} % A4 paper and 11pt font size
+
+\usepackage[T1]{fontenc} % Use 8-bit encoding that has 256 glyphs
+\usepackage{fourier} % Use the Adobe Utopia font for the document - comment this line to return to the LaTeX default
+\usepackage[english]{babel} % English language/hyphenation
+\usepackage{amsmath,amsfonts,amsthm, amssymb} % Math packages
+\usepackage{enumitem}
+\usepackage{cancel}
+\usepackage{graphicx} % Required to insert images
+\usepackage{color}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\usepackage{listings}
+\lstset{frame=tb,
+  language=Python,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true
+  tabsize=3
+}
+\usepackage{pgfplotstable}% For inserting csv table
+
+\usepackage{sectsty} % Allows customizing section commands
+\allsectionsfont{\centering \normalfont\scshape} % Make all sections centered, the default font and small caps
+
+\usepackage{fancyhdr} % Custom headers and footers
+\pagestyle{fancyplain} % Makes all pages in the document conform to the custom headers and footers
+\fancyhead{} % No page header - if you want one, create it in the same way as the footers below
+\fancyfoot[L]{} % Empty left footer
+\fancyfoot[C]{} % Empty center footer
+\fancyfoot[R]{\thepage} % Page numbering for right footer
+\renewcommand{\headrulewidth}{0pt} % Remove header underlines
+\renewcommand{\footrulewidth}{0pt} % Remove footer underlines
+\setlength{\headheight}{13.6pt} % Customize the height of the header
+
+\numberwithin{equation}{section} % Number equations within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{figure}{section} % Number figures within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{table}{section} % Number tables within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+
+\setlength\parindent{0pt} % Removes all indentation from paragraphs - comment this line for an assignment with lots of text
+
+%----------------------------------------------------------------------------------------
+%	TITLE SECTION
+%----------------------------------------------------------------------------------------
+
+\newcommand{\horrule}[1]{\rule{\linewidth}{#1}} % Create horizontal rule command with 1 argument of height
+
+\title{	
+\normalfont \normalsize 
+\textsc{Baruch, MFE} \\ [25pt] % Your university, school and/or department name(s)
+\horrule{0.5pt} \\[0.4cm] % Thin top horizontal rule
+\huge MTH 9876 Assignment Two\\  % The assignment title
+\horrule{2pt} \\[0.5cm] % Thick bottom horizontal rule
+}
+
+
+\author{Zhou, ShengQuan} % Your name
+
+\date{\normalsize\today} % Today's date or a custom date
+
+\begin{document}
+	
+
+
+\maketitle % Print the title
+
+\newpage
+
+
+
+\section{Valuation of Constant Intensity CDS}
+Consider a credit model with a constant intensity $\lambda$, and a constant discounting rate $r$. 
+Consider a new CDS starting on a roll date and maturing $T$ years
+from now ($T$ is an integer) . For simplicity, assume that the roll dates are
+equally spaced with all day count fractions equal 0.25. The recovery rate is
+assumed to be $R$.\\
+
+\subsection{Protection Leg}
+\textit{Solution}: The present value of receiving the protection $(1-R)$ at time $\tau$ is given by
+\begin{align}
+\nonumber \mathcal{V}(T) & = \mathbb{E}\left[ (1-R) e^{-\int_0^\tau r(t)dt} \mathbb{1}_{\tau\le T}\right]\\
+\nonumber &= (1-R)\int_0^T  \mathbb{E}\left[ e^{-\int_0^s r(t)dt} \mathbb{1}_{\tau\in [s,s+ds]}\right]  \\
+\nonumber &= (1-R)\int_0^T  \mathbb{E}\left[ \mathbb{E}\left[ e^{-\int_0^s r(t)dt} \mathbb{1}_{\tau\in [s,s+ds]}
+\Big| \mathcal{G}_s \right]\right]  \\
+\nonumber &= (1-R)\int_0^T  \mathbb{E}\left[ e^{-\int_0^s r(t)dt} \mathbb{E}\left[  \mathbb{1}_{\tau\in [s,s+ds]}
+\Big| \mathcal{G}_s \right]\right]  \\
+\nonumber &= (1-R)\int_0^T  \mathbb{E}\left[ e^{-\int_0^s r(t)dt} e^{-\int_0^s \lambda(t)dt}\lambda(s)ds \right]  \\
+\nonumber &= (1-R)\int_0^T  \mathbb{E}\left[ \lambda(s)e^{-\int_0^s \left(r(t)+\lambda(t)\right)dt}\right] ds.
+\end{align}
+Now set the rates and intensities to constant $r(t)=r$, $\lambda(t)=\lambda$, according to the question,
+\begin{align}
+\nonumber \mathcal{V}(T) = \lambda (1-R)\int_0^T e^{-(r+\lambda)s}ds = (1-R) \left(\frac{\lambda}{r+\lambda}\right) \left(1-e^{-(r+\lambda)T}\right).
+\end{align}
+
+\subsection{Risk Annuity}
+\textit{Solution}: The present value of \$1 paid on $T_j$ is given by
+\begin{align}
+\nonumber \mathcal{P}(0,T_j) &= \mathbb{E}\left[ e^{-\int_0^{T_j}r(s)ds}\mathbb{1}_{\tau>T_j} \right]
+= \mathbb{E}\left[ e^{-\int_0^{T_j}\left(r(s)+\lambda(s)\right)ds}\right]
+= e^{-(r+\lambda)T_j}.
+\end{align}
+Summing over all coupon payments on roll dates,
+\begin{align}
+\nonumber \sum_{j}\delta_j \mathcal{P}(0,T_j)
+= \frac{1}{4}\sum_{j=1}^{4T} e^{-\frac{(r+\lambda)}{4}j}
+= \frac{e^{-\frac{r+\lambda}{4}}}{4}\times\frac{1-e^{-(r+\lambda)T}}{1-e^{-\frac{r+\lambda}{4}}}.
+\end{align}
+The other part of risk annuity is the premium accrued from the previous payment date to the default time. Suppose the default time falls
+within the time interval $[T_{j-1},T_j]$,
+\begin{align}
+\nonumber -\int_{T_{j-1}}^{T_j} (s-T_{j-1}) P(0,s)dS(0,s)
+&= \lambda \int_{T_{j-1}}^{T_j} (s-T_{j-1}) e^{-(r+\lambda)s}ds \\
+\nonumber &=\lambda e^{-(r+\lambda)T_{j-1}}\int_{0}^{\delta_j}s e^{-(r+\lambda)s}ds\\
+\nonumber &=  e^{-(r+\lambda)T_{j-1}} \frac{\lambda}{(r+\lambda)^2}
+\left[ 1 - e^{-\frac{r+\lambda}{4}} \left( 1+\frac{r+\lambda}{4} \right) \right].
+\end{align}
+Summing over all time intervals between roll dates,
+\begin{align}
+\nonumber \sum_{j}-\int_{T_{j-1}}^{T_j} (s-T_{j-1}) P(0,s)dS(0,s)
+&= \frac{\lambda}{(r+\lambda)^2}
+\left[ 1 - e^{-\frac{r+\lambda}{4}} \left( 1+\frac{r+\lambda}{4} \right) \right]\times\sum_{j=1}^{4T} e^{-(r+\lambda)T_{j-1}}\\
+\nonumber &=\frac{\lambda}{(r+\lambda)^2}
+\left[ 1 - e^{-\frac{r+\lambda}{4}} \left( 1+\frac{r+\lambda}{4} \right) \right]\times\frac{1-e^{-(r+\lambda)T}}{1-e^{-\frac{r+\lambda}{4}}}.
+\end{align}
+Combining the two contributions to risk annuity, we get
+\begin{align}
+\nonumber \mathcal{A}(T) &=
+\frac{e^{-\frac{r+\lambda}{4}}}{4}\times\frac{1-e^{-(r+\lambda)T}}{1-e^{-\frac{r+\lambda}{4}}}
++ \frac{\lambda}{(r+\lambda)^2}
+\left[ 1 - e^{-\frac{r+\lambda}{4}} \left( 1+\frac{r+\lambda}{4} \right) \right]\times\frac{1-e^{-(r+\lambda)T}}{1-e^{-\frac{r+\lambda}{4}}}\\
+\nonumber &= \left\{ \frac{1}{4}e^{-\frac{r+\lambda}{4}} + \frac{\lambda}{(r+\lambda)^2}
+\left[ 1 - e^{-\frac{r+\lambda}{4}} \left( 1+\frac{r+\lambda}{4} \right) \right]\right\}\times\frac{1-e^{-(r+\lambda)T}}{1-e^{-\frac{r+\lambda}{4}}}.
+\end{align}\\
+
+\subsection{Par Spread}
+\textit{Solution}: The par credit spread
+$$
+C_0 = \frac{\mathcal{V}(T)}{\mathcal{A}(T)} = (1-R)\left(\frac{\lambda}{r+\lambda}\right)\left(1-e^{-\frac{r+\lambda}{4}}\right)\left\{ \frac{1}{4}e^{-\frac{r+\lambda}{4}} + \frac{\lambda}{(r+\lambda)^2}
+\left[ 1 - e^{-\frac{r+\lambda}{4}} \left( 1+\frac{r+\lambda}{4} \right) \right]\right\}^{-1}.
+$$
+This expression reduces to the credit triangle $C_0 \approx (1-R)\lambda$ when $\lambda\ll 1$ and $r\ll 1$.
+
+\newpage
+\section{Valuation of Stochastic Intensity CDS}
+Repeat Problem 1 assuming a constant discounting rate $r$ and the stochastic
+intensity $\lambda(t)$
+$$
+d\lambda(t) = \theta dt +\sigma dW(t),
+$$
+with constant $\theta$ and $\lambda(t=0)=\lambda_0$.\\
+\textit{Solution}: From Homework Assignment \#1, we have $ \lambda(t) = \lambda_0+ \theta t + \sigma W(t)$, 
+\begin{align}
+\nonumber \int_0^t \lambda(s)ds = \lambda_0 t + \frac{1}{2}\theta t^2 + \sigma\int_0^t W(s)ds
+\sim N\left(\lambda_0 t + \frac{1}{2}\theta t^2, \frac{1}{3}\sigma^2 t^3\right),
+\end{align}
+and the survival probability
+$$
+S(0,t) = \mathbb{E}\left[e^{-\int_0^t \lambda(s)ds}\right] = e^{- \lambda_0 t - \frac{1}{2}\theta t^2 +\frac{1}{6}\sigma^2 t^3 }.
+$$
+\subsection{Protection Leg}
+The present value of receiving the protection $(1-R)$ at time $\tau$ is given by
+\begin{align*}
+\mathcal{V}(T)  &= (1-R)\int_0^T  \mathbb{E}\left[ \lambda(s)e^{-\int_0^s \left(r(t)+\lambda(t)\right)dt}\right] ds \\
+&= (1-R)\int_0^T e^{-rs} \mathbb{E}\left[ \lambda(s)e^{-\int_0^s \lambda(t)dt}\right] ds \\
+&= -(1-R)\int_0^T e^{-rs} d\mathbb{E}\left[e^{-\int_0^s \lambda(t)dt}\right] \\
+&= -(1-R)\int_0^T e^{-rs} d S(0,s) \\
+&= (1-R)\left[ 1-e^{-rT}S(0,T) - r\int_0^T S(0,s)e^{-rs}ds \right]\\
+&= (1-R)\left[ 1-e^{-( r+\lambda_0) T - \frac{1}{2}\theta T^2 +\frac{1}{6}\sigma^2 T^3 } - r\int_0^T e^{ -(r+\lambda_0) s - \frac{1}{2}\theta s^2 +\frac{1}{6}\sigma^2 s^3}ds \right]\\
+\end{align*}
+
+\subsection{Risk Annuity}
+The present value of \$1 paid on $T_j$ is given by
+\begin{align}
+\nonumber \mathcal{P}(0,T_j) &=  \mathbb{E}\left[ e^{-\int_0^{T_j}\left(r(s)+\lambda(s)\right)ds}\right]
+= e^{-rT_j}\mathbb{E}\left[ e^{-\int_0^{T_j}\lambda(s)ds}\right] = e^{- (r+\lambda_0 )T_j - \frac{1}{2}\theta T_j^2 +\frac{1}{6}\sigma^2 T_j^3 }
+\end{align}
+Summing over all coupon payments on roll dates,
+\begin{align}
+\nonumber \sum_{j}\delta_j \mathcal{P}(0,T_j)
+= \frac{1}{4}\sum_{j=1}^{4T} e^{- \frac{1}{4}(r+\lambda_0)
+j - \frac{1}{32}\theta j^2 +\frac{1}{384}\sigma^2 j^3 }.
+\end{align}
+The premium accrued from the previous payment date to the default time within the time interval $[T_{j-1},T_j]$,
+\begin{align}
+\nonumber -\int_{T_{j-1}}^{T_j} (s-T_{j-1}) P(0,s)dS(0,s)
+&= \int_{T_{j-1}}^{T_j} \left(s-T_{j-1}\right) \left(\lambda_0 + \theta s -\frac{1}{2}\sigma^2 s^2\right) e^{-(r+\lambda_0)s - \frac{1}{2}\theta s^2 + \frac{1}{6}\sigma^2 s^3} ds\\
+\nonumber &= \int_{\frac{j-1}{4}}^{\frac{j}{4}} \left(s-\frac{j-1}{4}\right) \left(\lambda_0 + \theta s -\frac{1}{2}\sigma^2 s^2\right) e^{-(r+\lambda_0)s - \frac{1}{2}\theta s^2 + \frac{1}{6}\sigma^2 s^3} ds
+\end{align}
+Summing over all time intervals between roll dates,
+\begin{align}
+\nonumber \sum_{j}-\int_{T_{j-1}}^{T_j} (s-T_{j-1}) P(0,s)dS(0,s)
+&= \sum_{j=1}^{4T} \int_{\frac{j-1}{4}}^{\frac{j}{4}} \left(s-\frac{j-1}{4}\right) \left(\lambda_0 + \theta s -\frac{1}{2}\sigma^2 s^2\right) e^{-(r+\lambda_0)s - \frac{1}{2}\theta s^2 + \frac{1}{6}\sigma^2 s^3} ds.
+\end{align}
+Combining the two contributions to risk annuity, we get
+\begin{align}
+\nonumber \mathcal{A}(T) &= \sum_{j=1}^{4T} \left[\frac{1}{4}e^{- \frac{1}{4}(r+\lambda_0)
+j - \frac{1}{32}\theta j^2 +\frac{1}{384}\sigma^2 j^3 } + \int_{\frac{j-1}{4}}^{\frac{j}{4}} \left(s-\frac{j-1}{4}\right) \left(\lambda_0 + \theta s -\frac{1}{2}\sigma^2 s^2\right) e^{-(r+\lambda_0)s - \frac{1}{2}\theta s^2 + \frac{1}{6}\sigma^2 s^3} ds\right].
+\end{align}
+
+
+\subsection{Par Spread}
+By definition, the par credit spread is given by
+$$
+C_0 = \frac{\mathcal{V}(T)}{\mathcal{A}(T)} = \frac{(1-R)\left[ 1-e^{-( r+\lambda_0) T - \frac{1}{2}\theta T^2 +\frac{1}{6}\sigma^2 T^3 } - r\int_0^T e^{ -(r+\lambda_0) s - \frac{1}{2}\theta s^2 +\frac{1}{6}\sigma^2 s^3}ds \right]}{\sum_{j=1}^{4T} \left[\frac{1}{4}e^{- \frac{1}{4}(r+\lambda_0)
+j - \frac{1}{32}\theta j^2 +\frac{1}{384}\sigma^2 j^3 } + \int_{\frac{j-1}{4}}^{\frac{j}{4}} \left(s-\frac{j-1}{4}\right) \left(\lambda_0 + \theta s -\frac{1}{2}\sigma^2 s^2\right) e^{-(r+\lambda_0)s - \frac{1}{2}\theta s^2 + \frac{1}{6}\sigma^2 s^3} ds\right]}.
+$$
+
+\end{document}
