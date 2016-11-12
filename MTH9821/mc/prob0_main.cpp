@@ -21,8 +21,8 @@ int main(int argc, char* argv[])
     // print precision
     int p=9;
 
-    PutPayoff vanillaPut(K);
-    MonteCarlo mc(vanillaPut, T, S, r, q, vol, &normal);
+    PutPayoff vanilla(K);
+    MonteCarlo mc(vanilla, T, S, r, q, vol, &bmnormal);
     double vBS = mc.BlackScholesValue().price;
 
     std::cout << "N,V,|V-vBS|,Std,Err,vBS" << std::endl;

@@ -39,7 +39,7 @@ double norminv(double u)
         }
         r = std::log(-std::log(r));
         x = c0+r*(c1+r*(c2+r*(c3+r*(c4+r*(c5+r*(c6+r*(c7+r*c8)))))));
-        if (y>0) {
+        if (y<0) {
             x = -x;
         }
     }

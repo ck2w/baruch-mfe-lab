@@ -1,6 +1,7 @@
 #include <ran.h>
 #include <norminv.h>
 #include <iostream>
+#include <iomanip>
 #include <cmath>
 #include <random>
 
@@ -40,13 +41,14 @@ double ran(int* idum)
     */
 }
 
-double normal(int* idum)
+double normal(int* idum, int* count)
 {
     double u = ran(idum);
+    (*count)++;
     return norminv(u);
 }
 
-double arnormal(int* idum)
+double arnormal(int* idum, int* count)
 {
     double u1=0;
     double u2=0;
@@ -58,6 +60,7 @@ double arnormal(int* idum)
         u2 = ran(idum);
         u3 = ran(idum);
         x = -std::log(u1);
+        (*count) += 3;
     } while ( u2 > std::exp(-0.5*(x-1)*(x-1)) );
 
     if ( u3 <= 0.5 ) {
@@ -67,7 +70,7 @@ double arnormal(int* idum)
     return x;
 }
 
-double bmnormal(int* idum)
+double bmnormal(int* idum, int* count)
 {
     static bool z2Available = false;
     static double z1 = 0;
@@ -85,9 +88,13 @@ double bmnormal(int* idum)
         do {
             u1 = ran(idum);
             u2 = ran(idum);
+            std::cout << std::setprecision(16) 
+                      << u1 << "," << u2 << ",";
             u1 = 2*u1-1;
             u2 = 2*u2-1;
             x = u1*u1+u2*u2;
+            (*count) += 2;
+            std::cout << ((x>1) ? 0 : 1) << std::endl;
         } while ( x>1 );
 
         double y = std::sqrt(-2*std::log(x)/x);

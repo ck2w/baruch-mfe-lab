@@ -18,7 +18,7 @@ class MonteCarlo
                     double rate,
                     double div,
                     double vol,
-                    double (*ran)(int*) );
+                    double (*ran)(int*, int*) );
         
         MonteCarlo( const Payoff & payoff,
                     double expiry,
@@ -27,7 +27,7 @@ class MonteCarlo
                     double div1, double div2,
                     double vol1, double vol2,
                     double rho,
-                    double (*ran)(int*) );
+                    double (*ran)(int*, int*) );
 
         OptionValue BlackScholesValue() const;
         OptionValue evaluate(int N, 
@@ -57,7 +57,7 @@ class MonteCarlo
         double d_vol2;
         double d_rho;
         // random number generator
-        double (*d_ran)(int*);
+        double (*d_ran)(int*, int*);
          // applicable when Black-Scholes
         double d_strike;
         OptionValue d_BlackScholes;

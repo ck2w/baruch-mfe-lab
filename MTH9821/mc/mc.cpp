@@ -14,15 +14,21 @@ double MonteCarlo::GetMeanEstimate(int N)
 {
     double S=0.0;
     int idum=1;
+    int count=0;
+    int sampleCount=0;
     for (int k=0; k<N; k++) {
-        double z = (*d_ran)(&idum);
+        double z = (*d_ran)(&idum, &count);
         double trend = (d_rate-d_div-0.5*d_vol*d_vol)*d_expiry;
         double random = d_vol*std::sqrt(d_expiry)*z;
         double s = d_spot*std::exp(trend+random);
         S += s;
+
+        sampleCount++;
+
+        //if (count == N) break;
     }
 
-    return S/N;
+    return S/sampleCount;
 }
 
 double MonteCarlo::GetBetaEstimate(int N, bool momentMatching)
@@ -34,8 +40,10 @@ double MonteCarlo::GetBetaEstimate(int N, bool momentMatching)
     double SV=0.0;
     double S2=0.0;
     int idum=1;
+    int count=0;
+    int sampleCount=0;
     for (int k=0; k<N; k++) {
-        double z = (*d_ran)(&idum);
+        double z = (*d_ran)(&idum, &count);
         double trend = (d_rate-d_div-0.5*d_vol*d_vol)*d_expiry;
         double random = d_vol*std::sqrt(d_expiry)*z;
 
@@ -48,6 +56,10 @@ double MonteCarlo::GetBetaEstimate(int N, bool momentMatching)
         SV += s*v;
         S2 += s*s;
         V += v;
+
+        sampleCount++;
+
+        //if (count == N) break;
     }
 
     double sExpectation=mean;
@@ -55,7 +67,7 @@ double MonteCarlo::GetBetaEstimate(int N, bool momentMatching)
         sExpectation = d_spot*std::exp(d_rate*d_expiry);
     }
     double numerator = SV - V*sExpectation;
-    double denominator = S2 - N*sExpectation*sExpectation;
+    double denominator = S2 - sampleCount*sExpectation*sExpectation;
     return numerator/denominator;
 }
 
@@ -65,7 +77,7 @@ MonteCarlo::MonteCarlo( const Payoff & payoff,
                         double rate,
                         double div,
                         double vol,
-                        double (*ran)(int*) )
+                        double (*ran)(int*, int*) )
                       : d_payoff(&payoff),
                         d_expiry(expiry),
                         d_spot(spot),
@@ -95,7 +107,7 @@ MonteCarlo::MonteCarlo( const Payoff & payoff,
                         double div1, double div2,
                         double vol1, double vol2,
                         double rho,
-                        double (*ran)(int*) )
+                        double (*ran)(int*, int*) )
                       : d_payoff(&payoff),
                         d_expiry(expiry),
                         d_spot(spot1),
@@ -132,10 +144,12 @@ OptionValue MonteCarlo::evaluate(int N,
     }
 
     int idum=1;
+    int count=0;
+    int sampleCount=0;
     double V = 0.0;
     double Var = 0.0;
     for (int k=0; k<N; k++) {
-        double z = (*d_ran)(&idum);
+        double z = (*d_ran)(&idum, &count);
         double trend = (d_rate-d_div-0.5*d_vol*d_vol)*d_expiry;
         double random = d_vol*std::sqrt(d_expiry)*z;
 
@@ -159,16 +173,20 @@ OptionValue MonteCarlo::evaluate(int N,
 
         V += v;
         Var += v*v;
+
+        sampleCount++;
+
+        //if (count == N ) break;
     }
 
-    V /= N;
-    Var /= (N-1);
-    Var -= N*V*V/(N-1);
+    V /= sampleCount;
+    Var /= (sampleCount-1);
+    Var -= N*V*V/(sampleCount-1);
 
     OptionValue optionValue;
     optionValue.price = V;
     optionValue.priceStd = std::sqrt(Var);
-    optionValue.priceErr = optionValue.priceStd/std::sqrt(N);
+    optionValue.priceErr = optionValue.priceStd/std::sqrt(sampleCount);
     return optionValue;
 }
 
@@ -198,11 +216,12 @@ OptionValue MonteCarlo::evaluateBasket(int N)
     double rho2 = std::sqrt(1-d_rho*d_rho);
     
     int idum=1;
+    int count=0;
     double V = 0.0;
     double Var = 0.0;
     for (int k=0; k<N; k++) {
-        double z1 = (*d_ran)(&idum);
-        double z2 = d_rho*z1 + rho2*(*d_ran)(&idum);
+        double z1 = (*d_ran)(&idum, &count);
+        double z2 = d_rho*z1 + rho2*(*d_ran)(&idum, &count);
         double trend1 = (d_rate-d_div-0.5*d_vol*d_vol)*d_expiry;
         double trend2 = (d_rate-d_div2-0.5*d_vol2*d_vol2)*d_expiry;
         double random1 = d_vol*std::sqrt(d_expiry)*z1;
@@ -234,6 +253,7 @@ OptionValue MonteCarlo::evaluatePathDependentBasket(int N, int M)
     double dt = d_expiry/M;
     
     int idum=1;
+    int count=0;
     double V = 0.0;
     double Var = 0.0;
     for (int k=0; k<N; k++) {
@@ -241,8 +261,8 @@ OptionValue MonteCarlo::evaluatePathDependentBasket(int N, int M)
         double s2 = d_spot2;
         double minS1S2 = s1+s2;
         for (int j=0; j<M; j++) {
-            double z1 = (*d_ran)(&idum);
-            double z2 = d_rho*z1 + rho2*(*d_ran)(&idum);
+            double z1 = (*d_ran)(&idum, &count);
+            double z2 = d_rho*z1 + rho2*(*d_ran)(&idum, &count);
             double trend1 = (d_rate-d_div-0.5*d_vol*d_vol)*dt;
             double trend2 = (d_rate-d_div2-0.5*d_vol2*d_vol2)*dt;
             double random1 = d_vol*std::sqrt(dt)*z1;

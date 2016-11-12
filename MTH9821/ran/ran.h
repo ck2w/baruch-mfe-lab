@@ -13,14 +13,14 @@ double ran(int* idum);
 
 // Inverse Transform Method
 // for standard normal variable
-double normal(int* idum);
+double normal(int* idum, int* count);
 
 // Acceptance-Rejection Method
 // for standard normal variable
-double arnormal(int* idum);
+double arnormal(int* idum, int* count);
 
 // Box-Muller Method
 // for standard normal variable
-double bmnormal(int* idum);
+double bmnormal(int* idum, int* count);
 
 #endif /* RAN_H */
