@@ -47,9 +47,7 @@ void BackwardEulerUpdater::update( const std::vector<double> & uOld,
 
     // Construct b-vector
     Eigen::VectorXd b = Eigen::VectorXd::Zero(N-1);
-    for (int i=0; i<N-1; i++) {
-        b(i) = uOld[i+1];
-    }
+    for (int i=0; i<N-1; i++) { b(i) = uOld[i+1]; }
 
     b(0) += c*(*uNew)[0];
     b(N-2) += c*(*uNew)[N];
@@ -58,9 +56,7 @@ void BackwardEulerUpdater::update( const std::vector<double> & uOld,
     Eigen::VectorXd y = forward_subst(d_L, b);
     Eigen::VectorXd x = backward_subst(d_U, y);
     
-    for (int i=0; i<N-1; i++) {
-        (*uNew)[i+1] = x(i);
-    }
+    for (int i=0; i<N-1; i++) { (*uNew)[i+1] = x(i); }
 }
 
 void BackwardEulerSorUpdater::config( double c, int N )
@@ -83,20 +79,19 @@ void BackwardEulerSorUpdater::update( const std::vector<double> & uOld,
 
     // Construct b-vector
     Eigen::VectorXd b = Eigen::VectorXd::Zero(N-1);
-    for (int i=0; i<N-1; i++) {
-        b(i) = uOld[i+1];
-    }
-
+    for (int i=0; i<N-1; i++) { b(i) = uOld[i+1]; }
     b(0) += c*(*uNew)[0];
     b(N-2) += c*(*uNew)[N];
 
+    // Use the state vector at the previous time step as initial estimate
+    Eigen::VectorXd x0 = Eigen::VectorXd::Zero(N-1);
+    for (int i=0; i<N-1; i++) { x0(i) = uOld[i+1]; }
+
     // update 
-    std::tuple<Eigen::VectorXd, int> res = sor(d_omega, d_A, b, d_tol);
+    std::tuple<Eigen::VectorXd, int> res = sor(d_omega, d_A, b, d_tol, x0);
     Eigen::VectorXd x = std::get<0>(res);
     
-    for (int i=0; i<N-1; i++) {
-        (*uNew)[i+1] = x(i);
-    }
+    for (int i=0; i<N-1; i++) { (*uNew)[i+1] = x(i); }
 }
 
 void CrankNicolsonUpdater::config( double c, int N )
@@ -131,9 +126,7 @@ void CrankNicolsonUpdater::update( const std::vector<double> & uOld,
 
     // uOld restricted in the interior region
     Eigen::VectorXd u = Eigen::VectorXd::Zero(N-1);
-    for (int i=0; i<N-1; i++) {
-        u(i) = uOld[i+1];
-    }
+    for (int i=0; i<N-1; i++) { u(i) = uOld[i+1]; }
 
     // Construct b-vector
     Eigen::VectorXd b = d_B*u;
@@ -145,9 +138,7 @@ void CrankNicolsonUpdater::update( const std::vector<double> & uOld,
     Eigen::VectorXd y = forward_subst(d_L, b);
     Eigen::VectorXd x = backward_subst(d_U, y);
     
-    for (int i=0; i<N-1; i++) {
-        (*uNew)[i+1] = x(i);
-    }
+    for (int i=0; i<N-1; i++) { (*uNew)[i+1] = x(i); }
 }
 
 void CrankNicolsonSorUpdater::config( double c, int N )
@@ -178,9 +169,7 @@ void CrankNicolsonSorUpdater::update( const std::vector<double> & uOld,
 
     // uOld restricted in the interior region
     Eigen::VectorXd u = Eigen::VectorXd::Zero(N-1);
-    for (int i=0; i<N-1; i++) {
-        u(i) = uOld[i+1];
-    }
+    for (int i=0; i<N-1; i++) { u(i) = uOld[i+1]; }
 
     // Construct b-vector
     Eigen::VectorXd b = d_B*u;
@@ -188,11 +177,13 @@ void CrankNicolsonSorUpdater::update( const std::vector<double> & uOld,
     b(0) += 0.5*c*((*uNew)[0]+uOld[0]);
     b(N-2) += 0.5*c*((*uNew)[N]+uOld[N]);
     
+    // Use the state vector at the previous time step as initial estimate
+    Eigen::VectorXd x0 = Eigen::VectorXd::Zero(N-1);
+    for (int i=0; i<N-1; i++) { x0(i) = uOld[i+1]; }
+    
     // update 
-    std::tuple<Eigen::VectorXd, int> res = sor(d_omega, d_A, b, d_tol);
+    std::tuple<Eigen::VectorXd, int> res = sor(d_omega, d_A, b, d_tol, x0);
     Eigen::VectorXd x = std::get<0>(res);
     
-    for (int i=0; i<N-1; i++) {
-        (*uNew)[i+1] = x(i);
-    }
+    for (int i=0; i<N-1; i++) { (*uNew)[i+1] = x(i); }
 }
