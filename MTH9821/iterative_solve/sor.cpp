@@ -6,7 +6,8 @@
 std::tuple<Eigen::VectorXd, int> sor(double omega,
                                      const Eigen::MatrixXd & A, 
                                      const Eigen::VectorXd & b,
-                                     double tol)
+                                     double tol,
+                                     const Eigen::VectorXd & x0)
 {
     assert(omega>0);
     assert(omega<2);
@@ -24,14 +25,16 @@ std::tuple<Eigen::VectorXd, int> sor(double omega,
     N.triangularView<Eigen::StrictlyLower>().setZero();
     N -= (w*d).asDiagonal();
 
-    Eigen::VectorXd x0 = Eigen::VectorXd::Zero(n);
-    return linear_iterate_triangular(x0,M,N,b,tol);
+    Eigen::VectorXd y0 = x0;
+    if (y0.size() == 0) { y0 = Eigen::VectorXd::Zero(n); }
+    return linear_iterate_triangular(y0,M,N,b,tol);
 }
 
 std::tuple<Eigen::VectorXd, int> sor(double omega,
                                      const Eigen::ArrayXXd & A, int m, 
                                      const Eigen::VectorXd & b, 
-                                     double tol)
+                                     double tol,
+                                     const Eigen::VectorXd & x0)
 {
     assert(omega>0);
     assert(omega<2);
@@ -48,20 +51,23 @@ std::tuple<Eigen::VectorXd, int> sor(double omega,
     Eigen::ArrayXXd N = A.block(0,m,nrow,ncol-m);
     N.col(0) -= w*d;
     
-    Eigen::VectorXd x0 = Eigen::VectorXd::Zero(nrow);
-    return linear_iterate_triangular_banded(x0,M,N,b,m,tol);
+    Eigen::VectorXd y0 = x0;
+    if (y0.size() == 0) { y0 = Eigen::VectorXd::Zero(nrow); }
+    return linear_iterate_triangular_banded(y0,M,N,b,m,tol);
 }
 
 std::tuple<Eigen::VectorXd, int> gs(const Eigen::MatrixXd & A, 
                                     const Eigen::VectorXd & b,
-                                    double tol)
+                                    double tol,
+                                    const Eigen::VectorXd & x0)
 {
-    return sor(1,A,b,tol);
+    return sor(1,A,b,tol,x0);
 }
 
 std::tuple<Eigen::VectorXd, int> gs(const Eigen::ArrayXXd & A, int m,
                                     const Eigen::VectorXd & b,
-                                    double tol)
+                                    double tol,
+                                    const Eigen::VectorXd & x0)
 {
-    return sor(1,A,m,b,tol);
+    return sor(1,A,m,b,tol,x0);
 }

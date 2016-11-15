@@ -13,19 +13,27 @@
 std::tuple<Eigen::VectorXd, int> sor(double omega,
                                      const Eigen::MatrixXd & A, 
                                      const Eigen::VectorXd & b,
-                                     double tol);
+                                     double tol,
+                                     const Eigen::VectorXd & x0
+                                          = Eigen::VectorXd::Zero(0));
 
 std::tuple<Eigen::VectorXd, int> sor(double omega,
                                      const Eigen::ArrayXXd & A, int m, 
                                      const Eigen::VectorXd & b, 
-                                     double tol);
+                                     double tol,
+                                     const Eigen::VectorXd & x0
+                                          = Eigen::VectorXd::Zero(0));
 
 std::tuple<Eigen::VectorXd, int> gs(const Eigen::MatrixXd & A, 
                                     const Eigen::VectorXd & b,
-                                    double tol);
+                                    double tol,
+                                    const Eigen::VectorXd & x0
+                                          = Eigen::VectorXd::Zero(0));
 
 std::tuple<Eigen::VectorXd, int> gs(const Eigen::ArrayXXd & A, int m,
                                     const Eigen::VectorXd & b,
-                                    double tol);
+                                    double tol,
+                                    const Eigen::VectorXd & x0
+                                          = Eigen::VectorXd::Zero(0));
 
 #endif /* SOR_H */
