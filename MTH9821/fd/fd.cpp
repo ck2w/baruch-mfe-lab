@@ -103,10 +103,6 @@ void FiniteDifference::evaluate( int M, double alphaTemp,
     double uj = u[spotIndex+1];
     double vi = std::exp(-a*xi-b*d_tf)*ui;
     double vj = std::exp(-a*xj-b*d_tf)*uj;
-    //std::cout << "xi = " << xi << ", xj = " << xj << std::endl; 
-    //std::cout << "si = " << si << ", sj = " << sj << std::endl; 
-    //std::cout << "ui = " << ui << ", uj = " << uj << std::endl; 
-    //std::cout << "vi = " << vi << ", vj = " << vj << std::endl; 
 
     // Approximation I: interpolation of v
     double vApproximate1 = ((sj-d_spot)*vi + (d_spot-si)*vj)/(sj-si);
@@ -117,9 +113,6 @@ void FiniteDifference::evaluate( int M, double alphaTemp,
 
     // Point-wise Error
     double bsPrice = d_BlackScholes.price;
-    //double bsDelta = d_BlackScholes.delta;
-    //double bsGamma = d_BlackScholes.gamma;
-    //double bsTheta = d_BlackScholes.theta;
     double error1 = std::fabs(vApproximate1-bsPrice);
     double error2 = std::fabs(vApproximate2-bsPrice);
 
@@ -182,9 +175,9 @@ void FiniteDifference::evaluate( int M, double alphaTemp,
               << error1 << ",,"
               << error2 << ",,"
               << error3 << ",,"
-              << delta << "," //<< bsDelta << ","
-              << gamma << "," //<< bsGamma << ","
-              << theta << "," //<< bsTheta
+              << delta << ","
+              << gamma << ","
+              << theta << ","
               << std::endl;
-    
 } 
+
