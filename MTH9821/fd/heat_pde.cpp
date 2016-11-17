@@ -1,8 +1,32 @@
-#include <fd.h>
+#include <heat_pde.h>
 #include <updater.h>
+#include <evaluator.h>
 #include <cassert>
 #include <iostream>
 #include <iomanip>
+
+HeatPDE::HeatPDE( double xl,
+                  double xr,
+                  double tf,
+                  double (*f)(double),
+                  double (*gl)(double),
+                  double (*gr)(double) )
+                : d_xl(xl), d_xr(xr), d_tf(tf)
+{
+    d_f = new FunctionEvaluator(f);
+    d_gl = new FunctionEvaluator(gl);
+    d_gr = new FunctionEvaluator(gr);
+}
+
+HeatPDE::HeatPDE( double xl,
+                  double xr,
+                  double tf,
+                  const Evaluator & f,
+                  const Evaluator & gl,
+                  const Evaluator & gr )
+                : d_xl(xl), d_xr(xr), d_tf(tf),
+                  d_f(&f), d_gl(&gl), d_gr(&gr)
+{}
 
 void HeatPDE::print(double t, const std::vector<double> & u, int step)
 {
@@ -34,7 +58,7 @@ void HeatPDE::fdSolve( int M, int N, std::vector<double>* u, Updater* up,
     // initial condition
     for (int n=0; n<N+1; n++) {
         double x = d_xl + n*dx;
-        (*u)[n] = d_f(x);
+        (*u)[n] = (*d_f)(x);
     }
 
     if (doPrint) { print(0, *u, dN); }
@@ -42,8 +66,8 @@ void HeatPDE::fdSolve( int M, int N, std::vector<double>* u, Updater* up,
     for (int m=0; m<M; m++) {
         // boundary conditions
         double t = (m+1)*dt;
-        uNew[0] = d_gl(t);
-        uNew[N] = d_gr(t);
+        uNew[0] = (*d_gl)(t);
+        uNew[N] = (*d_gr)(t);
 
         // time evolution
         up->update((*u), &uNew);

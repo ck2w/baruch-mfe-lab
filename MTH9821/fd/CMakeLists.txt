@@ -24,5 +24,5 @@ add_executable(runFD
                ../cholesky/cholesky.cpp
                ./main.cpp
                ./updater.cpp
-               ./fd.cpp)
+               ./heat_pde.cpp)
 

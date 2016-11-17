@@ -1,9 +1,10 @@
-#ifndef FD_H
-#define FD_H 
+#ifndef HEAT_PDE_H
+#define HEAT_PDE_H 
 #include <vector>
 #include <Eigen/Dense>
 #include <tuple>
 #include <updater.h>
+#include <evaluator.h>
 
 /********************************************
  *  Finite Different Method: Heat Equation  *
@@ -30,10 +31,14 @@ class HeatPDE
                  double tf,
                  double (*f)(double),
                  double (*gl)(double),
-                 double (*gr)(double) )
-               : d_xl(xl), d_xr(xr), d_tf(tf),
-                 d_f(f), d_gl(gl), d_gr(gr)
-        {}
+                 double (*gr)(double) );
+        
+        HeatPDE( double xl,
+                 double xr,
+                 double tf,
+                 const Evaluator & f,
+                 const Evaluator & gl,
+                 const Evaluator & gf );
 
         void fdSolveForwardEuler(int M, int N, 
                                  std::vector<double>* u,
@@ -57,9 +62,9 @@ class HeatPDE
         double d_xr;
         double d_tf;
 
-        double (*d_f)(double);
-        double (*d_gl)(double);
-        double (*d_gr)(double);
+        const Evaluator * d_f;
+        const Evaluator * d_gl;
+        const Evaluator * d_gr;
 
         void print(double t, const std::vector<double> & u, int step);
 
@@ -68,4 +73,4 @@ class HeatPDE
 };
 
 
-#endif /* FD_H */
+#endif /* HEAT_PDE_H */

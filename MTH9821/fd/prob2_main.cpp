@@ -5,7 +5,7 @@
 #include <cmath>
 #include <cassert>
 #include <utility>
-#include <fd.h>
+#include <heat_pde.h>
 
 double f(double x) 
 {
