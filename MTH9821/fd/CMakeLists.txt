@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 2.6)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wno-long-long -Wno-deprecated -pedantic")
 
 include_directories(./ 
+                    ../options/
                     ../lu/
                     ../cholesky 
                     ../band_op/
@@ -13,6 +14,7 @@ include_directories(./
  
 # Link runTests with what we want to test and the GTest and pthread library
 add_executable(runFD
+               ../options/black_scholes.cpp
                ../lu/lu.cpp
                ../band_op/band_mult.cpp
                ../band_op/band_add.cpp
@@ -24,5 +26,6 @@ add_executable(runFD
                ../cholesky/cholesky.cpp
                ./main.cpp
                ./updater.cpp
-               ./heat_pde.cpp)
+               ./heat_pde.cpp
+               ./fd.cpp)
 

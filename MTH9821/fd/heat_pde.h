@@ -26,6 +26,8 @@ class HeatPDE
 {
     public:
 
+        HeatPDE() {}
+
         HeatPDE( double xl,
                  double xr,
                  double tf,
@@ -56,6 +58,11 @@ class HeatPDE
                                        std::vector<double>* u,
                                        int dM=0, int dN=0);
 
+        const std::vector<double> & getPrevSolution() const
+        {
+            return d_uOld;
+        }
+
     private:
 
         double d_xl;
@@ -65,6 +72,8 @@ class HeatPDE
         const Evaluator * d_f;
         const Evaluator * d_gl;
         const Evaluator * d_gr;
+
+        std::vector<double> d_uOld;
 
         void print(double t, const std::vector<double> & u, int step);
 

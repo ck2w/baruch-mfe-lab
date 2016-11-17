@@ -31,7 +31,7 @@ HeatPDE::HeatPDE( double xl,
 void HeatPDE::print(double t, const std::vector<double> & u, int step)
 {
     int uLen = u.size();
-    std::cout << std::setprecision(9) << t;
+    std::cout << std::fixed << std::setprecision(9) << t;
     for (int n=0; n<uLen; n++) {
         if ( n%step == 0 ) {
             std::cout << "," << u[n];
@@ -59,9 +59,14 @@ void HeatPDE::fdSolve( int M, int N, std::vector<double>* u, Updater* up,
     for (int n=0; n<N+1; n++) {
         double x = d_xl + n*dx;
         (*u)[n] = (*d_f)(x);
+        // print x-coordinates
+        if (doPrint && n%dN == 0) { std::cout << "," << x; }
     }
 
-    if (doPrint) { print(0, *u, dN); }
+    if (doPrint) { 
+        std::cout << std::endl;
+        print(0, *u, dN); 
+    }
 
     for (int m=0; m<M; m++) {
         // boundary conditions
@@ -72,12 +77,13 @@ void HeatPDE::fdSolve( int M, int N, std::vector<double>* u, Updater* up,
         // time evolution
         up->update((*u), &uNew);
 
-        // write back
+        // store the solution at T-dt
+        if ( m == M-1 ) { d_uOld = (*u); }
+        // write back to output
         for (int n=0; n<=N; n++) { (*u)[n] = uNew[n]; }
     
         if ( doPrint && m%dM == 0 ) { print(t, *u, dN); }
     }
-
 }
         
 void HeatPDE::fdSolveForwardEuler(int M, int N, 
