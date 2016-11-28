@@ -1,6 +1,5 @@
 #include <fd.h>
 #include <evaluator.h>
-#include <payoff.h>
 #include <option_value.h>
 #include <black_scholes.h>
 #include <heat_pde.h>
@@ -12,25 +11,33 @@
 #include <iomanip>
 #include <cassert>
 
-FiniteDifference::FiniteDifference( const Payoff & payoff, 
-                                    double expiry,
+FiniteDifference::FiniteDifference( double expiry,
                                     double spot,
+                                    double strike,
                                     double rate,
                                     double div,
-                                    double vol )
-                                  : d_payoff(&payoff),
-                                    d_expiry(expiry),
+                                    double vol,
+                                    const Evaluator & terminalCondition,
+                                    const Evaluator & leftBoundaryCondition,
+                                    const Evaluator & rightBoundaryCondition,
+                                    const Evaluator & earlyExercisePremium )
+                                  : d_expiry(expiry),
                                     d_spot(spot),
+                                    d_strike(strike),
                                     d_rate(rate),
                                     d_div(div),
-                                    d_vol(vol)
+                                    d_vol(vol),
+                                    d_f(&terminalCondition),
+                                    d_gl(&leftBoundaryCondition),
+                                    d_gr(&rightBoundaryCondition),
+                                    d_prem(&earlyExercisePremium)
 {
     // Calculate the Black-Scholes value
     // in case of a vanilla call or put.
-    d_strike = payoff.strike();
+    d_isPut = ((*d_f)(-1)>0);
     std::tuple<OptionValue,OptionValue> res
         = BlackScholes(d_expiry,d_strike,d_spot,d_rate,d_div,d_vol);
-    if ((*d_payoff)(0) > 0) { d_BlackScholes = std::get<1>(res);}
+    if (d_isPut) { d_BlackScholes = std::get<1>(res);}
     else { d_BlackScholes = std::get<0>(res);}
 
     // Set up computational domain 
@@ -39,15 +46,8 @@ FiniteDifference::FiniteDifference( const Payoff & payoff,
     d_xl = xmid - 3*vol*std::sqrt(expiry);
     d_xr = xmid + 3*vol*std::sqrt(expiry);
 
-    // Set up boudary condition
-    d_f = VanillaPutTerminalCondition(expiry, spot, d_strike, rate, div, vol);
-    d_gl = VanillaPutLeftBoundaryCondition
-               (expiry, spot, d_strike, rate, div, vol);
-    d_gr = VanillaPutRightBoundaryCondition
-               (expiry, spot, d_strike, rate, div, vol);
-
     // Set up PDE
-    d_h = HeatPDE(d_xl, d_xr, d_tf, d_f, d_gl, d_gr);
+    d_h = HeatPDE(d_xl, d_xr, d_tf, (*d_f), (*d_gl), (*d_gr), (*d_prem));
 }
 
 OptionValue FiniteDifference::BlackScholesValue() const
@@ -57,13 +57,15 @@ OptionValue FiniteDifference::BlackScholesValue() const
 
 void FiniteDifference::evaluate( int M, double alphaTemp,
                                  FiniteDifferenceMethod fdm,
-                                 double omega )
+                                 double omega, double vExact )
 {
     // Discretize the computational domain
     double dt = d_tf/M;
     double dxTemp = std::sqrt(dt/alphaTemp);
     int N = static_cast<int>(std::floor((d_xr - d_xl)/dxTemp));
     double dx = (d_xr-d_xl)/N;
+
+    bool isAmerican = false;
 
     // Discretize and solve the PDE
     std::vector<double> u(N+1,0);
@@ -72,19 +74,44 @@ void FiniteDifference::evaluate( int M, double alphaTemp,
     switch (fdm)
     {
         case EulerForward: 
+            isAmerican = false;
             d_h.fdSolveForwardEuler(M, N, &u, dM, dN);
             break;
         case EulerBackwardByLU:
+            isAmerican = false;
             d_h.fdSolveBackwardEulerByLU(M, N, &u, dM, dN);
             break;
         case EulerBackwardBySOR:
+            isAmerican = false;
             d_h.fdSolveBackwardEulerBySOR(M, N, omega, &u, dM, dN);
             break;
         case CrankNicolsonByLU:
+            isAmerican = false;
             d_h.fdSolveCrankNicolsonByLU(M, N, &u, dM, dN);
             break;
         case CrankNicolsonBySOR:
+            isAmerican = false;
             d_h.fdSolveCrankNicolsonBySOR(M, N, omega, &u, dM, dN);
+            break;
+        case AmericanEulerForward: 
+            isAmerican = true;
+            d_h.fdSolveAmericanForwardEuler(M, N, &u, dM, dN);
+            break;
+        case AmericanEulerBackwardByLU: 
+            isAmerican = true;
+            d_h.fdSolveAmericanBackwardEulerByLU(M, N, &u, dM, dN);
+            break;
+        case AmericanEulerBackwardBySOR: 
+            isAmerican = true;
+            d_h.fdSolveAmericanBackwardEulerBySOR(M, N, omega, &u, dM, dN);
+            break;
+        case AmericanCrankNicolsonByLU:
+            isAmerican = true;
+            d_h.fdSolveAmericanCrankNicolsonByLU(M, N, &u, dM, dN);
+            break;
+        case AmericanCrankNicolsonBySOR:
+            isAmerican = true;
+            d_h.fdSolveAmericanCrankNicolsonBySOR(M, N, omega, &u, dM, dN);
             break;
     }
 
@@ -112,35 +139,38 @@ void FiniteDifference::evaluate( int M, double alphaTemp,
     double vApproximate2 = std::exp(-a*xCompute-b*d_tf)*uApproximate;
 
     // Point-wise Error
-    double bsPrice = d_BlackScholes.price;
-    double error1 = std::fabs(vApproximate1-bsPrice);
-    double error2 = std::fabs(vApproximate2-bsPrice);
+    double exactPrice = vExact > 0 ? vExact : d_BlackScholes.price;
+    double error1 = std::fabs(vApproximate1-exactPrice);
+    double error2 = std::fabs(vApproximate2-exactPrice);
 
     // Root-Mean-Squared (RMS) Error
+    // Note: only for European options.
     double error3 = 0;
-    int count = 0;
-    for (int n=0; n<N+1; n++) {
-        double x = d_xl + n*dx;
-        double s = d_strike*std::exp(x);
-        // Black-Scholes value
-        OptionValue vBlackScholes;
-        std::tuple<OptionValue,OptionValue> res
-            = BlackScholes(d_expiry,d_strike,s,d_rate,d_div,d_vol);
-        if ((*d_payoff)(0) > 0) { vBlackScholes = std::get<1>(res);}
-        else { vBlackScholes = std::get<0>(res);}
+    if (!isAmerican) {
+        int count = 0;
+        for (int n=0; n<N+1; n++) {
+            double x = d_xl + n*dx;
+            double s = d_strike*std::exp(x);
+            // Black-Scholes value
+            OptionValue vBlackScholes;
+            std::tuple<OptionValue,OptionValue> res
+                = BlackScholes(d_expiry,d_strike,s,d_rate,d_div,d_vol);
+            if (d_isPut) { vBlackScholes = std::get<1>(res);}
+            else { vBlackScholes = std::get<0>(res);}
 
-        double bsPrice = vBlackScholes.price;
-        if (bsPrice > 0.00001*s) {
-            double vApproximate = std::exp(-a*x-b*d_tf)*u[n];
-            double diff = (vApproximate - bsPrice)/bsPrice;
-            double diff2 = diff*diff;
-            error3 += diff2;
-            count++;
+            double bsPrice = vBlackScholes.price;
+            if (bsPrice > 0.00001*s) {
+                double vApproximate = std::exp(-a*x-b*d_tf)*u[n];
+                double diff = (vApproximate - bsPrice)/bsPrice;
+                double diff2 = diff*diff;
+                error3 += diff2;
+                count++;
+            }
         }
-    }
 
-    error3 /= count;
-    error3 = std::sqrt(error3);
+        error3 /= count;
+        error3 = std::sqrt(error3);
+    }
 
     // Compute Greeks I: Delta and Gamma
     double xii = d_xl + (spotIndex-1)*dx;
@@ -173,9 +203,13 @@ void FiniteDifference::evaluate( int M, double alphaTemp,
     std::cout << std::fixed
               << std::setprecision(9)
               << error1 << ",,"
-              << error2 << ",,"
-              << error3 << ",,"
-              << delta << ","
+              << error2 << ",,";
+    
+    if (isAmerican) { 
+        std::cout << error3 << ",,";
+    }
+    
+    std::cout << delta << ","
               << gamma << ","
               << theta << ","
               << std::endl;

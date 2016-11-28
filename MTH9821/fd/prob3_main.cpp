@@ -4,7 +4,6 @@
 #include <string>
 #include <cmath>
 #include <cassert>
-#include <payoff.h>
 #include <fd.h>
 
 int main(int argc, char* argv[])
@@ -21,8 +20,11 @@ int main(int argc, char* argv[])
     double alphaTemp = 0.45;
     double omega = 1.2;
 
-    PutPayoff vanillaPut(K);
-    FiniteDifference fd(vanillaPut, T, S, r, q, vol);
+    VanillaPutTerminalCondition f(T, S, K, r, q, vol);
+    VanillaPutLeftBoundaryCondition gl(T, S, K, r, q, vol);
+    VanillaPutRightBoundaryCondition gr(T, S, K, r, q, vol);
+
+    FiniteDifference fd(T, S, K, r, q, vol, f, gl, gr);
     std::cout << "Euler forward" << std::endl;
     fd.evaluate(M, alphaTemp, EulerForward);
     std::cout << "Euler backward By LU " << std::endl;

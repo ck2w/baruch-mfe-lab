@@ -10,30 +10,36 @@
 // b: column vector
 // x: solution to Ax=b
 // tol: tolerance factor
+// x0: initial estimate of solution, default to zero length
+// p: overriding vector for early exercise, default to zero length
 std::tuple<Eigen::VectorXd, int> sor(double omega,
                                      const Eigen::MatrixXd & A, 
                                      const Eigen::VectorXd & b,
                                      double tol,
                                      const Eigen::VectorXd & x0
-                                          = Eigen::VectorXd::Zero(0));
+                                         = Eigen::VectorXd::Zero(0),
+                                     const Eigen::VectorXd & p
+                                         = Eigen::VectorXd::Zero(0));
 
 std::tuple<Eigen::VectorXd, int> sor(double omega,
                                      const Eigen::ArrayXXd & A, int m, 
                                      const Eigen::VectorXd & b, 
                                      double tol,
                                      const Eigen::VectorXd & x0
-                                          = Eigen::VectorXd::Zero(0));
+                                         = Eigen::VectorXd::Zero(0),
+                                     const Eigen::VectorXd & p
+                                         = Eigen::VectorXd::Zero(0));
 
 std::tuple<Eigen::VectorXd, int> gs(const Eigen::MatrixXd & A, 
                                     const Eigen::VectorXd & b,
                                     double tol,
                                     const Eigen::VectorXd & x0
-                                          = Eigen::VectorXd::Zero(0));
+                                        = Eigen::VectorXd::Zero(0));
 
 std::tuple<Eigen::VectorXd, int> gs(const Eigen::ArrayXXd & A, int m,
                                     const Eigen::VectorXd & b,
                                     double tol,
                                     const Eigen::VectorXd & x0
-                                          = Eigen::VectorXd::Zero(0));
+                                        = Eigen::VectorXd::Zero(0));
 
 #endif /* SOR_H */

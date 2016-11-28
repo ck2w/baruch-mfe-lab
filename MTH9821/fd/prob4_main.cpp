@@ -4,7 +4,6 @@
 #include <string>
 #include <cmath>
 #include <cassert>
-#include <payoff.h>
 #include <fd.h>
 
 int main(int argc, char* argv[])
@@ -23,8 +22,11 @@ int main(int argc, char* argv[])
 
     FiniteDifferenceMethod fdm = CrankNicolsonBySOR;
 
-    PutPayoff vanillaPut(K);
-    FiniteDifference fd(vanillaPut, T, S, r, q, vol);
+    VanillaPutTerminalCondition f(T, S, K, r, q, vol);
+    VanillaPutLeftBoundaryCondition gl(T, S, K, r, q, vol);
+    VanillaPutRightBoundaryCondition gr(T, S, K, r, q, vol);
+
+    FiniteDifference fd(T, S, K, r, q, vol, f, gl, gr);
     M=4;   fd.evaluate(M, alphaTemp, fdm, omega);
     M=16;  fd.evaluate(M, alphaTemp, fdm, omega);
     M=64;  fd.evaluate(M, alphaTemp, fdm, omega);

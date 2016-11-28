@@ -22,7 +22,9 @@ class Updater
         virtual void config(double c, int N)=0;
 
         virtual void update( const std::vector<double> & uOld,
-                             std::vector<double>* uNew ) const=0;
+                             std::vector<double>* uNew,
+                             const std::vector<double> & prem 
+                             = std::vector<double>(0) ) const=0;
 
     private:
 
@@ -36,7 +38,9 @@ class ForwardEulerUpdater : public Updater
         virtual void config(double c, int N);
 
         virtual void update( const std::vector<double> & uOld,
-                             std::vector<double>* uNew ) const;
+                             std::vector<double>* uNew,
+                             const std::vector<double> & prem 
+                             = std::vector<double>(0) ) const;
 };
 
 class BackwardEulerUpdater : public Updater
@@ -46,7 +50,9 @@ class BackwardEulerUpdater : public Updater
         virtual void config(double c, int N);
 
         virtual void update( const std::vector<double> & uOld,
-                             std::vector<double>* uNew ) const;
+                             std::vector<double>* uNew,
+                             const std::vector<double> & prem 
+                             = std::vector<double>(0) ) const;
 
     private:
 
@@ -63,7 +69,9 @@ class BackwardEulerSorUpdater : public Updater
         virtual void config(double c, int N);
 
         virtual void update( const std::vector<double> & uOld,
-                             std::vector<double>* uNew ) const;
+                             std::vector<double>* uNew,
+                             const std::vector<double> & prem 
+                             = std::vector<double>(0) ) const;
 
     private:
 
@@ -80,7 +88,9 @@ class CrankNicolsonUpdater : public Updater
         virtual void config(double c, int N);
 
         virtual void update( const std::vector<double> & uOld,
-                             std::vector<double>* uNew ) const;
+                             std::vector<double>* uNew,
+                             const std::vector<double> & prem 
+                             = std::vector<double>(0) ) const;
 
     private:
 
@@ -98,7 +108,9 @@ class CrankNicolsonSorUpdater : public Updater
         virtual void config(double c, int N);
 
         virtual void update( const std::vector<double> & uOld,
-                             std::vector<double>* uNew ) const;
+                             std::vector<double>* uNew,
+                             const std::vector<double> & prem 
+                             = std::vector<double>(0) ) const;
 
     private:
 

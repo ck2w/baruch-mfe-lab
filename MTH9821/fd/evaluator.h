@@ -6,7 +6,16 @@ class Evaluator
     public:
 
         Evaluator() {}
-        virtual double operator()(double s) const=0;
+
+        virtual double operator()(double s) const
+        {
+            return 0.0;
+        }
+
+        virtual double operator()(double x, double t) const
+        {
+            return 0.0;
+        }
 };
 
 class FunctionEvaluator : public Evaluator

@@ -7,7 +7,8 @@ std::tuple<Eigen::VectorXd, int> sor(double omega,
                                      const Eigen::MatrixXd & A, 
                                      const Eigen::VectorXd & b,
                                      double tol,
-                                     const Eigen::VectorXd & x0)
+                                     const Eigen::VectorXd & x0,
+                                     const Eigen::VectorXd & p)
 {
     assert(omega>0);
     assert(omega<2);
@@ -27,14 +28,15 @@ std::tuple<Eigen::VectorXd, int> sor(double omega,
 
     Eigen::VectorXd y0 = x0;
     if (y0.size() == 0) { y0 = Eigen::VectorXd::Zero(n); }
-    return linear_iterate_triangular(y0,M,N,b,tol);
+    return linear_iterate_triangular(y0,M,N,b,tol,p);
 }
 
 std::tuple<Eigen::VectorXd, int> sor(double omega,
                                      const Eigen::ArrayXXd & A, int m, 
                                      const Eigen::VectorXd & b, 
                                      double tol,
-                                     const Eigen::VectorXd & x0)
+                                     const Eigen::VectorXd & x0,
+                                     const Eigen::VectorXd & p)
 {
     assert(omega>0);
     assert(omega<2);
@@ -53,7 +55,7 @@ std::tuple<Eigen::VectorXd, int> sor(double omega,
     
     Eigen::VectorXd y0 = x0;
     if (y0.size() == 0) { y0 = Eigen::VectorXd::Zero(nrow); }
-    return linear_iterate_triangular_banded(y0,M,N,b,m,tol);
+    return linear_iterate_triangular_banded(y0,M,N,b,m,tol,p);
 }
 
 std::tuple<Eigen::VectorXd, int> gs(const Eigen::MatrixXd & A, 

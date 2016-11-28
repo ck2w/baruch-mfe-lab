@@ -40,7 +40,8 @@ class HeatPDE
                  double tf,
                  const Evaluator & f,
                  const Evaluator & gl,
-                 const Evaluator & gf );
+                 const Evaluator & gf,
+                 const Evaluator & prem=Evaluator() );
 
         void fdSolveForwardEuler(int M, int N, 
                                  std::vector<double>* u,
@@ -57,6 +58,21 @@ class HeatPDE
         void fdSolveCrankNicolsonBySOR(int M, int N, double w, 
                                        std::vector<double>* u,
                                        int dM=0, int dN=0);
+        void fdSolveAmericanForwardEuler(int M, int N, 
+                                         std::vector<double>* u,
+                                         int dM=0, int dN=0);
+        void fdSolveAmericanBackwardEulerByLU(int M, int N, 
+                                              std::vector<double>* u,
+                                              int dM=0, int dN=0);
+        void fdSolveAmericanBackwardEulerBySOR(int M, int N, double w,
+                                               std::vector<double>* u,
+                                               int dM=0, int dN=0);
+        void fdSolveAmericanCrankNicolsonByLU(int M, int N,
+                                              std::vector<double>* u,
+                                              int dM=0, int dN=0);
+        void fdSolveAmericanCrankNicolsonBySOR(int M, int N, double w, 
+                                               std::vector<double>* u,
+                                               int dM=0, int dN=0);
 
         const std::vector<double> & getPrevSolution() const
         {
@@ -72,13 +88,16 @@ class HeatPDE
         const Evaluator * d_f;
         const Evaluator * d_gl;
         const Evaluator * d_gr;
+        const Evaluator * d_prem;
 
         std::vector<double> d_uOld;
 
         void print(double t, const std::vector<double> & u, int step);
 
         void fdSolve( int M, int N, std::vector<double>* u, Updater* up,
-                      int dM=0, int dN=0 );
+                      bool isAmerican=false, int dM=0, int dN=0 );
+
+        std::vector<double> earlyExercisePremiumAtGivemTime(int N, double t);
 };
 
 
