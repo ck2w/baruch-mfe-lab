@@ -22,6 +22,7 @@ int main(int argc, char* argv[])
     int M = 4;
     double alphaTemp = 0.45;
     double omega = 1.2;
+    bool useVarReduction = true;
 
     //FiniteDifferenceMethod fdm = AmericanEulerForward; 
     //FiniteDifferenceMethod fdm = AmericanEulerBackwardByLU; 
@@ -35,11 +36,10 @@ int main(int argc, char* argv[])
     AmericanPutEarlyExercisePremium prem(T, S, K, r, q, vol);
 
     FiniteDifference fd(T, S, K, r, q, vol, f, gl, gr, prem);
-    M=4;   fd.evaluate(M, alphaTemp, fdm, omega, vExact);
-    M=16;  fd.evaluate(M, alphaTemp, fdm, omega, vExact);
-    M=64;  fd.evaluate(M, alphaTemp, fdm, omega, vExact);
-    M=256; fd.evaluate(M, alphaTemp, fdm, omega, vExact);
-    //M=512; fd.evaluate(M, alphaTemp, fdm, omega, vExact);
+    //M=4;   fd.evaluate(M, alphaTemp, fdm, omega, useVarReduction, vExact);
+    M=16;  fd.evaluate(M, alphaTemp, fdm, omega, useVarReduction, vExact);
+    //M=64;  fd.evaluate(M, alphaTemp, fdm, omega, useVarReduction, vExact);
+    //M=256; fd.evaluate(M, alphaTemp, fdm, omega, useVarReduction, vExact);
 
     return 0;
 }

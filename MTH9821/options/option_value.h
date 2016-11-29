@@ -11,6 +11,9 @@ struct OptionValue
     double gamma;
     double theta;
 
+    // in case there is another approximation
+    double price2;
+
     // used by Monte Carlo methods only
     double priceStd;
     double priceErr;

@@ -79,6 +79,11 @@ class HeatPDE
             return d_uOld;
         }
 
+        const std::vector<double> & getEarlyExerciseBoundary() const
+        {
+            return d_earlyExerciseBoundary;
+        }
+
     private:
 
         double d_xl;
@@ -91,6 +96,7 @@ class HeatPDE
         const Evaluator * d_prem;
 
         std::vector<double> d_uOld;
+        std::vector<double> d_earlyExerciseBoundary;
 
         void print(double t, const std::vector<double> & u, int step);
 
@@ -98,6 +104,9 @@ class HeatPDE
                       bool isAmerican=false, int dM=0, int dN=0 );
 
         std::vector<double> earlyExercisePremiumAtGivemTime(int N, double t);
+
+        int earlyExerciseBoundaryAtGivenTime(const std::vector<double> & u,
+                                             const std::vector<double> & p);
 };
 
 

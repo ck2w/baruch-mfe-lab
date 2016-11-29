@@ -52,11 +52,25 @@ std::vector<double> HeatPDE::earlyExercisePremiumAtGivemTime(int N, double t)
 
     return earlyExercisePremium;
 }
+
+int HeatPDE::earlyExerciseBoundaryAtGivenTime(const std::vector<double> & u,
+                                              const std::vector<double> & p)
+{
+    int uLen = u.size();
+    for (int n=0; n<uLen-1; n++) {
+        if (u[n] == p[n] && u[n+1] > p[n+1]) {
+            return n;
+        }
+    }
+
+    return uLen;
+}
         
 void HeatPDE::fdSolve( int M, int N, std::vector<double>* u, Updater* up,
                        bool isAmerican, int dM, int dN )
 {
     assert(u->size() == (unsigned int)(N+1));
+    d_earlyExerciseBoundary.resize(0);
     bool doPrint = false;
     if ( dM>0 && dN>0 ) { doPrint = true; }
 
@@ -75,6 +89,8 @@ void HeatPDE::fdSolve( int M, int N, std::vector<double>* u, Updater* up,
         // print x-coordinates
         if (doPrint && n%dN == 0) { std::cout << "," << x; }
     }
+
+    d_earlyExerciseBoundary.push_back(0);
 
     if (doPrint) { 
         std::cout << std::endl;
@@ -100,6 +116,11 @@ void HeatPDE::fdSolve( int M, int N, std::vector<double>* u, Updater* up,
         if ( m == M-1 ) { d_uOld = (*u); }
         // write back to output
         for (int n=0; n<=N; n++) { (*u)[n] = uNew[n]; }
+
+        if (isAmerican) {
+            int nb = earlyExerciseBoundaryAtGivenTime((*u), prem);
+            d_earlyExerciseBoundary.push_back(d_xl+nb*dx);
+        }
     
         if ( doPrint && m%dM == 0 ) { print(t, *u, dN); }
     }

@@ -56,14 +56,13 @@ OptionValue FiniteDifference::BlackScholesValue() const
 }
 
 void FiniteDifference::evaluate( int M, double alphaTemp,
-                                 FiniteDifferenceMethod fdm,
-                                 double omega, double vExact )
+                                 FiniteDifferenceMethod fdm, double omega, 
+                                 bool varReduction, double vExact )
 {
     // Discretize the computational domain
     double dt = d_tf/M;
     double dxTemp = std::sqrt(dt/alphaTemp);
     int N = static_cast<int>(std::floor((d_xr - d_xl)/dxTemp));
-    double dx = (d_xr-d_xl)/N;
 
     bool isAmerican = false;
 
@@ -115,38 +114,93 @@ void FiniteDifference::evaluate( int M, double alphaTemp,
             break;
     }
 
-    // Use the numerical solution to find option values and greeks
-    double c = (d_rate-d_div)/(d_vol*d_vol);
-    double a = c-0.5;
-    double b = (c+0.5)*(c+0.5) + 2*d_div/(d_vol*d_vol);
+    // get early exercise boundary
+    if (dM>0) {
+        std::cout << " --- Print Early Exercise Boundary --- " << std::endl;
+        double dx = (d_xr-d_xl)/N;
+        std::vector<double> eeb = d_h.getEarlyExerciseBoundary();
+        for (int m=0; m<M+1; m++) { 
+            if ( m%dM == 0 ) {
+                double s1 = d_strike*std::exp(eeb[m]);
+                double s2 = d_strike*std::exp(eeb[m]+dx);
+                double sOpt = 0.5*(s1+s2);
+                double t = d_expiry - 2*m*dt/(d_vol*d_vol);
+                if (m==0) { sOpt = d_strike; }
+                std::cout << std::fixed << std::setprecision(9)
+                          << t << "," << sOpt << std::endl;
+            }
+        }
+        std::cout << " ------------------------------------- " << std::endl;
+    }
+   
+    // get solution at the previous time step 
+    std::vector<double> uOld = d_h.getPrevSolution();
+
+    // Option price and greeks
+    OptionValue optionValue = getOptionValue(u, uOld, dt);
+    double vApproximate1 = optionValue.price;
+    double vApproximate2 = optionValue.price2;
+    double delta = optionValue.delta;
+    double gamma = optionValue.gamma;
+    double theta = optionValue.theta;
     
-    double xCompute = std::log(d_spot/d_strike);
-    int spotIndex = (xCompute-d_xl)/dx;
-    double xi = d_xl + spotIndex*dx;
-    double xj = d_xl + (spotIndex+1)*dx;
-    double si = d_strike*std::exp(xi);
-    double sj = d_strike*std::exp(xj);
-    double ui = u[spotIndex];
-    double uj = u[spotIndex+1];
-    double vi = std::exp(-a*xi-b*d_tf)*ui;
-    double vj = std::exp(-a*xj-b*d_tf)*uj;
-
-    // Approximation I: interpolation of v
-    double vApproximate1 = ((sj-d_spot)*vi + (d_spot-si)*vj)/(sj-si);
-
-    // Approximation II: interpolation of u
-    double uApproximate = ((xj-xCompute)*ui + (xCompute-xi)*uj)/(xj-xi);
-    double vApproximate2 = std::exp(-a*xCompute-b*d_tf)*uApproximate;
-
-    // Point-wise Error
+    // variance reduction for American options
+    double vApproximate3 = 0.0;
+    if ( isAmerican && varReduction ) {
+        std::vector<double> uEuro(N+1,0);
+        switch (fdm)
+        {
+            case EulerForward: 
+            case EulerBackwardByLU:
+            case EulerBackwardBySOR:
+            case CrankNicolsonByLU:
+            case CrankNicolsonBySOR:
+                break;
+            case AmericanEulerForward: 
+                d_h.fdSolveForwardEuler(M, N, &uEuro, dM, dN);
+                break;
+            case AmericanEulerBackwardByLU: 
+                d_h.fdSolveBackwardEulerByLU(M, N, &uEuro, dM, dN);
+                break;
+            case AmericanEulerBackwardBySOR: 
+                d_h.fdSolveBackwardEulerBySOR(M, N, omega, &uEuro, dM, dN);
+                break;
+            case AmericanCrankNicolsonByLU:
+                d_h.fdSolveCrankNicolsonByLU(M, N, &uEuro, dM, dN);
+                break;
+            case AmericanCrankNicolsonBySOR:
+                d_h.fdSolveCrankNicolsonBySOR(M, N, omega, &uEuro, dM, dN);
+                break;
+        }
+    
+        std::vector<double> uEuroOld = d_h.getPrevSolution();
+    
+        OptionValue EuroValue = getOptionValue( uEuro, uEuroOld, dt );
+        double vEuroApproximate1 = EuroValue.price;
+        double vEuroExact = d_BlackScholes.price;
+        vApproximate3 = vApproximate1 + (vEuroExact-vEuroApproximate1);
+    }
+    
+    // Error analysis I: Point-wise Error
     double exactPrice = vExact > 0 ? vExact : d_BlackScholes.price;
     double error1 = std::fabs(vApproximate1-exactPrice);
     double error2 = std::fabs(vApproximate2-exactPrice);
+    
+    // Print the errors and greeks
+    std::cout << std::fixed
+              << std::setprecision(9)
+              << error1 << ",,"
+              << error2 << ",,";
 
-    // Root-Mean-Squared (RMS) Error
+    // Error analysis II: Root-Mean-Squared (RMS) Error
     // Note: only for European options.
     double error3 = 0;
     if (!isAmerican) {
+        double c = (d_rate-d_div)/(d_vol*d_vol);
+        double a = c-0.5;
+        double b = (c+0.5)*(c+0.5) + 2*d_div/(d_vol*d_vol);
+        double dx = (d_xr-d_xl)/N;
+
         int count = 0;
         for (int n=0; n<N+1; n++) {
             double x = d_xl + n*dx;
@@ -170,7 +224,51 @@ void FiniteDifference::evaluate( int M, double alphaTemp,
 
         error3 /= count;
         error3 = std::sqrt(error3);
+        std::cout << error3 << ",,";
     }
+    
+    std::cout << std::fixed
+              << std::setprecision(9)
+              << delta << ","
+              << gamma << ","
+              << theta << ",";
+    
+    if ( isAmerican && varReduction ) {
+        double error4 = std::fabs(vApproximate3-exactPrice);
+        std::cout << vApproximate3 << "," << error4 << ",";
+    }
+
+    std::cout << std::endl;
+} 
+
+OptionValue FiniteDifference::getOptionValue( const std::vector<double> & u, 
+                                              const std::vector<double> & uOld,
+                                              double dt )
+{
+    // Use the numerical solution to find option values and greeks
+    int N = u.size()-1;
+    double c = (d_rate-d_div)/(d_vol*d_vol);
+    double a = c-0.5;
+    double b = (c+0.5)*(c+0.5) + 2*d_div/(d_vol*d_vol);
+    double dx = (d_xr-d_xl)/N;
+    
+    double xCompute = std::log(d_spot/d_strike);
+    int spotIndex = (xCompute-d_xl)/dx;
+    double xi = d_xl + spotIndex*dx;
+    double xj = d_xl + (spotIndex+1)*dx;
+    double si = d_strike*std::exp(xi);
+    double sj = d_strike*std::exp(xj);
+    double ui = u[spotIndex];
+    double uj = u[spotIndex+1];
+    double vi = std::exp(-a*xi-b*d_tf)*ui;
+    double vj = std::exp(-a*xj-b*d_tf)*uj;
+
+    // Approximation I: interpolation of v
+    double vApproximate1 = ((sj-d_spot)*vi + (d_spot-si)*vj)/(sj-si);
+
+    // Approximation II: interpolation of u
+    double uApproximate = ((xj-xCompute)*ui + (xCompute-xi)*uj)/(xj-xi);
+    double vApproximate2 = std::exp(-a*xCompute-b*d_tf)*uApproximate;
 
     // Compute Greeks I: Delta and Gamma
     double xii = d_xl + (spotIndex-1)*dx;
@@ -188,8 +286,6 @@ void FiniteDifference::evaluate( int M, double alphaTemp,
     double gamma = 2*(deltaRight-deltaLeft)/(sjj+sj-si-sii);
 
     // Compute Greeks II: Theta
-    std::vector<double> uOld = d_h.getPrevSolution();
-
     double dT = 2*dt/(d_vol*d_vol);
     double uOldi = uOld[spotIndex];
     double uOldj = uOld[spotIndex+1];
@@ -200,18 +296,12 @@ void FiniteDifference::evaluate( int M, double alphaTemp,
     // minus sign: backward B-S equation converted to forward heat equation
     double theta = -(vApproximate1-vOldApproximate1)/dT;
 
-    std::cout << std::fixed
-              << std::setprecision(9)
-              << error1 << ",,"
-              << error2 << ",,";
-    
-    if (isAmerican) { 
-        std::cout << error3 << ",,";
-    }
-    
-    std::cout << delta << ","
-              << gamma << ","
-              << theta << ","
-              << std::endl;
-} 
+    OptionValue optionValue;
+    optionValue.price = vApproximate1;
+    optionValue.price2 = vApproximate2;
+    optionValue.delta = delta;
+    optionValue.gamma = gamma;
+    optionValue.theta = theta;
 
+    return optionValue;
+}

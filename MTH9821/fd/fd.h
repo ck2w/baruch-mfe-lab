@@ -222,8 +222,8 @@ class FiniteDifference
         
         OptionValue BlackScholesValue() const;
         void evaluate( int M, double alphaTemp, 
-                       FiniteDifferenceMethod fdm=EulerForward,
-                       double omega=1, double vExact=0 ); 
+                       FiniteDifferenceMethod fdm=EulerForward, double omega=1, 
+                       bool varReduction=false, double vExact=0 ); 
 
     private:
 
@@ -248,6 +248,10 @@ class FiniteDifference
         // applicable when Black-Scholes
         bool d_isPut;
         OptionValue d_BlackScholes;
+
+        OptionValue getOptionValue( const std::vector<double> & u, 
+                                    const std::vector<double> & uOld,
+                                    double dt );
 };
 
 #endif /* FD_H */
