@@ -74,9 +74,11 @@ class HeatPDE
                                                std::vector<double>* u,
                                                int dM=0, int dN=0);
 
-        const std::vector<double> & getPrevSolution() const
+        std::vector<double> getPrevSolution(bool xReversed) const
         {
-            return d_uOld;
+            std::vector<double> uOld = d_uOld;
+            if (xReversed) { std::reverse(std::begin(uOld), std::end(uOld)); }
+            return uOld;
         }
 
         const std::vector<double> & getEarlyExerciseBoundary() const
@@ -101,12 +103,15 @@ class HeatPDE
         void print(double t, const std::vector<double> & u, int step);
 
         void fdSolve( int M, int N, std::vector<double>* u, Updater* up,
-                      bool isAmerican=false, int dM=0, int dN=0 );
+                      bool isAmerican=false, bool xReversed=false, 
+                      int dM=0, int dN=0 );
 
-        std::vector<double> earlyExercisePremiumAtGivemTime(int N, double t);
+        std::vector<double> earlyExercisePremiumAtGivemTime(int N, double t,
+                                                            bool xReversed);
 
         int earlyExerciseBoundaryAtGivenTime(const std::vector<double> & u,
-                                             const std::vector<double> & p);
+                                             const std::vector<double> & p,
+                                             bool xReversed);
 };
 
 

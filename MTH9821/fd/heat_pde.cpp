@@ -41,12 +41,14 @@ void HeatPDE::print(double t, const std::vector<double> & u, int step)
     std::cout << std::endl;
 }
 
-std::vector<double> HeatPDE::earlyExercisePremiumAtGivemTime(int N, double t)
+std::vector<double> HeatPDE::earlyExercisePremiumAtGivemTime(int N, double t,
+                                                             bool xReversed)
 {
     std::vector<double> earlyExercisePremium(N+1);
     double dx = (d_xr-d_xl)/N;
     for (int n=0; n<N+1; n++) {
         double x = d_xl + n*dx;
+        if (xReversed) { x = d_xr - n*dx; }
         earlyExercisePremium[n] = (*d_prem)(x,t);
     }
 
@@ -54,20 +56,33 @@ std::vector<double> HeatPDE::earlyExercisePremiumAtGivemTime(int N, double t)
 }
 
 int HeatPDE::earlyExerciseBoundaryAtGivenTime(const std::vector<double> & u,
-                                              const std::vector<double> & p)
+                                              const std::vector<double> & p,
+                                              bool xReversed)
 {
     int uLen = u.size();
-    for (int n=0; n<uLen-1; n++) {
-        if (u[n] == p[n] && u[n+1] > p[n+1]) {
-            return n;
+    if (!xReversed) {
+        for (int n=0; n<uLen-1; n++) {
+            if (u[n] == p[n] && u[n+1] > p[n+1]) {
+                return n;
+            }
         }
+    
+        return uLen;
     }
+    else {
+        for (int n=uLen; n>0;) {
+            n--;
+            if (u[n] == p[n] && u[n-1] > p[n-1]) {
+                return n;
+            }
+        }
 
-    return uLen;
+        return 0;
+    }
 }
         
 void HeatPDE::fdSolve( int M, int N, std::vector<double>* u, Updater* up,
-                       bool isAmerican, int dM, int dN )
+                       bool isAmerican, bool xReversed, int dM, int dN )
 {
     assert(u->size() == (unsigned int)(N+1));
     d_earlyExerciseBoundary.resize(0);
@@ -85,6 +100,7 @@ void HeatPDE::fdSolve( int M, int N, std::vector<double>* u, Updater* up,
     // initial condition
     for (int n=0; n<N+1; n++) {
         double x = d_xl + n*dx;
+        if (xReversed) { x = d_xr - n*dx; }
         (*u)[n] = (*d_f)(x);
         // print x-coordinates
         if (doPrint && n%dN == 0) { std::cout << "," << x; }
@@ -102,11 +118,17 @@ void HeatPDE::fdSolve( int M, int N, std::vector<double>* u, Updater* up,
         double t = (m+1)*dt;
         uNew[0] = (*d_gl)(t);
         uNew[N] = (*d_gr)(t);
+        // Some methods like Backward Euler by LU.
+        // works in reversed x-coordinates
+        if (xReversed) {
+            uNew[N] = (*d_gl)(t);
+            uNew[0] = (*d_gr)(t);
+        }
 
         // early exercise boundary at the current time step
         std::vector<double> prem;
         if (isAmerican) {
-            prem = earlyExercisePremiumAtGivemTime(N,t);
+            prem = earlyExercisePremiumAtGivemTime(N, t, xReversed);
         }
 
         // time evolution
@@ -118,11 +140,20 @@ void HeatPDE::fdSolve( int M, int N, std::vector<double>* u, Updater* up,
         for (int n=0; n<=N; n++) { (*u)[n] = uNew[n]; }
 
         if (isAmerican) {
-            int nb = earlyExerciseBoundaryAtGivenTime((*u), prem);
-            d_earlyExerciseBoundary.push_back(d_xl+nb*dx);
+            int nb = earlyExerciseBoundaryAtGivenTime((*u), prem, xReversed);
+            if (!xReversed) {
+                d_earlyExerciseBoundary.push_back(d_xl+nb*dx);
+            }
+            else {
+                d_earlyExerciseBoundary.push_back(d_xr-nb*dx);
+            }
         }
     
         if ( doPrint && m%dM == 0 ) { print(t, *u, dN); }
+    }
+
+    if (xReversed) {
+        std::reverse(std::begin(*u), std::end(*u));
     }
 }
         
@@ -131,7 +162,7 @@ void HeatPDE::fdSolveForwardEuler(int M, int N,
                                   int dM, int dN)
 {
     ForwardEulerUpdater up;
-    fdSolve(M,N,u,&up,false,dM,dN);
+    fdSolve(M,N,u,&up,false,false,dM,dN);
 }
 
 void HeatPDE::fdSolveBackwardEulerByLU(int M, int N, 
@@ -139,7 +170,7 @@ void HeatPDE::fdSolveBackwardEulerByLU(int M, int N,
                                        int dM, int dN)
 {
     BackwardEulerUpdater up;
-    fdSolve(M,N,u,&up,false,dM,dN);
+    fdSolve(M,N,u,&up,false,false,dM,dN);
 }
 
 void HeatPDE::fdSolveBackwardEulerBySOR(int M, int N, double w, 
@@ -147,7 +178,7 @@ void HeatPDE::fdSolveBackwardEulerBySOR(int M, int N, double w,
                                         int dM, int dN)
 {
     BackwardEulerSorUpdater up(w);
-    fdSolve(M,N,u,&up,false,dM,dN);
+    fdSolve(M,N,u,&up,false,false,dM,dN);
 }
 
 void HeatPDE::fdSolveCrankNicolsonByLU(int M, int N, 
@@ -155,7 +186,7 @@ void HeatPDE::fdSolveCrankNicolsonByLU(int M, int N,
                                        int dM, int dN)
 {
     CrankNicolsonUpdater up;
-    fdSolve(M,N,u,&up,false,dM,dN);
+    fdSolve(M,N,u,&up,false,false,dM,dN);
 }
 
 void HeatPDE::fdSolveCrankNicolsonBySOR(int M, int N, double w, 
@@ -163,7 +194,7 @@ void HeatPDE::fdSolveCrankNicolsonBySOR(int M, int N, double w,
                                         int dM, int dN)
 {
     CrankNicolsonSorUpdater up(w);
-    fdSolve(M,N,u,&up,false,dM,dN);
+    fdSolve(M,N,u,&up,false,false,dM,dN);
 }
 
 void HeatPDE::fdSolveAmericanForwardEuler(int M, int N, 
@@ -171,7 +202,7 @@ void HeatPDE::fdSolveAmericanForwardEuler(int M, int N,
                                           int dM, int dN)
 {
     ForwardEulerUpdater up;
-    fdSolve(M,N,u,&up,true,dM,dN);
+    fdSolve(M,N,u,&up,true,false,dM,dN);
 }
 
 void HeatPDE::fdSolveAmericanBackwardEulerByLU(int M, int N, 
@@ -179,7 +210,7 @@ void HeatPDE::fdSolveAmericanBackwardEulerByLU(int M, int N,
                                                int dM, int dN)
 {
     BackwardEulerUpdater up;
-    fdSolve(M,N,u,&up,true,dM,dN);
+    fdSolve(M,N,u,&up,true,true,dM,dN);
 }
 
 void HeatPDE::fdSolveAmericanBackwardEulerBySOR(int M, int N, double w,
@@ -187,7 +218,7 @@ void HeatPDE::fdSolveAmericanBackwardEulerBySOR(int M, int N, double w,
                                                 int dM, int dN)
 {
     BackwardEulerSorUpdater up(w);
-    fdSolve(M,N,u,&up,true,dM,dN);
+    fdSolve(M,N,u,&up,true,false,dM,dN);
 }
 
 void HeatPDE::fdSolveAmericanCrankNicolsonByLU(int M, int N,
@@ -195,7 +226,7 @@ void HeatPDE::fdSolveAmericanCrankNicolsonByLU(int M, int N,
                                                int dM, int dN)
 {
     CrankNicolsonUpdater up;
-    fdSolve(M,N,u,&up,true,dM,dN);
+    fdSolve(M,N,u,&up,true,true,dM,dN);
 }
 
 void HeatPDE::fdSolveAmericanCrankNicolsonBySOR(int M, int N, double w, 
@@ -203,5 +234,5 @@ void HeatPDE::fdSolveAmericanCrankNicolsonBySOR(int M, int N, double w,
                                                 int dM, int dN)
 {
     CrankNicolsonSorUpdater up(w);
-    fdSolve(M,N,u,&up,true,dM,dN);
+    fdSolve(M,N,u,&up,true,false,dM,dN);
 }

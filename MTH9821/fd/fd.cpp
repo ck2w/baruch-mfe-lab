@@ -65,6 +65,7 @@ void FiniteDifference::evaluate( int M, double alphaTemp,
     int N = static_cast<int>(std::floor((d_xr - d_xl)/dxTemp));
 
     bool isAmerican = false;
+    bool xReversed = false;
 
     // Discretize and solve the PDE
     std::vector<double> u(N+1,0);
@@ -74,42 +75,52 @@ void FiniteDifference::evaluate( int M, double alphaTemp,
     {
         case EulerForward: 
             isAmerican = false;
+            xReversed = false;
             d_h.fdSolveForwardEuler(M, N, &u, dM, dN);
             break;
         case EulerBackwardByLU:
             isAmerican = false;
+            xReversed = false;
             d_h.fdSolveBackwardEulerByLU(M, N, &u, dM, dN);
             break;
         case EulerBackwardBySOR:
             isAmerican = false;
+            xReversed = false;
             d_h.fdSolveBackwardEulerBySOR(M, N, omega, &u, dM, dN);
             break;
         case CrankNicolsonByLU:
             isAmerican = false;
+            xReversed = false;
             d_h.fdSolveCrankNicolsonByLU(M, N, &u, dM, dN);
             break;
         case CrankNicolsonBySOR:
             isAmerican = false;
+            xReversed = false;
             d_h.fdSolveCrankNicolsonBySOR(M, N, omega, &u, dM, dN);
             break;
         case AmericanEulerForward: 
             isAmerican = true;
+            xReversed = false;
             d_h.fdSolveAmericanForwardEuler(M, N, &u, dM, dN);
             break;
         case AmericanEulerBackwardByLU: 
             isAmerican = true;
+            xReversed = true;
             d_h.fdSolveAmericanBackwardEulerByLU(M, N, &u, dM, dN);
             break;
         case AmericanEulerBackwardBySOR: 
             isAmerican = true;
+            xReversed = false;
             d_h.fdSolveAmericanBackwardEulerBySOR(M, N, omega, &u, dM, dN);
             break;
         case AmericanCrankNicolsonByLU:
             isAmerican = true;
+            xReversed = true;
             d_h.fdSolveAmericanCrankNicolsonByLU(M, N, &u, dM, dN);
             break;
         case AmericanCrankNicolsonBySOR:
             isAmerican = true;
+            xReversed = false;
             d_h.fdSolveAmericanCrankNicolsonBySOR(M, N, omega, &u, dM, dN);
             break;
     }
@@ -134,7 +145,7 @@ void FiniteDifference::evaluate( int M, double alphaTemp,
     }
    
     // get solution at the previous time step 
-    std::vector<double> uOld = d_h.getPrevSolution();
+    std::vector<double> uOld = d_h.getPrevSolution(xReversed);
 
     // Option price and greeks
     OptionValue optionValue = getOptionValue(u, uOld, dt);
@@ -173,7 +184,7 @@ void FiniteDifference::evaluate( int M, double alphaTemp,
                 break;
         }
     
-        std::vector<double> uEuroOld = d_h.getPrevSolution();
+        std::vector<double> uEuroOld = d_h.getPrevSolution(xReversed);
     
         OptionValue EuroValue = getOptionValue( uEuro, uEuroOld, dt );
         double vEuroApproximate1 = EuroValue.price;
