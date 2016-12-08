@@ -8,189 +8,6 @@
 #include <vector>
 #include <iostream>
 
-class VanillaPutTerminalCondition : public Evaluator
-{
-    public:
-
-        VanillaPutTerminalCondition() {}
-        VanillaPutTerminalCondition( double expiry,
-                                     double spot,
-                                     double strike,
-                                     double rate,
-                                     double div,
-                                     double vol )
-        {
-            d_strike = strike;
-            double c = (rate-div)/(vol*vol);
-            d_a = c - 0.5;
-            d_b = (c+0.5)*(c+0.5) + 2*div/(vol*vol);
-        }
-
-        virtual double operator()(double s) const
-        {
-            return d_strike*std::exp(d_a*s)*std::max(1-std::exp(s),0.0);
-        }
-        
-    private:
-
-        double d_strike;
-        double d_a;
-        double d_b;
-};
-
-class VanillaPutLeftBoundaryCondition : public Evaluator
-{
-    public:
-
-        VanillaPutLeftBoundaryCondition() {}
-        VanillaPutLeftBoundaryCondition( double expiry,
-                                         double spot,
-                                         double strike,
-                                         double rate,
-                                         double div,
-                                         double vol )
-                                       : d_expiry(expiry),
-                                         d_spot(spot),
-                                         d_strike(strike),
-                                         d_rate(rate),
-                                         d_div(div),
-                                         d_vol(vol)
-        {
-            d_strike = strike;
-            double c = (rate-div)/(vol*vol);
-            d_a = c - 0.5;
-            d_b = (c+0.5)*(c+0.5) + 2*div/(vol*vol);
-            double xmid = std::log(spot/strike) + (rate-div-0.5*vol*vol)*expiry;
-            d_xl = xmid - 3*vol*std::sqrt(expiry);
-        }
-
-        virtual double operator()(double s) const
-        {
-            double c1 = std::exp(-2*d_rate*s/(d_vol*d_vol));
-            double c2 = std::exp(d_xl - 2*d_div*s/(d_vol*d_vol));
-            return d_strike*std::exp(d_a*d_xl+d_b*s)*(c1-c2); 
-        }
-        
-    private:
-
-        double d_expiry;
-        double d_spot;
-        double d_strike;
-        double d_rate;
-        double d_div;
-        double d_vol;
-        double d_a;
-        double d_b;
-        double d_xl;
-};
-
-class VanillaPutRightBoundaryCondition : public Evaluator
-{
-    public:
-
-        VanillaPutRightBoundaryCondition() {}
-        VanillaPutRightBoundaryCondition( double expiry,
-                                          double spot,
-                                          double strike,
-                                          double rate,
-                                          double div,
-                                          double vol )
-        {}
-
-        virtual double operator()(double s) const
-        {
-            return 0; 
-        }
-        
-};
-
-class AmericanPutLeftBoundaryCondition : public Evaluator
-{
-    public:
-
-        AmericanPutLeftBoundaryCondition() {}
-        AmericanPutLeftBoundaryCondition( double expiry,
-                                          double spot,
-                                          double strike,
-                                          double rate,
-                                          double div,
-                                          double vol )
-                                        : d_expiry(expiry),
-                                          d_spot(spot),
-                                          d_strike(strike),
-                                          d_rate(rate),
-                                          d_div(div),
-                                          d_vol(vol)
-        {
-            d_strike = strike;
-            double c = (rate-div)/(vol*vol);
-            d_a = c - 0.5;
-            d_b = (c+0.5)*(c+0.5) + 2*div/(vol*vol);
-            double xmid = std::log(spot/strike) + (rate-div-0.5*vol*vol)*expiry;
-            d_xl = xmid - 3*vol*std::sqrt(expiry);
-            d_c = 1-std::exp(d_xl);
-        }
-
-        virtual double operator()(double s) const
-        {
-            return d_strike*d_c*std::exp(d_a*d_xl+d_b*s);
-        }
-        
-    private:
-
-        double d_expiry;
-        double d_spot;
-        double d_strike;
-        double d_rate;
-        double d_div;
-        double d_vol;
-        double d_a;
-        double d_b;
-        double d_c;
-        double d_xl;
-};
-
-class AmericanPutEarlyExercisePremium : public Evaluator
-{
-    public:
-
-        AmericanPutEarlyExercisePremium() {}
-        AmericanPutEarlyExercisePremium( double expiry,
-                                         double spot,
-                                         double strike,
-                                         double rate,
-                                         double div,
-                                         double vol )
-                                       : d_expiry(expiry),
-                                         d_spot(spot),
-                                         d_strike(strike),
-                                         d_rate(rate),
-                                         d_div(div),
-                                         d_vol(vol)
-        {
-            d_strike = strike;
-            double c = (rate-div)/(vol*vol);
-            d_a = c - 0.5;
-            d_b = (c+0.5)*(c+0.5) + 2*div/(vol*vol);
-        }
-
-        virtual double operator()(double x, double t) const
-        {
-            return d_strike*std::exp(d_a*x+d_b*t)*std::max(1-std::exp(x), 0.0);
-        }
-        
-    private:
-
-        double d_expiry;
-        double d_spot;
-        double d_strike;
-        double d_rate;
-        double d_div;
-        double d_vol;
-        double d_a;
-        double d_b;
-};
-
 enum FiniteDifferenceMethod 
 {
     EulerForward,
@@ -215,15 +32,62 @@ class FiniteDifference
                           double rate,
                           double div,
                           double vol,
-                          const Evaluator & terminalCondition,
-                          const Evaluator & leftBoundaryCondition,
-                          const Evaluator & rightBoundaryCondition,
+                          Evaluator & terminalCondition,
+                          Evaluator & leftBoundaryCondition,
+                          Evaluator & rightBoundaryCondition,
                           const Evaluator & earlyExercisePremium=Evaluator() );
+
+        void setDefaultDomain();
+        void setExpandedDomain(int M, double alpha, double T, double qDiv=0); 
+        void setDomain(double xl, double xr, double tf, double ti);
+
+        void discretizeDomainByTimeStepsAndAlphaTemp(int M, double alphaTemp);
+        void discretizeDomainByIntervalsAndAlphaTemp(int N, double alphaTemp);
+        void discretizeDomainByTimeStepsAndAlphaFixed(int M, double alpha);
+        void discretizeDomain(int M, int N);
+        void overrideTerminalCondition(const std::vector<double> & u);
+
+        double getTi() const
+        {
+            return d_ti;
+        }
+
+        double getTf() const 
+        {
+            return d_tf;
+        }
+
+        double getXl() const
+        {
+            return d_xl;
+        }
+
+        double getXr() const
+        {
+            return d_xr;
+        }
+
+        int getTimeSteps() const
+        {
+            return d_M;
+        }
+
+        int getIntervals() const
+        {
+            return d_N;
+        }
+
+        double getAlpha() const
+        {
+            return d_alpha;
+        }
         
         OptionValue BlackScholesValue() const;
-        void evaluate( int M, double alphaTemp, 
-                       FiniteDifferenceMethod fdm=EulerForward, double omega=1, 
-                       bool varReduction=false, double vExact=0 ); 
+       
+        std::vector<double> evaluate( FiniteDifferenceMethod fdm=EulerForward, 
+                                      double omega=1, 
+                                      bool varReduction=false, 
+                                      double vExact=0 ); 
 
     private:
 
@@ -234,16 +98,24 @@ class FiniteDifference
         double d_div;
         double d_vol;
 
-        const Evaluator * d_f;
-        const Evaluator * d_gl;
-        const Evaluator * d_gr;
+        Evaluator * d_f;
+        Evaluator * d_gl;
+        Evaluator * d_gr;
         const Evaluator * d_prem;
-
+        
         double d_xl;
         double d_xr;
         double d_tf;
+        double d_ti;
+
+        int d_M;
+        int d_N;
+        double d_alpha;
 
         HeatPDE d_h;
+
+        bool d_terminalConditionOverriden;
+        std::vector<double> d_u0;
 
         // applicable when Black-Scholes
         bool d_isPut;

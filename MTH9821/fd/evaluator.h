@@ -16,6 +16,9 @@ class Evaluator
         {
             return 0.0;
         }
+
+        virtual void setBoundaries(double ti, double tf, double xl, double xr) 
+        {}
 };
 
 class FunctionEvaluator : public Evaluator

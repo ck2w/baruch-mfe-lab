@@ -31,6 +31,7 @@ class HeatPDE
         HeatPDE( double xl,
                  double xr,
                  double tf,
+                 double ti,
                  double (*f)(double),
                  double (*gl)(double),
                  double (*gr)(double) );
@@ -38,6 +39,16 @@ class HeatPDE
         HeatPDE( double xl,
                  double xr,
                  double tf,
+                 double ti,
+                 const std::vector<double> & u0,
+                 const Evaluator & gl,
+                 const Evaluator & gf,
+                 const Evaluator & prem=Evaluator() );
+        
+        HeatPDE( double xl,
+                 double xr,
+                 double tf,
+                 double ti,
                  const Evaluator & f,
                  const Evaluator & gl,
                  const Evaluator & gf,
@@ -91,12 +102,18 @@ class HeatPDE
         double d_xl;
         double d_xr;
         double d_tf;
+        double d_ti;
 
         const Evaluator * d_f;
         const Evaluator * d_gl;
         const Evaluator * d_gr;
         const Evaluator * d_prem;
 
+        // if terminal condition is given by a functional form,
+        // or a discrete array.
+        bool d_functionalTerminal;
+
+        std::vector<double> d_u0;
         std::vector<double> d_uOld;
         std::vector<double> d_earlyExerciseBoundary;
 

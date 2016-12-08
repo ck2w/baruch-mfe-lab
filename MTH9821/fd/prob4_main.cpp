@@ -27,10 +27,10 @@ int main(int argc, char* argv[])
     VanillaPutRightBoundaryCondition gr(T, S, K, r, q, vol);
 
     FiniteDifference fd(T, S, K, r, q, vol, f, gl, gr);
-    M=4;   fd.evaluate(M, alphaTemp, fdm, omega);
-    M=16;  fd.evaluate(M, alphaTemp, fdm, omega);
-    M=64;  fd.evaluate(M, alphaTemp, fdm, omega);
-    M=256; fd.evaluate(M, alphaTemp, fdm, omega);
+    M=4;   fd.evaluate1(M, alphaTemp, fdm, omega);
+    M=16;  fd.evaluate1(M, alphaTemp, fdm, omega);
+    M=64;  fd.evaluate1(M, alphaTemp, fdm, omega);
+    M=256; fd.evaluate1(M, alphaTemp, fdm, omega);
 
     return 0;
 }

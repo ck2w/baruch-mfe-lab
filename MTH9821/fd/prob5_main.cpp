@@ -36,10 +36,13 @@ int main(int argc, char* argv[])
     AmericanPutEarlyExercisePremium prem(T, S, K, r, q, vol);
 
     FiniteDifference fd(T, S, K, r, q, vol, f, gl, gr, prem);
-    //M=4;   fd.evaluate(M, alphaTemp, fdm, omega, useVarReduction, vExact);
-    M=16;  fd.evaluate(M, alphaTemp, fdm, omega, useVarReduction, vExact);
-    //M=64;  fd.evaluate(M, alphaTemp, fdm, omega, useVarReduction, vExact);
-    //M=256; fd.evaluate(M, alphaTemp, fdm, omega, useVarReduction, vExact);
+
+    fd.setDefaultDomain();
+
+    M=4;   fd.evaluate1(M, alphaTemp, fdm, omega, useVarReduction, vExact);
+    M=16;  fd.evaluate1(M, alphaTemp, fdm, omega, useVarReduction, vExact);
+    M=64;  fd.evaluate1(M, alphaTemp, fdm, omega, useVarReduction, vExact);
+    M=256; fd.evaluate1(M, alphaTemp, fdm, omega, useVarReduction, vExact);
 
     return 0;
 }

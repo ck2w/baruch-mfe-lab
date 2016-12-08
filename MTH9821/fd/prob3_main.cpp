@@ -26,15 +26,15 @@ int main(int argc, char* argv[])
 
     FiniteDifference fd(T, S, K, r, q, vol, f, gl, gr);
     std::cout << "Euler forward" << std::endl;
-    fd.evaluate(M, alphaTemp, EulerForward);
+    fd.evaluate1(M, alphaTemp, EulerForward);
     std::cout << "Euler backward By LU " << std::endl;
-    fd.evaluate(M, alphaTemp, EulerBackwardByLU);
+    fd.evaluate1(M, alphaTemp, EulerBackwardByLU);
     std::cout << "Euler backward By SOR " << std::endl;
-    fd.evaluate(M, alphaTemp, EulerBackwardBySOR, omega);
+    fd.evaluate1(M, alphaTemp, EulerBackwardBySOR, omega);
     std::cout << "Crank Nicolson By LU " << std::endl;
-    fd.evaluate(M, alphaTemp, CrankNicolsonByLU);
+    fd.evaluate1(M, alphaTemp, CrankNicolsonByLU);
     std::cout << "Crank Nicolson By SOR " << std::endl;
-    fd.evaluate(M, alphaTemp, CrankNicolsonBySOR, omega);
+    fd.evaluate1(M, alphaTemp, CrankNicolsonBySOR, omega);
 
     return 0;
 }

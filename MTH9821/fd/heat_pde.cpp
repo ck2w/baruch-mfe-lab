@@ -8,26 +8,46 @@
 HeatPDE::HeatPDE( double xl,
                   double xr,
                   double tf,
+                  double ti,
                   double (*f)(double),
                   double (*gl)(double),
                   double (*gr)(double) )
-                : d_xl(xl), d_xr(xr), d_tf(tf)
+                : d_xl(xl), d_xr(xr), d_tf(tf), d_ti(ti)
 {
     d_f = new FunctionEvaluator(f);
     d_gl = new FunctionEvaluator(gl);
     d_gr = new FunctionEvaluator(gr);
+    d_functionalTerminal = true;
 }
 
 HeatPDE::HeatPDE( double xl,
                   double xr,
                   double tf,
+                  double ti,
+                  const std::vector<double> & u0,
+                  const Evaluator & gl,
+                  const Evaluator & gr,
+                  const Evaluator & prem )
+                : d_xl(xl), d_xr(xr), d_tf(tf), d_ti(ti),
+                  d_gl(&gl), d_gr(&gr), d_prem(&prem)
+{
+    d_functionalTerminal = false;
+    d_u0 = u0;
+}
+
+HeatPDE::HeatPDE( double xl,
+                  double xr,
+                  double tf,
+                  double ti,
                   const Evaluator & f,
                   const Evaluator & gl,
                   const Evaluator & gr,
                   const Evaluator & prem )
-                : d_xl(xl), d_xr(xr), d_tf(tf),
-                  d_f(&f), d_gl(&gl), d_gr(&gr), d_prem(&prem) 
-{}
+                : d_xl(xl), d_xr(xr), d_tf(tf), d_ti(ti),
+                  d_f(&f), d_gl(&gl), d_gr(&gr), d_prem(&prem)
+{
+    d_functionalTerminal = true;
+}
 
 void HeatPDE::print(double t, const std::vector<double> & u, int step)
 {
@@ -81,7 +101,7 @@ int HeatPDE::earlyExerciseBoundaryAtGivenTime(const std::vector<double> & u,
     }
 }
         
-void HeatPDE::fdSolve( int M, int N, std::vector<double>* u, Updater* up,
+void HeatPDE::fdSolve( int M, int N, std::vector<double>* u, Updater* up, 
                        bool isAmerican, bool xReversed, int dM, int dN )
 {
     assert(u->size() == (unsigned int)(N+1));
@@ -90,7 +110,7 @@ void HeatPDE::fdSolve( int M, int N, std::vector<double>* u, Updater* up,
     if ( dM>0 && dN>0 ) { doPrint = true; }
 
     // grid parameters 
-    double dt = d_tf/M;
+    double dt = (d_tf-d_ti)/M;
     double dx = (d_xr-d_xl)/N;
     double c = dt/(dx*dx);
 
@@ -100,11 +120,25 @@ void HeatPDE::fdSolve( int M, int N, std::vector<double>* u, Updater* up,
     // initial condition
     for (int n=0; n<N+1; n++) {
         double x = d_xl + n*dx;
-        if (xReversed) { x = d_xr - n*dx; }
-        (*u)[n] = (*d_f)(x);
+        if (xReversed) { 
+            x = d_xr - n*dx; 
+            std::reverse(std::begin(*u), std::end(*u));
+        }
+
+        // initialize if functional terminal condition is given
+        if (d_functionalTerminal) { 
+            (*u)[n] = (*d_f)(x); 
+        }
+
         // print x-coordinates
         if (doPrint && n%dN == 0) { std::cout << "," << x; }
     }
+
+    //std::cout << "==============" << std::endl;
+    //std::cout << "u initial: " << std::endl;
+    //for (int i=0; i<(*u).size(); i++) { std::cout << std::setprecision(3) << (*u)[i] << ", "; }
+    //std::cout << std::endl;
+    //std::cout << "--------------" << std::endl;
 
     d_earlyExerciseBoundary.push_back(0);
 
@@ -115,7 +149,7 @@ void HeatPDE::fdSolve( int M, int N, std::vector<double>* u, Updater* up,
 
     for (int m=0; m<M; m++) {
         // boundary conditions at the next time step
-        double t = (m+1)*dt;
+        double t = d_ti + (m+1)*dt;
         uNew[0] = (*d_gl)(t);
         uNew[N] = (*d_gr)(t);
         // Some methods like Backward Euler by LU.
@@ -155,6 +189,12 @@ void HeatPDE::fdSolve( int M, int N, std::vector<double>* u, Updater* up,
     if (xReversed) {
         std::reverse(std::begin(*u), std::end(*u));
     }
+    
+    //std::cout << "u final: " << std::endl;
+    //for (int i=0; i<(*u).size(); i++) { std::cout << std::setprecision(3) << (*u)[i] << ", "; }
+    //std::cout << std::endl;
+    //std::cout << "=============" << std::endl;
+
 }
         
 void HeatPDE::fdSolveForwardEuler(int M, int N, 
