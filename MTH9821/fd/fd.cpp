@@ -38,9 +38,29 @@ FiniteDifference::FiniteDifference( double expiry,
     std::tuple<OptionValue,OptionValue> res
         = BlackScholes(d_expiry,d_strike,d_spot,d_rate,d_div,d_vol);
     if (d_isPut) { d_BlackScholes = std::get<1>(res);}
-    else { d_BlackScholes = std::get<0>(res);}
+    else {d_BlackScholes = std::get<0>(res);}
+
+    std::cout << "C(S,K) = " << d_BlackScholes.price << std::endl;
+
+    std::cout << "S = " << d_spot << std::endl;
+    std::cout << "K = " << d_strike << std::endl;
 
     d_terminalConditionOverriden = false;
+}
+
+void FiniteDifference::setToBarrierOption(double B)
+{
+    double a = 2*(d_rate-d_div)/(d_vol*d_vol)-1;
+    double fac = std::pow(B/d_spot, a);
+
+    OptionValue BlackScholes2;
+    std::tuple<OptionValue,OptionValue> res2
+        = BlackScholes(d_expiry,d_strike, B*B/d_spot, d_rate, d_div, d_vol);
+    if (d_isPut) { BlackScholes2 = std::get<1>(res2);}
+    else {BlackScholes2 = std::get<0>(res2);}
+
+    d_BlackScholes.price -= fac*BlackScholes2.price;
+    std::cout << "Exact barrier solution = " << d_BlackScholes.price << std::endl;
 }
 
 void FiniteDifference::setDefaultDomain() 
@@ -78,6 +98,8 @@ void FiniteDifference::setExpandedDomain(int M, double alpha, double T, double q
     double dx = std::sqrt(dt/alpha);
     int Nl = static_cast<int>(std::ceil((xCompute - xlTemp)/dx));
     int Nr = static_cast<int>(std::ceil((xrTemp - xCompute)/dx));
+
+    std::cout << "Nl = " << Nl << std::endl;
 
     d_xl = xCompute - Nl*dx;
     d_xr = xCompute + Nr*dx;
@@ -165,6 +187,9 @@ OptionValue FiniteDifference::getOptionValue( const std::vector<double> & u,
     
     double xCompute = std::log(d_spot/d_strike);
     int spotIndex = (xCompute-d_xl)/dx;
+
+    std::cout << "spot index = " << spotIndex << std::endl;
+
     double xi = d_xl + spotIndex*dx;
     double xj = d_xl + (spotIndex+1)*dx;
     double si = d_strike*std::exp(xi);
@@ -250,8 +275,8 @@ std::vector<double> FiniteDifference::evaluate( FiniteDifferenceMethod fdm,
     std::vector<double> u(d_N+1,0);
     if (d_terminalConditionOverriden) { u = d_u0; }
 
-    int dM=1;
-    int dN=1;
+    int dM=0;
+    int dN=0;
     bool isAmerican = false;
     bool xReversed = false;
     switch (fdm)

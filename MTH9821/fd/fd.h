@@ -83,6 +83,7 @@ class FiniteDifference
         }
         
         OptionValue BlackScholesValue() const;
+        void setToBarrierOption(double B);
        
         std::vector<double> evaluate( FiniteDifferenceMethod fdm=EulerForward, 
                                       double omega=1, 
@@ -120,6 +121,7 @@ class FiniteDifference
         // applicable when Black-Scholes
         bool d_isPut;
         OptionValue d_BlackScholes;
+        OptionValue d_BarrierOption;
 
         OptionValue getOptionValue( const std::vector<double> & u, 
                                     const std::vector<double> & uOld,
