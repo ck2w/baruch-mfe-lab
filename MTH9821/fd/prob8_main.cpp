@@ -7,6 +7,7 @@
 #include <fd.h>
 #include <dividend.h>
 #include <boundary_conditions.h>
+#include <black_scholes.h>
 
 int main(int argc, char* argv[])
 {
@@ -21,16 +22,24 @@ int main(int argc, char* argv[])
 
     double tDiv = div.t;
     double vDiv = div.v;
+    
+    std::tuple<OptionValue,OptionValue> res
+        = BlackScholes(T,K,S,r,q,vol,vDiv);
+    OptionValue callWithDividend = std::get<0>(res);
+    std::cout << "callWithDividend price = " 
+              << std::fixed 
+              << std::setprecision(9)
+              << callWithDividend.price << std::endl;
 
-    int M = 4;
+    int M = 2048;
     double alpha = 0.4;
     double omega = 1.2;
 
     FiniteDifferenceMethod fdm = EulerForward; 
 
-    VanillaCallTerminalCondition f(T, S, K, r, q, vol);
-    VanillaCallLeftBoundaryCondition gl(T, S, K, r, q, vol);
-    VanillaCallRightBoundaryCondition gr(T, S, K, r, q, vol);
+    VanillaCallWithDividendTerminalCondition f(T, S, K, r, q, vol, vDiv);
+    VanillaCallWithDividendLeftBoundaryCondition gl(T, S, K, r, q, vol, vDiv);
+    VanillaCallWithDividendRightBoundaryCondition gr(T, S, K, r, q, vol, vDiv);
 
     FiniteDifference fd1(T-tDiv, S, K, r, q, vol, f, gl, gr);
     fd1.setExpandedDomain(M, alpha, T, vDiv);

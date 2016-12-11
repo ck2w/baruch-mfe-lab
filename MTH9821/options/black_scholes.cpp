@@ -7,17 +7,18 @@ std::tuple<OptionValue,OptionValue> BlackScholes(double expiry,
                                                  double spot,
                                                  double rate,
                                                  double div,
-                                                 double vol)
+                                                 double vol,
+                                                 double qDiv)
 {
     const double PI = 3.141592653589793238463;
 
     double vT1 = vol*vol*expiry; 
     double vT2 = std::sqrt(vT1);
-    double d1 = (std::log(spot/strike)+(rate-div)*expiry+0.5*vT1)/vT2;
+    double d1 = (std::log(spot*(1-qDiv)/strike)+(rate-div)*expiry+0.5*vT1)/vT2;
     double d2 = d1-vT2;
     double Nd1 = 0.5*std::erfc(-d1/std::sqrt(2));
     double Nd2 = 0.5*std::erfc(-d2/std::sqrt(2));
-    double SPvf = spot*std::exp(-div*expiry);
+    double SPvf = spot*std::exp(-div*expiry)*(1-qDiv);
     double KPvf = strike*std::exp(-rate*expiry);
 
     double call = SPvf*Nd1-KPvf*Nd2; 

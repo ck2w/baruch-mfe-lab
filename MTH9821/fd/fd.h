@@ -81,7 +81,22 @@ class FiniteDifference
         {
             return d_alpha;
         }
+
+        Evaluator * getTerminalCondition()
+        {
+            return d_f;
+        }
         
+        Evaluator * getLeftBoundaryCondition()
+        {
+            return d_gl;
+        }
+
+        Evaluator * getRightBoundaryCondition()
+        {
+            return d_gr;
+        }
+
         OptionValue BlackScholesValue() const;
         void setToBarrierOption(double B);
        

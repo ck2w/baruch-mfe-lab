@@ -40,11 +40,6 @@ FiniteDifference::FiniteDifference( double expiry,
     if (d_isPut) { d_BlackScholes = std::get<1>(res);}
     else {d_BlackScholes = std::get<0>(res);}
 
-    std::cout << "C(S,K) = " << d_BlackScholes.price << std::endl;
-
-    std::cout << "S = " << d_spot << std::endl;
-    std::cout << "K = " << d_strike << std::endl;
-
     d_terminalConditionOverriden = false;
 }
 
