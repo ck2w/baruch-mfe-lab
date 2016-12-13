@@ -8,6 +8,7 @@ include_directories(./ ../options/ ../util/ ../ran/)
 add_executable(runMonteCarlo
                ./main.cpp
                ./mc.cpp
+               ./mc_dividend.cpp
                ../util/norminv.cpp
                ../ran/ran.cpp
                ../options/black_scholes.cpp)

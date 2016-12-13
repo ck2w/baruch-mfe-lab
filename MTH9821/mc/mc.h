@@ -42,7 +42,7 @@ class MonteCarlo
         OptionValue evaluateBasket(int N);
         OptionValue evaluatePathDependentBasket(int N, int M);
 
-    private:
+    protected:
         
         int d_numOfUnderlyings;
         const Payoff* d_payoff;

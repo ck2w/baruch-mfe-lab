@@ -88,13 +88,12 @@ double bmnormal(int* idum, int* count)
         do {
             u1 = ran(idum);
             u2 = ran(idum);
-            std::cout << std::setprecision(16) 
-                      << u1 << "," << u2 << ",";
+            //std::cout << std::setprecision(16) << u1 << "," << u2 << ",";
             u1 = 2*u1-1;
             u2 = 2*u2-1;
             x = u1*u1+u2*u2;
             (*count) += 2;
-            std::cout << ((x>1) ? 0 : 1) << std::endl;
+            //std::cout << ((x>1) ? 0 : 1) << std::endl;
         } while ( x>1 );
 
         double y = std::sqrt(-2*std::log(x)/x);
