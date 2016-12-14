@@ -18,6 +18,7 @@ int main(int argc, char* argv[])
     double q = 0.0;
     double vol = 0.3;
     int n=9;
+    bool controlVariate = true;
 
     std::vector<DiscreteDividend> div;
     div.push_back({2.0/12.0, 0.50, true});
@@ -33,7 +34,7 @@ int main(int argc, char* argv[])
     int nk=1;
     for (int k=0; k<n; k++) {
         int N = 10000*nk;
-        OptionValue optionValue = mc.evaluate(N);
+        OptionValue optionValue = mc.evaluate(N, controlVariate);
         double v = optionValue.price;
         double std = optionValue.priceStd;
         double err = optionValue.priceErr;

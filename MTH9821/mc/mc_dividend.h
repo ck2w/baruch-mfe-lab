@@ -6,6 +6,7 @@
 #include <dividend.h>
 #include <tuple>
 #include <vector>
+#include <utility>
 
 
 /******************************/
@@ -26,18 +27,13 @@ class MonteCarloDiscreteDividends : public MonteCarlo
               double vol,
               double (*ran)(int*, int*) );
 
-        OptionValue evaluate(int N,
-                             bool controlVariate=false, 
-                             bool useAntithetic=false,
-                             bool momentMatching=false);
+        OptionValue evaluate(int N, bool controlVariate=false);
 
     private:
 
         std::vector<DiscreteDividend> d_discreteDividends;
-
-        //double d_t1; //time
-        //double d_q1; //dividend
-        //bool   d_p1; //proportional
+        std::pair<OptionValue,OptionValue> GetMeanEstimates(int N);
+        std::pair<double,double> GetBetaEstimates(int N);
 };
 
 #endif /* MC_DIVIDEND_H */
