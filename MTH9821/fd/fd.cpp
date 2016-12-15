@@ -59,6 +59,11 @@ void FiniteDifference::setToBarrierOption(double B)
     std::cout << "Exact barrier solution = " << d_BlackScholes.price << std::endl;
 }
 
+void FiniteDifference::setToDoubleBarrierOption(double B1, double B2)
+{
+    // No implementation
+}
+
 void FiniteDifference::setDefaultDomain() 
 {
     // terminal time
@@ -362,8 +367,8 @@ std::vector<double> FiniteDifference::evaluate( FiniteDifferenceMethod fdm,
     std::vector<double> u(d_N+1,0);
     if (d_terminalConditionOverriden) { u = d_u0; }
 
-    int dM=0;
-    int dN=0;
+    int dM=1;
+    int dN=1;
     bool isAmerican = false;
     bool xReversed = false;
     switch (fdm)
@@ -426,7 +431,7 @@ std::vector<double> FiniteDifference::evaluate( FiniteDifferenceMethod fdm,
     // get solution at the previous time step 
     std::vector<double> uOld = h.getPrevSolution(xReversed);
     // Option price and greeks
-    std::cout << "******** Print American option grid points *********" << std::endl;
+    std::cout << "******** Print main option (possibly American) grid points *********" << std::endl;
     std::tuple<OptionValue,OptionValue> res = getOptionValue(u, uOld, dt);
     std::cout << "****************************************************" << std::endl;
     OptionValue op1 = std::get<0>(res);
@@ -511,7 +516,7 @@ OptionValue FiniteDifference::getVarReduction(FiniteDifferenceMethod fdm,
     
     std::vector<double> uEuroOld = h2.getPrevSolution(xReversed);
 
-    std::cout << "******** Print European option grid points *********" << std::endl;
+    std::cout << "******** Print var reduction option (European) grid points *********" << std::endl;
     std::tuple<OptionValue,OptionValue> 
         res = getOptionValue( uEuro, uEuroOld, dt );
     std::cout << "****************************************************" << std::endl;

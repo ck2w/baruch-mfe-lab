@@ -99,6 +99,7 @@ class FiniteDifference
 
         OptionValue BlackScholesValue() const;
         void setToBarrierOption(double B);
+        void setToDoubleBarrierOption(double B1, double B2);
        
         std::vector<double> evaluate( FiniteDifferenceMethod fdm=EulerForward, 
                                       double omega=1, 

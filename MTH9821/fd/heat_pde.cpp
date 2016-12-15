@@ -134,6 +134,11 @@ void HeatPDE::fdSolve( int M, int N, std::vector<double>* u, Updater* up,
         if (doPrint && n%dN == 0) { std::cout << "," << x; }
     }
 
+    // Hack!!! Set u at boundaries to zero, only for double barrier test
+    //(*u)[0]=0;
+    //(*u)[N]=0;
+    // End of Hack!!
+
     //std::cout << "==============" << std::endl;
     //std::cout << "u initial: " << std::endl;
     //for (int i=0; i<(*u).size(); i++) { std::cout << std::setprecision(3) << (*u)[i] << ", "; }
@@ -150,13 +155,13 @@ void HeatPDE::fdSolve( int M, int N, std::vector<double>* u, Updater* up,
     for (int m=0; m<M; m++) {
         // boundary conditions at the next time step
         double t = d_ti + (m+1)*dt;
-        uNew[0] = (*d_gl)(t);
-        uNew[N] = (*d_gr)(t);
+        uNew[0] = (*d_gl)(t); // set to zero if want to hack
+        uNew[N] = (*d_gr)(t); // set to zero if want to hack
         // Some methods like Backward Euler by LU.
         // works in reversed x-coordinates
         if (xReversed) {
-            uNew[N] = (*d_gl)(t);
-            uNew[0] = (*d_gr)(t);
+            uNew[N] = 0; // (*d_gl)(t);
+            uNew[0] = 0; // (*d_gr)(t);
         }
 
         // early exercise boundary at the current time step
