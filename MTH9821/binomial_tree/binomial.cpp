@@ -127,7 +127,7 @@ OptionValue BinomialTree::evaluate(int N,
             }
         }
     }
-
+    
     // record greeks
     double v00 = tree[0];
     double v10 = tree[1];
@@ -143,36 +143,26 @@ OptionValue BinomialTree::evaluate(int N,
     double s22 = s11*d;
 
     // Control variate technique
+    OptionValue varCorrection; 
     if (varReduction) {
         std::tuple<OptionValue,OptionValue> res00
             = BlackScholes(d_expiry,d_strike,s00,d_rate,d_div,d_vol);
-        std::tuple<OptionValue,OptionValue> res10
-            = BlackScholes(d_expiry-dt,d_strike,s10,d_rate,d_div,d_vol);
-        std::tuple<OptionValue,OptionValue> res11
-            = BlackScholes(d_expiry-dt,d_strike,s11,d_rate,d_div,d_vol);
-        std::tuple<OptionValue,OptionValue> res20
-            = BlackScholes(d_expiry-2*dt,d_strike,s20,d_rate,d_div,d_vol);
-        std::tuple<OptionValue,OptionValue> res21
-            = BlackScholes(d_expiry-2*dt,d_strike,s21,d_rate,d_div,d_vol);
-        std::tuple<OptionValue,OptionValue> res22
-            = BlackScholes(d_expiry-2*dt,d_strike,s22,d_rate,d_div,d_vol);
 
-        double vBS00, vBS10, vBS11, vBS20, vBS21, vBS22;
+        double vBS;
+        double deltaBS;
+        double gammaBS;
+        double thetaBS;
         if (isCall) { 
-            vBS00 = std::get<0>(res00).price; 
-            vBS10 = std::get<0>(res10).price; 
-            vBS11 = std::get<0>(res11).price; 
-            vBS20 = std::get<0>(res20).price; 
-            vBS21 = std::get<0>(res21).price; 
-            vBS22 = std::get<0>(res22).price; 
+            vBS = std::get<0>(res00).price; 
+            deltaBS = std::get<0>(res00).delta;
+            gammaBS = std::get<0>(res00).gamma;
+            thetaBS = std::get<0>(res00).theta;
         }
         else { 
-            vBS00 = std::get<1>(res00).price; 
-            vBS10 = std::get<1>(res10).price; 
-            vBS11 = std::get<1>(res11).price; 
-            vBS20 = std::get<1>(res20).price; 
-            vBS21 = std::get<1>(res21).price; 
-            vBS22 = std::get<1>(res22).price; 
+            vBS = std::get<1>(res00).price; 
+            deltaBS = std::get<1>(res00).delta;
+            gammaBS = std::get<1>(res00).gamma;
+            thetaBS = std::get<1>(res00).theta;
         }
 
         double ev00 = eTree[0];
@@ -181,20 +171,76 @@ OptionValue BinomialTree::evaluate(int N,
         double ev20 = eTree[3];
         double ev21 = eTree[4];
         double ev22 = eTree[5];
+        
+        double eDelta = (ev10 - ev11)/(s10-s11);
+        double eGamma = 2*((ev20-ev21)/(s20-s21)-(ev21-ev22)/(s21-s22))/(s20-s22);
+        double eTheta = (ev21-ev00)/(2*dt);
 
-        v00 += (vBS00-ev00);
-        v10 += (vBS10-ev10);
-        v11 += (vBS11-ev11);
-        v20 += (vBS20-ev20);
-        v21 += (vBS21-ev21);
-        v22 += (vBS22-ev22);
+        varCorrection.price = vBS-ev00;
+        varCorrection.delta = deltaBS-eDelta;
+        varCorrection.gamma = gammaBS-eGamma;
+        varCorrection.theta = thetaBS-eTheta;
     }
+   
+    if (isAmerican && varReduction) {
+        std::cout << std::endl
+                  << "======== First three time steps in European tree ========" 
+                  << std::endl;
+        std::cout << "First time step:" 
+                  << std::fixed 
+                  << std::setprecision(9) 
+                  << eTree[0]
+                  << std::endl;
+        std::cout << "Second time step:" 
+                  << std::fixed 
+                  << std::setprecision(9) 
+                  << eTree[1] << "," << eTree[2]
+                  << std::endl;
+        std::cout << "Third time step:" 
+                  << std::fixed 
+                  << std::setprecision(9) 
+                  << eTree[3] << "," << eTree[4] << "," << eTree[5]
+                  << std::endl;
+        std::cout << "---------------------------------------------------------" 
+                  << std::endl;
+        
+    }
+
+    // print out option values on some nodes
+    std::cout << std::endl
+              << "======== First three time steps in Amercian tree ========" 
+              << std::endl;
+    std::cout << "First time step:" 
+              << std::fixed 
+              << std::setprecision(9) 
+              << v00 
+              << std::endl;
+    std::cout << "Second time step:" 
+              << std::fixed 
+              << std::setprecision(9) 
+              << v10 << "," << v11
+              << std::endl;
+    std::cout << "Third time step:" 
+              << std::fixed 
+              << std::setprecision(9) 
+              << v20 << "," << v21 << "," << v22
+              << std::endl;
+    std::cout << "---------------------------------------------------------" 
+              << std::endl;
 
     OptionValue optionValue;
     optionValue.price = v00;
     optionValue.delta = (v10-v11)/(s10-s11);
     optionValue.gamma = 2*((v20-v21)/(s20-s21)-(v21-v22)/(s21-s22))/(s20-s22);
     optionValue.theta = (v21-v00)/(2*dt);
+
+    if (isAmerican && varReduction) {
+        optionValue.price += varCorrection.price;
+        optionValue.delta += varCorrection.delta;
+        optionValue.gamma += varCorrection.gamma;
+        optionValue.theta += varCorrection.theta;
+    }
+
     return optionValue;
 }
 
