@@ -27,9 +27,9 @@ std::tuple<Eigen::VectorXd, int> linear_iterate_triangular
     double stop_diff = tol;
 
     int n = 0;
-    while ( ( ( !isAmerican && r.norm() > stop_resid ) || 
-              ( isAmerican && diff.norm() > stop_diff ) ) &&
-            n < MAX_ITERATION ) {
+    //while ( ( ( !isAmerican && r.norm() > stop_resid ) || 
+    //          ( isAmerican && diff.norm() > stop_diff ) ) &&
+    while ( diff.norm() > stop_diff && n < MAX_ITERATION ) {
         x = forward_subst(M, b-N*x_old, p);
         r = b-(M+N)*x;
         diff = x-x_old;

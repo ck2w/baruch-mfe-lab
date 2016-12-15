@@ -3,8 +3,8 @@
 #include <option_value.h>
 #include <evaluator.h>
 #include <heat_pde.h>
-#include <cmath>
 #include <tuple>
+#include <cmath>
 #include <vector>
 #include <iostream>
 
@@ -102,8 +102,8 @@ class FiniteDifference
        
         std::vector<double> evaluate( FiniteDifferenceMethod fdm=EulerForward, 
                                       double omega=1, 
-                                      bool varReduction=false, 
-                                      double vExact=0 ); 
+                                      bool varReduction=false,
+                                      double vExact=0 );
 
     private:
 
@@ -128,8 +128,6 @@ class FiniteDifference
         int d_N;
         double d_alpha;
 
-        HeatPDE d_h;
-
         bool d_terminalConditionOverriden;
         std::vector<double> d_u0;
 
@@ -138,9 +136,20 @@ class FiniteDifference
         OptionValue d_BlackScholes;
         OptionValue d_BarrierOption;
 
-        OptionValue getOptionValue( const std::vector<double> & u, 
+        std::tuple<OptionValue,OptionValue> 
+                    getOptionValue( const std::vector<double> & u, 
                                     const std::vector<double> & uOld,
                                     double dt );
+
+        void getPriceGreekReport(OptionValue op1, 
+                                 OptionValue op2,
+                                 OptionValue varCorrection, 
+                                 bool varReduction,
+                                 double vExact);
+        
+        void printEarlyExerciseBoundary(HeatPDE & h, double dt, int dM);
+
+        OptionValue getVarReduction(FiniteDifferenceMethod fdm, double omega);
 };
 
 #endif /* FD_H */

@@ -35,6 +35,8 @@ class VanillaCallTerminalCondition : public Evaluator
         double d_b;
 };
 
+typedef VanillaCallTerminalCondition AmericanCallTerminalCondition;
+
 class VanillaCallRightBoundaryCondition : public Evaluator
 {
     public:
@@ -105,6 +107,56 @@ class VanillaCallLeftBoundaryCondition : public Evaluator
         {} 
 };
 
+typedef VanillaCallLeftBoundaryCondition AmericanCallLeftBoundaryCondition;
+
+class AmericanCallRightBoundaryCondition : public Evaluator
+{
+    public:
+
+        AmericanCallRightBoundaryCondition() {}
+        AmericanCallRightBoundaryCondition( double expiry,
+                                            double spot,
+                                            double strike,
+                                            double rate,
+                                            double div,
+                                            double vol )
+                                          : d_expiry(expiry),
+                                            d_spot(spot),
+                                            d_strike(strike),
+                                            d_rate(rate),
+                                            d_div(div),
+                                            d_vol(vol)
+        {
+            double c = (rate-div)/(vol*vol);
+            d_a = c - 0.5;
+            d_b = (c+0.5)*(c+0.5) + 2*div/(vol*vol);
+        }
+
+        virtual double operator()(double s) const
+        {
+            return d_strike*d_c*std::exp(d_a*d_xr+d_b*s);
+        }
+        
+        virtual void setBoundaries(double ti, double tf, double xl, double xr) 
+        {
+            d_xr = xr; 
+            d_c = std::exp(d_xr)-1;
+        }
+
+    private:
+
+        double d_expiry;
+        double d_spot;
+        double d_strike;
+        double d_rate;
+        double d_div;
+        double d_vol;
+        double d_a;
+        double d_b;
+        double d_c;
+        double d_xr;
+};
+
 class VanillaPutTerminalCondition : public Evaluator
 {
     public:
@@ -137,6 +189,8 @@ class VanillaPutTerminalCondition : public Evaluator
         double d_a;
         double d_b;
 };
+
+typedef VanillaPutTerminalCondition AmericanPutTerminalCondition;
 
 class VanillaPutLeftBoundaryCondition : public Evaluator
 {
@@ -207,6 +261,8 @@ class VanillaPutRightBoundaryCondition : public Evaluator
         virtual void setBoundaries(double ti, double tf, double xl, double xr) 
         {}
 };
+
+typedef VanillaPutRightBoundaryCondition AmericanPutRightBoundaryCondition;
 
 class AmericanPutLeftBoundaryCondition : public Evaluator
 {

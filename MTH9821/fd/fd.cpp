@@ -3,6 +3,7 @@
 #include <option_value.h>
 #include <black_scholes.h>
 #include <heat_pde.h>
+#include <boundary_conditions.h>
 #include <tuple>
 #include <vector>
 #include <cassert>
@@ -169,7 +170,8 @@ OptionValue FiniteDifference::BlackScholesValue() const
     return d_BlackScholes;
 }
 
-OptionValue FiniteDifference::getOptionValue( const std::vector<double> & u, 
+std::tuple<OptionValue,OptionValue> 
+            FiniteDifference::getOptionValue( const std::vector<double> & u, 
                                               const std::vector<double> & uOld,
                                               double dt )
 {
@@ -182,8 +184,6 @@ OptionValue FiniteDifference::getOptionValue( const std::vector<double> & u,
     
     double xCompute = std::log(d_spot/d_strike);
     int spotIndex = (xCompute-d_xl)/dx;
-
-    std::cout << "spot index = " << spotIndex << std::endl;
 
     double xi = d_xl + spotIndex*dx;
     double xj = d_xl + (spotIndex+1)*dx;
@@ -216,9 +216,6 @@ OptionValue FiniteDifference::getOptionValue( const std::vector<double> & u,
     double deltaRight = (vjj-vj)/(sjj-sj);
     double gamma = 2*(deltaRight-deltaLeft)/(sjj+sj-si-sii);
 
-    double deltaCentral = (vj-vii)/(sj-sii);
-    double gammaCentral = ((si-sii)*vj-(sj-sii)*vi+(sj-si)*vii)/(0.5*(si-sii)*(sj-si)*(sj-sii));
-
     // Compute Greeks II: Theta
     double dT = 2*dt/(d_vol*d_vol);
     double uOldi = uOld[spotIndex];
@@ -230,17 +227,19 @@ OptionValue FiniteDifference::getOptionValue( const std::vector<double> & u,
     // minus sign: backward B-S equation converted to forward heat equation
     double theta = -(vApproximate1-vOldApproximate1)/dT;
 
-    double thetaForward = -(vi-vOldi)/dT;
-    std::cout << "Central," 
-              << std::fixed
+    // Print option values on grid points...
+    std::cout << std::fixed << std::setprecision(9) << vjj << std::endl;
+    std::cout << std::fixed << std::setprecision(9) << vj << "," << vOldj << std::endl;
+    std::cout << std::fixed << std::setprecision(9) << vi << "," << vOldi << std::endl;
+    std::cout << std::fixed << std::setprecision(9) << vii << std::endl;
+    std::cout << "------------------------------------------------" << std::endl;
+    std::cout << std::fixed
               << std::setprecision(9)
-              << ui << ","
-              << vi << ","
-              << deltaCentral << ","
-              << gammaCentral << ","
-              << thetaForward
-              << std::endl;
-
+              << vApproximate1 << ","
+              << delta << ","
+              << gamma << ","
+              << theta << std::endl;
+    
     OptionValue optionValue;
     optionValue.price = vApproximate1;
     optionValue.price2 = vApproximate2;
@@ -248,19 +247,112 @@ OptionValue FiniteDifference::getOptionValue( const std::vector<double> & u,
     optionValue.gamma = gamma;
     optionValue.theta = theta;
 
-    return optionValue;
+    // Central estimation
+    double deltaCentral = (vj-vii)/(sj-sii);
+    double gammaCentral = ((si-sii)*vj-(sj-sii)*vi+(sj-si)*vii)/(0.5*(si-sii)*(sj-si)*(sj-sii));
+    double thetaForward = -(vi-vOldi)/dT;
+    OptionValue optionValueCentral;
+    optionValueCentral.delta = deltaCentral;
+    optionValueCentral.gamma = gammaCentral;
+    optionValueCentral.theta = thetaForward;
+
+    return std::make_tuple(optionValue,optionValueCentral);
+}
+
+void FiniteDifference::getPriceGreekReport(OptionValue op1, 
+                                           OptionValue op2,
+                                           OptionValue varCorrection, 
+                                           bool varReduction,
+                                           double vExact)
+{
+    double vApproximate11 = op1.price;
+    double vApproximate12 = op1.price2;
+    double delta1 = op1.delta;
+    double gamma1 = op1.gamma;
+    double theta1 = op1.theta;
+
+    // Print the price and greeks
+    std::cout << "Estimation #1:"
+              << std::fixed
+              << std::setprecision(9)
+              << "," << vApproximate11
+              << "," << vApproximate12
+              << "," << delta1
+              << "," << gamma1
+              << "," << theta1 << std::endl;
+
+    double delta2 = op2.delta;
+    double gamma2 = op2.gamma;
+    double theta2 = op2.theta;
+    
+    std::cout << "Estimation #2 (Central Greeks):"
+              << std::fixed
+              << std::setprecision(9)
+              << "," << delta2
+              << "," << gamma2
+              << "," << theta2 << std::endl;; 
+   
+    double vApproximate3=0.0; 
+    if ( varReduction ) {
+        vApproximate3 = vApproximate11 + varCorrection.price;
+        double delta3 = delta1 + varCorrection.delta;
+        double gamma3 = gamma1 + varCorrection.gamma;
+        double theta3 = theta1 + varCorrection.theta;
+        std::cout << "Estimate #3 (Var Reduction price):" 
+                  << std::fixed 
+                  << std::setprecision(9)
+                  << "," << vApproximate3
+                  << "," << delta3
+                  << "," << gamma3
+                  << "," << theta3
+                  << std::endl;
+    }
+
+    // Error report
+    std::cout << "Error report:"
+              << std::fixed
+              << std::setprecision(9)
+              << "," << std::fabs(vApproximate11-vExact)
+              << "," << std::fabs(vApproximate12-vExact);
+    if ( varReduction ) {
+        std::cout << "," << std::fabs(vApproximate3-vExact); 
+    }
+    std::cout << std::endl;
+    std::cout << "--------------------------------------" << std::endl;
+}
+
+void FiniteDifference::printEarlyExerciseBoundary(HeatPDE & h, 
+                                                  double dt, 
+                                                  int dM)
+{
+    std::cout << " --- Print Early Exercise Boundary --- " << std::endl;
+    double dx = (d_xr-d_xl)/d_N;
+    std::vector<double> eeb = h.getEarlyExerciseBoundary();
+    for (int m=0; m<d_M+1; m++) { 
+        if ( m%dM == 0 ) {
+            double s1 = d_strike*std::exp(eeb[m]);
+            double s2 = d_strike*std::exp(eeb[m]+dx);
+            double sOpt = 0.5*(s1+s2);
+            double t = d_expiry - 2*m*dt/(d_vol*d_vol);
+            if (m==0) { sOpt = d_strike; }
+            std::cout << std::fixed << std::setprecision(9)
+                      << t << "," << sOpt << std::endl;
+        }
+    }
+    std::cout << " ------------------------------------- " << std::endl;
 }
 
 std::vector<double> FiniteDifference::evaluate( FiniteDifferenceMethod fdm, 
                                                 double omega, 
-                                                bool varReduction, 
+                                                bool varReduction,
                                                 double vExact )
 {
+    HeatPDE h;
     if (d_terminalConditionOverriden) {
-        d_h = HeatPDE(d_xl, d_xr, d_tf, d_ti, d_u0, (*d_gl), (*d_gr), (*d_prem));
+        h = HeatPDE(d_xl, d_xr, d_tf, d_ti, d_u0, (*d_gl), (*d_gr), (*d_prem));
     }
     else {
-        d_h = HeatPDE(d_xl, d_xr, d_tf, d_ti, (*d_f), (*d_gl), (*d_gr), (*d_prem));
+        h = HeatPDE(d_xl, d_xr, d_tf, d_ti, (*d_f), (*d_gl), (*d_gr), (*d_prem));
     }
 
     // Discretize the computational domain
@@ -279,181 +371,183 @@ std::vector<double> FiniteDifference::evaluate( FiniteDifferenceMethod fdm,
         case EulerForward: 
             isAmerican = false;
             xReversed = false;
-            d_h.fdSolveForwardEuler(d_M, d_N, &u, dM, dN);
+            h.fdSolveForwardEuler(d_M, d_N, &u, dM, dN);
             break;
         case EulerBackwardByLU:
             isAmerican = false;
             xReversed = false;
-            d_h.fdSolveBackwardEulerByLU(d_M, d_N, &u, dM, dN);
+            h.fdSolveBackwardEulerByLU(d_M, d_N, &u, dM, dN);
             break;
         case EulerBackwardBySOR:
             isAmerican = false;
             xReversed = false;
-            d_h.fdSolveBackwardEulerBySOR(d_M, d_N, omega, &u, dM, dN);
+            h.fdSolveBackwardEulerBySOR(d_M, d_N, omega, &u, dM, dN);
             break;
         case CrankNicolsonByLU:
             isAmerican = false;
             xReversed = false;
-            d_h.fdSolveCrankNicolsonByLU(d_M, d_N, &u, dM, dN);
+            h.fdSolveCrankNicolsonByLU(d_M, d_N, &u, dM, dN);
             break;
         case CrankNicolsonBySOR:
             isAmerican = false;
             xReversed = false;
-            d_h.fdSolveCrankNicolsonBySOR(d_M, d_N, omega, &u, dM, dN);
+            h.fdSolveCrankNicolsonBySOR(d_M, d_N, omega, &u, dM, dN);
             break;
         case AmericanEulerForward: 
             isAmerican = true;
             xReversed = false;
-            d_h.fdSolveAmericanForwardEuler(d_M, d_N, &u, dM, dN);
+            h.fdSolveAmericanForwardEuler(d_M, d_N, &u, dM, dN);
             break;
         case AmericanEulerBackwardByLU: 
             isAmerican = true;
             xReversed = true;
-            d_h.fdSolveAmericanBackwardEulerByLU(d_M, d_N, &u, dM, dN);
+            h.fdSolveAmericanBackwardEulerByLU(d_M, d_N, &u, dM, dN);
             break;
         case AmericanEulerBackwardBySOR: 
             isAmerican = true;
             xReversed = false;
-            d_h.fdSolveAmericanBackwardEulerBySOR(d_M, d_N, omega, &u, dM, dN);
+            h.fdSolveAmericanBackwardEulerBySOR(d_M, d_N, omega, &u, dM, dN);
             break;
         case AmericanCrankNicolsonByLU:
             isAmerican = true;
             xReversed = true;
-            d_h.fdSolveAmericanCrankNicolsonByLU(d_M, d_N, &u, dM, dN);
+            h.fdSolveAmericanCrankNicolsonByLU(d_M, d_N, &u, dM, dN);
             break;
         case AmericanCrankNicolsonBySOR:
             isAmerican = true;
             xReversed = false;
-            d_h.fdSolveAmericanCrankNicolsonBySOR(d_M, d_N, omega, &u, dM, dN);
+            h.fdSolveAmericanCrankNicolsonBySOR(d_M, d_N, omega, &u, dM, dN);
             break;
     }
     
     // get early exercise boundary
-    if (isAmerican && dM>0) {
-        std::cout << " --- Print Early Exercise Boundary --- " << std::endl;
-        double dx = (d_xr-d_xl)/d_N;
-        std::vector<double> eeb = d_h.getEarlyExerciseBoundary();
-        for (int m=0; m<d_M+1; m++) { 
-            if ( m%dM == 0 ) {
-                double s1 = d_strike*std::exp(eeb[m]);
-                double s2 = d_strike*std::exp(eeb[m]+dx);
-                double sOpt = 0.5*(s1+s2);
-                double t = d_expiry - 2*m*dt/(d_vol*d_vol);
-                if (m==0) { sOpt = d_strike; }
-                std::cout << std::fixed << std::setprecision(9)
-                          << t << "," << sOpt << std::endl;
-            }
-        }
-        std::cout << " ------------------------------------- " << std::endl;
-    }
+    if (isAmerican && dM>0) { printEarlyExerciseBoundary(h, dt, dM); }
    
     // get solution at the previous time step 
-    std::vector<double> uOld = d_h.getPrevSolution(xReversed);
-    
+    std::vector<double> uOld = h.getPrevSolution(xReversed);
     // Option price and greeks
-    OptionValue optionValue = getOptionValue(u, uOld, dt);
-    double vApproximate1 = optionValue.price;
-    double vApproximate2 = optionValue.price2;
-    double delta = optionValue.delta;
-    double gamma = optionValue.gamma;
-    double theta = optionValue.theta;
-    
-    // variance reduction for American options
-    double vApproximate3 = 0.0;
-    if ( isAmerican && varReduction ) {
-        std::vector<double> uEuro(d_N+1,0);
-        switch (fdm)
-        {
-            case EulerForward: 
-            case EulerBackwardByLU:
-            case EulerBackwardBySOR:
-            case CrankNicolsonByLU:
-            case CrankNicolsonBySOR:
-                break;
-            case AmericanEulerForward: 
-                d_h.fdSolveForwardEuler(d_M, d_N, &uEuro, dM, dN);
-                break;
-            case AmericanEulerBackwardByLU: 
-                d_h.fdSolveBackwardEulerByLU(d_M, d_N, &uEuro, dM, dN);
-                break;
-            case AmericanEulerBackwardBySOR: 
-                d_h.fdSolveBackwardEulerBySOR(d_M, d_N, omega, &uEuro, dM, dN);
-                break;
-            case AmericanCrankNicolsonByLU:
-                d_h.fdSolveCrankNicolsonByLU(d_M, d_N, &uEuro, dM, dN);
-                break;
-            case AmericanCrankNicolsonBySOR:
-                d_h.fdSolveCrankNicolsonBySOR(d_M, d_N, omega, &uEuro, dM, dN);
-                break;
-        }
-    
-        std::vector<double> uEuroOld = d_h.getPrevSolution(xReversed);
-    
-        OptionValue EuroValue = getOptionValue( uEuro, uEuroOld, dt );
-        double vEuroApproximate1 = EuroValue.price;
-        double vEuroExact = d_BlackScholes.price;
-        vApproximate3 = vApproximate1 + (vEuroExact-vEuroApproximate1);
-    }
-    
-    // Error analysis I: Point-wise Error
-    double exactPrice = vExact > 0 ? vExact : d_BlackScholes.price;
-    double error1 = std::fabs(vApproximate1-exactPrice);
-    double error2 = std::fabs(vApproximate2-exactPrice);
-    
-    // Print the errors and greeks
-    std::cout << std::fixed
-              << std::setprecision(9)
-              << error1 << ",,"
-              << error2 << ",,";
-
-    // Error analysis II: Root-Mean-Squared (RMS) Error
-    // Note: only for European options.
-    double error3 = 0;
-    if (!isAmerican) {
-        double c = (d_rate-d_div)/(d_vol*d_vol);
-        double a = c-0.5;
-        double b = (c+0.5)*(c+0.5) + 2*d_div/(d_vol*d_vol);
-        double dx = (d_xr-d_xl)/d_N;
-
-        int count = 0;
-        for (int n=0; n<d_N+1; n++) {
-            double x = d_xl + n*dx;
-            double s = d_strike*std::exp(x);
-            // Black-Scholes value
-            OptionValue vBlackScholes;
-            std::tuple<OptionValue,OptionValue> res
-                = BlackScholes(d_expiry,d_strike,s,d_rate,d_div,d_vol);
-            if (d_isPut) { vBlackScholes = std::get<1>(res);}
-            else { vBlackScholes = std::get<0>(res);}
-
-            double bsPrice = vBlackScholes.price;
-            if (bsPrice > 0.00001*s) {
-                double vApproximate = std::exp(-a*x-b*d_tf)*u[n];
-                double diff = (vApproximate - bsPrice)/bsPrice;
-                double diff2 = diff*diff;
-                error3 += diff2;
-                count++;
-            }
-        }
-
-        error3 /= count;
-        error3 = std::sqrt(error3);
-        std::cout << error3 << ",,";
-    }
-    
-    std::cout << std::fixed
-              << std::setprecision(9)
-              << delta << ","
-              << gamma << ","
-              << theta << ",";
-    
-    if ( isAmerican && varReduction ) {
-        double error4 = std::fabs(vApproximate3-exactPrice);
-        std::cout << vApproximate3 << "," << error4 << ",";
+    std::cout << "******** Print American option grid points *********" << std::endl;
+    std::tuple<OptionValue,OptionValue> res = getOptionValue(u, uOld, dt);
+    std::cout << "****************************************************" << std::endl;
+    OptionValue op1 = std::get<0>(res);
+    OptionValue op2 = std::get<1>(res);
+   
+    OptionValue varCorrection;
+    if (isAmerican && varReduction) {
+        varCorrection = getVarReduction(fdm, omega);
     }
 
-    std::cout << std::endl;
-
+    getPriceGreekReport(op1, op2, varCorrection, 
+                        isAmerican && varReduction, vExact);
+    
     return u;
 }
+
+OptionValue FiniteDifference::getVarReduction(FiniteDifferenceMethod fdm,
+                                              double omega)
+{
+    // European boundary conditions
+    VanillaPutTerminalCondition 
+        fPut(d_expiry, d_spot, d_strike, d_rate, d_div, d_vol);
+    VanillaPutLeftBoundaryCondition
+        glPut(d_expiry, d_spot, d_strike, d_rate, d_div, d_vol);
+    VanillaPutRightBoundaryCondition
+        grPut(d_expiry, d_spot, d_strike, d_rate, d_div, d_vol);
+    VanillaCallTerminalCondition 
+        fCall(d_expiry, d_spot, d_strike, d_rate, d_div, d_vol);
+    VanillaCallLeftBoundaryCondition
+        glCall(d_expiry, d_spot, d_strike, d_rate, d_div, d_vol);
+    VanillaCallRightBoundaryCondition
+        grCall(d_expiry, d_spot, d_strike, d_rate, d_div, d_vol);
+    // set boundaries on boundary conditions
+    fPut.setBoundaries(d_ti, d_tf, d_xl, d_xr);
+    glPut.setBoundaries(d_ti, d_tf, d_xl, d_xr);
+    grPut.setBoundaries(d_ti, d_tf, d_xl, d_xr);
+    fCall.setBoundaries(d_ti, d_tf, d_xl, d_xr);
+    glCall.setBoundaries(d_ti, d_tf, d_xl, d_xr);
+    grCall.setBoundaries(d_ti, d_tf, d_xl, d_xr);
+
+    // Create a new heat PDE to solve the European option
+    HeatPDE h2;
+    if (d_isPut) {
+        h2 = HeatPDE(d_xl, d_xr, d_tf, d_ti, fPut, glPut, grPut);
+    }
+    else {
+        h2 = HeatPDE(d_xl, d_xr, d_tf, d_ti, fCall, glCall, grCall);
+    }
+
+    // solve on the same finite-difference grid
+    double dt = (d_tf-d_ti)/d_M;
+    
+    // variance reduction for American options
+    bool xReversed = false;
+    std::vector<double> uEuro(d_N+1,0);
+    switch (fdm)
+    {
+        case EulerForward: 
+        case EulerBackwardByLU:
+        case EulerBackwardBySOR:
+        case CrankNicolsonByLU:
+        case CrankNicolsonBySOR:
+            break;
+        case AmericanEulerForward: 
+            h2.fdSolveForwardEuler(d_M, d_N, &uEuro);
+            break;
+        case AmericanEulerBackwardByLU: 
+            xReversed = true;
+            h2.fdSolveBackwardEulerByLU(d_M, d_N, &uEuro);
+            break;
+        case AmericanEulerBackwardBySOR: 
+            h2.fdSolveBackwardEulerBySOR(d_M, d_N, omega, &uEuro);
+            break;
+        case AmericanCrankNicolsonByLU:
+            xReversed = true;
+            h2.fdSolveCrankNicolsonByLU(d_M, d_N, &uEuro);
+            break;
+        case AmericanCrankNicolsonBySOR:
+            h2.fdSolveCrankNicolsonBySOR(d_M, d_N, omega, &uEuro);
+            break;
+    }
+    
+    std::vector<double> uEuroOld = h2.getPrevSolution(xReversed);
+
+    std::cout << "******** Print European option grid points *********" << std::endl;
+    std::tuple<OptionValue,OptionValue> 
+        res = getOptionValue( uEuro, uEuroOld, dt );
+    std::cout << "****************************************************" << std::endl;
+    OptionValue EuroValue = std::get<0>(res);
+
+    std::cout << "******** Print Black-Scholes Price & Greeks ********" << std::endl;
+    std::cout << std::fixed 
+              << std::setprecision(9)
+              << d_BlackScholes.price << ","
+              << d_BlackScholes.delta << ","
+              << d_BlackScholes.gamma << ","
+              << d_BlackScholes.theta << std::endl;
+    std::cout << "****************************************************" << std::endl;
+
+    double vEuroApproximate1 = EuroValue.price;
+    double deltaEuroApproximate1 = EuroValue.delta;
+    double gammaEuroApproximate1 = EuroValue.gamma;
+    double thetaEuroApproximate1 = EuroValue.theta;
+
+    double vEuroExact = d_BlackScholes.price;
+    double deltaEuroExact = d_BlackScholes.delta;
+    double gammaEuroExact = d_BlackScholes.gamma;
+    double thetaEuroExact = d_BlackScholes.theta;
+
+    double priceCorrection = vEuroExact-vEuroApproximate1;
+    double deltaCorrection = deltaEuroExact-deltaEuroApproximate1;
+    double gammaCorrection = gammaEuroExact-gammaEuroApproximate1;
+    double thetaCorrection = thetaEuroExact-thetaEuroApproximate1;
+
+    OptionValue correction;
+    correction.price = priceCorrection;
+    correction.delta = deltaCorrection;
+    correction.gamma = gammaCorrection;
+    correction.theta = thetaCorrection;
+
+    return correction; 
+}
+
 
