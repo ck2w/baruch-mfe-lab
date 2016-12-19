@@ -1,0 +1,1010 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Short Sectioned Assignment
+% LaTeX Template
+% Version 1.0 (5/5/12)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Original author:
+% Frits Wenneker (http://www.howtotex.com)
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[paper=a4, fontsize=11pt]{scrartcl} % A4 paper and 11pt font size
+
+\usepackage[T1]{fontenc} % Use 8-bit encoding that has 256 glyphs
+\usepackage{fourier} % Use the Adobe Utopia font for the document - comment this line to return to the LaTeX default
+\usepackage[english]{babel} % English language/hyphenation
+\usepackage{amsmath,amsfonts,amsthm, amssymb} % Math packages
+\usepackage{enumitem}
+\usepackage{cancel}
+\usepackage{graphicx} % Required to insert images
+\usepackage{pgfplotstable}% For inserting csv table
+
+\usepackage{algorithmic}
+\usepackage{algorithm}
+
+\usepackage{sectsty} % Allows customizing section commands
+\allsectionsfont{\centering \normalfont\scshape} % Make all sections centered, the default font and small caps
+
+\usepackage{fancyhdr} % Custom headers and footers
+\pagestyle{fancyplain} % Makes all pages in the document conform to the custom headers and footers
+\fancyhead{} % No page header - if you want one, create it in the same way as the footers below
+\fancyfoot[L]{} % Empty left footer
+\fancyfoot[C]{} % Empty center footer
+\fancyfoot[R]{\thepage} % Page numbering for right footer
+\renewcommand{\headrulewidth}{0pt} % Remove header underlines
+\renewcommand{\footrulewidth}{0pt} % Remove footer underlines
+\setlength{\headheight}{13.6pt} % Customize the height of the header
+
+\numberwithin{equation}{section} % Number equations within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{figure}{section} % Number figures within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{table}{section} % Number tables within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+
+\setlength\parindent{0pt} % Removes all indentation from paragraphs - comment this line for an assignment with lots of text
+\usepackage{color}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\usepackage{listings}
+\lstset{frame=tb,
+  language=C++,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true
+  tabsize=3
+}
+
+
+
+%----------------------------------------------------------------------------------------
+%	TITLE SECTION
+%----------------------------------------------------------------------------------------
+
+\newcommand{\horrule}[1]{\rule{\linewidth}{#1}} % Create horizontal rule command with 1 argument of height
+
+\title{	
+\normalfont \normalsize
+\textsc{Baruch, MFE} \\ [25pt] % Your university, school and/or department name(s)
+\horrule{0.5pt} \\[0.4cm] % Thin top horizontal rule
+\huge MTH 9821 Homework Two \footnote{Team work:\newline
+Chu, Hongshan \#10, \#14\newline 
+Wang, Jiaxi \#12\newline
+Wei, Zhaoyue \#13\newline 
+Yin, Gongshun \#2,\#3,\#4,\#5,\#6,\#7 \newline
+Zhou, ShengQuan \#1,\#2,\#3,\#4,\#5,\#6,\#7,\#8,\#9,\#11,\#13}\\  % The assignment title
+\horrule{2pt} \\[0.5cm] % Thick bottom horizontal rule
+}
+
+
+\author{Chu, Hongshan\\
+Wang, Jiaxi\\
+Wei, Zhaoyue\\
+Yin, Gongshun\\
+Zhou, ShengQuan} % Your name
+
+\date{\normalsize\today} % Today's date or a custom date
+
+\begin{document}
+	
+
+
+\maketitle % Print the title
+
+\newpage
+
+
+
+\section{C++ Codes}
+\subsection{Cholesky Decomposition of an S.P.D. Matrix, Banded, Tridiagonal}
+\begin{lstlisting}
+Eigen::MatrixXd cholesky(const Eigen::MatrixXd & A)
+{
+    int n = A.rows();
+    return cholesky_banded(A, n-1); 
+}
+
+Eigen::MatrixXd cholesky_banded(const Eigen::MatrixXd & A, int m)
+{
+    Eigen::MatrixXd Acopy = A;
+    int n = Acopy.rows();
+    assert(n == Acopy.cols());
+    assert(Acopy == Acopy.transpose()); // enfoce symmetry
+
+    Eigen::MatrixXd U = Eigen::MatrixXd::Zero(n,n);
+
+    for (int k=0; k<n-1; k++) {
+        assert(Acopy(k,k)>0);
+
+        U(k,k) = std::sqrt(Acopy(k,k));
+
+        int boundary = std::min(k+m+1,n);
+        for (int i=k+1; i<boundary; i++) {
+            U(k,i) = Acopy(k,i)/U(k,k);
+        }
+
+        for (int i=k+1; i<boundary; i++) {
+            for (int j=i; j<boundary; j++) {
+                Acopy(i,j) -= U(k,i)*U(k,j);
+            }
+        }
+    }
+
+    U(n-1,n-1) = std::sqrt(Acopy(n-1,n-1));
+
+    return U; 
+}
+
+Eigen::MatrixXd cholesky_tridiagonal(const Eigen::MatrixXd & A)
+{
+    return cholesky_banded(A, 1);
+}
+\end{lstlisting}
+\newpage
+\subsection{Linear Solvers for S.P.D. Matrices, Banded, Tridiagonal}
+\begin{lstlisting}
+Eigen::VectorXd spd_solve(const Eigen::MatrixXd & A, 
+                             const Eigen::VectorXd & b)
+{
+    int n = b.size();
+    assert(A.rows() == n);
+    assert(A.cols() == n);
+
+    Eigen::MatrixXd U = cholesky(A);
+    Eigen::VectorXd y = forward_subst(U.transpose(), b);
+    Eigen::VectorXd x = backward_subst(U, y);
+    
+    return x;
+}
+
+Eigen::VectorXd banded_spd_solve(const Eigen::MatrixXd & A, int m,
+                                     const Eigen::VectorXd & b)
+{
+    int n = b.size();
+    assert(A.rows() == n);
+    assert(A.cols() == n);
+
+    Eigen::MatrixXd U = cholesky_banded(A, m);
+    Eigen::VectorXd y = forward_subst_banded(U.transpose(), m, b);
+    Eigen::VectorXd x = backward_subst_banded(U, m, y);
+    
+    return x;
+}
+
+Eigen::VectorXd tridiagonal_spd_solve(const Eigen::MatrixXd & A, 
+                                          const Eigen::VectorXd & b)
+{
+    int n = b.size();
+    assert(A.rows() == n);
+    assert(A.cols() == n);
+
+    Eigen::MatrixXd U = cholesky_tridiagonal(A);
+    Eigen::VectorXd y = forward_subst_tridiagonal(U.transpose(), b);
+    Eigen::VectorXd x = backward_subst_tridiagonal(U, y);
+    
+    return x;
+}
+\end{lstlisting}
+where the methods for triangular solvers are defined in the next sub-section.
+
+\newpage
+\subsection{Lower-Triangular Solvers for Banded or Tridiagonal Matrices}
+\begin{lstlisting}
+Eigen::VectorXd forward_subst_banded(const Eigen::MatrixXd & L, int m,
+                                         const Eigen::VectorXd & b)
+{
+    int n = b.size();
+    assert(L.rows() == n);
+    assert(L.cols() == n);
+
+    Eigen::VectorXd x = Eigen::VectorXd::Zero(n);
+    x(0) = b(0)/L(0,0);
+    for (int i=1; i<n; i++) {
+        double sum = 0;
+        int boundary = std::max(0,i-m);
+        for (int j=boundary; j<i; j++) {
+            sum += L(i,j)*x(j);
+        }
+        x(i) = (b(i)-sum)/L(i,i);
+    }
+    
+    return x;
+}
+
+Eigen::VectorXd forward_subst(const Eigen::MatrixXd & L, 
+                                 const Eigen::VectorXd & b)
+{
+    int n = b.size();
+    return forward_subst_banded(L, n-1, b); //band width = n-1
+}
+
+Eigen::VectorXd forward_subst_tridiagonal(const Eigen::MatrixXd & L, 
+                                              const Eigen::VectorXd & b)
+{
+    return forward_subst_banded(L, 1, b); //band width = 1
+}
+\end{lstlisting}
+\newpage
+\subsection{Upper-Triangular Solvers for Banded or Tridiagonal Matrices}
+\begin{lstlisting}
+Eigen::VectorXd backward_subst_banded(const Eigen::MatrixXd & U, int m,
+                                          const Eigen::VectorXd & b)
+{
+    int n = b.size();
+    assert(U.rows() == n);
+    assert(U.cols() == n);
+
+    Eigen::VectorXd x = Eigen::VectorXd::Zero(n);
+    x(n-1) = b(n-1)/U(n-1,n-1);
+    for (int i=n-2; i>=0; i--) {
+        double sum = 0;
+        int boundary = std::min(n,i+m+1);
+        for (int j=i+1; j<boundary; j++) {
+            sum += U(i,j)*x(j);
+        }
+        x(i) = (b(i)-sum)/U(i,i);
+    }
+
+    return x;
+}
+
+Eigen::VectorXd backward_subst(const Eigen::MatrixXd & U, 
+                                  const Eigen::VectorXd & b)
+{
+    int n = b.size();
+    return backward_subst_banded(U, n-1, b); //band width = n-1
+}
+
+Eigen::VectorXd backward_subst_tridiagonal(const Eigen::MatrixXd & U, 
+                                               const Eigen::VectorXd & b)
+{
+    return backward_subst_banded(U, 1, b); //band width = 1
+}
+\end{lstlisting}
+
+\newpage
+
+
+
+\section{Verification of Symmetric Positive Definiteness}
+Let 
+$$
+A =\begin{pmatrix}
+1 & -0.2 & 0.8 \\
+-0.2 & 2 & 0.3 \\
+0.8 & 0.3 & 1.1
+\end{pmatrix}
+$$
+(i) Show that the matrix $A$ is weakly diagonally dominated, and therefore symmetric positive semi-definite.\\
+\textit{Proof}: Firstly, $A$ is symmetric by observation, thus all eigenvalues are real. Check each row:
+\begin{align}
+\nonumber |A_{11}| &= 1 = 0.2 + 0.8 = |A_{12}| + |A_{13}|,\\
+\nonumber |A_{22}| &= 2 > 0.2 + 0.3 = |A_{21}| + |A_{23}|,\\
+\nonumber |A_{33}| &= 1.1 = 0.8 + 0.3 = |A_{31}| + |A_{32}|.
+\end{align}
+Therefore, the matrix $A$ is weakly diagonally dominated and symmetric positive semi-definite.\\
+
+(ii) Use Sylvester's criterion to show that the matrix $A$ is symmetric positive definite.\\
+\textit{Proof}: Check each leading principal minor:
+\begin{align}
+\nonumber  &A_{11}= 1 > 0,\\
+\nonumber  &\det\begin{vmatrix}
+1 & -0.2 \\
+-0.2 & 2 
+\end{vmatrix} = 2 - 0.04 > 0, \\
+\nonumber  &\det\begin{vmatrix}
+1 & -0.2 & 0.8 \\
+-0.2 & 2 & 0.3 \\
+0.8 & 0.3 & 1.1
+\end{vmatrix} = 2.2 - 0.048 -0.048 - 1.28 - 0.044 - 0.09 = 0.69 > 0.
+\end{align}
+According to Sylvester's criterion, the matrix $A$ is symmetric positive definite.
+
+\newpage
+
+\section{Cholesky Decomposition of a Special Matrix}
+Let $B_N$ be the $N\times N$ tridiagonal symmetric positive definite matrix given by 
+$$
+B_N = \begin{pmatrix}
+2 & -1 & \cdots & 0\\
+-1 & 2 & \cdots & 0\\
+\vdots & \vdots & \ddots &-1\\
+0 & 0 & -1 &2
+\end{pmatrix}.
+$$
+Show that the Cholesky factor $U_N$ of the matrix $B_N$ is the upper triangular bidiagonal matrix given by
+\begin{align}
+\nonumber & U_N(i,i) = \sqrt{\frac{i+1}{i}}, \quad \forall i=1,\cdots,N,\\
+\nonumber & U_N(i,i+1) = -\sqrt{\frac{i}{i+1}}, \quad \forall i=1,\cdots,N-1.\\
+\end{align}
+\textit{Proof}: Write the elements of matrix $B_N$ and $U_N$ as
+\begin{align}
+\nonumber B_N(i,j) &= 2\delta_{ij} - \delta_{i,j+1} - \delta_{i,j-1},\\
+\nonumber U_N(i,j) &= \sqrt{\frac{i+1}{i}}\delta_{ij}-\sqrt{\frac{i}{i+1}}\delta_{i+1,j}.
+\end{align}
+Compute the matrix mulplication, $\forall i,j=1,\cdots,N$
+\begin{align}
+\nonumber \left(U_N^T U_N\right)(i,j) &= \sum_{k=1}^{N} U_N^T(i,k)U_N(k,j) \\
+\nonumber &= \sum_{k=1}^{N}  \left( \sqrt{\frac{k+1}{k}}\delta_{ki}-\sqrt{\frac{k}{k+1}}\delta_{k+1,i} \right)
+\left( \sqrt{\frac{k+1}{k}}\delta_{kj}-\sqrt{\frac{k}{k+1}}\delta_{k+1,j} \right) \\
+\nonumber &= \sum_{k=1}^{N}  \left(\frac{k+1}{k}\delta_{ki}\delta_{kj}  -\delta_{k+1,i}\delta_{kj} -\delta_{ki}\delta_{k+1,j}  + \frac{k}{k+1} \delta_{k+1,i}\delta_{k+1,j}   \right) \\
+\nonumber &= \frac{i+1}{i}\delta_{ij}  -\delta_{j+1,i} -\delta_{i+1,j}  + \frac{i-1}{i} \delta_{ij} \\
+\nonumber &= 2\delta_{ij} - \delta_{i,j+1} - \delta_{i,j-1}\\
+\nonumber &= B_N(i,j).
+\end{align}
+
+Since we know that $B_N$ is spd matrix so it has Cholesky decomposition and it is unique. Hence the $U_N$ described here must be the Cholesky factor of matrix $B_N$.
+
+\newpage
+
+\section{Pseudocode of Cholesky Linear Solver for a Special Matrix}
+Let $B_N$ and $U_N$ be the matrices given in the previous problem.\\
+(i) Give the pseudocode for computing the solution to a linear system $B_N x =b$, where $b$ and $x$ are $N\times 1$ column vectors.\\
+\textit{Solution}: Solving the linear system $B_N x =b$ is equivalent to solving the following two linear systems successively
+\begin{align}
+\nonumber & U_N^T y = b,\\
+\nonumber & U_N x = y.
+\end{align}
+Using the explicit matrix elements of $U_N$ given in the previous problem, we can write down the pseudocode
+\begin{algorithm}
+\caption{Cholesky Linear Solve of $B_N$}\label{clsb}
+\begin{algorithmic}
+\STATE \textbf{Input}: $b: N\times 1$ column vector
+\STATE \textbf{Output}: $x: $ solution to $B_N x =b$
+\STATE $y_1 = \frac{b_1}{U_{11}}= \frac{b_1}{\sqrt{2}}$
+\STATE \textbf{For} $i=2:N$
+    \STATE $\quad\quad y_i = \frac{b_i - U_{i-1,i}y_{i-1}}{U_{ii}}= \frac{b_i + y_{i-1}\sqrt{\frac{i-1}{i}}}{\sqrt{\frac{i+1}{i}}}$
+\STATE \textbf{End}
+\STATE $x_N =\frac{y_N}{U_{NN}} = y_N\sqrt{\frac{N}{N+1}}$
+\STATE \textbf{For} $i=N-1:1$
+    \STATE $\quad\quad x_i = \frac{y_i - U_{i,i+1}x_{i+1}}{U_{ii}} = \frac{y_i + x_{i+1}\sqrt{\frac{i}{i+1}}}{\sqrt{\frac{i+1}{i}}}$
+\STATE \textbf{End}
+\end{algorithmic}
+\end{algorithm}
+
+(ii) Give the operation count of the pseudocode above. How does it compare to $8n+O(1)$.
+\textit{Solution}: The operation count is
+$$
+2 + (N-1)\times 9 + 5 + (N-1)\times 9 = 18N + O(1),
+$$
+where the $9$ operations per interation include addition/subtraction, multiplication/division, and square roots. Compared with $8n+O(1)$, the op count of this algorithm is larger.
+
+\newpage
+
+\section{$LU$-Decomposition of a Special Matrix}
+Let $B_N$ be the tridiagonal matrix given in the previous two problems. Show that the $LU$-factors $L$ and $U$ of the matrix $B_N$
+are the lower triangular bidiagonal matrix and the upper triangular bidiagonal matrix given by
+\begin{align}
+\nonumber & L(i,i) = 1, \quad \forall i=1,\cdots,N \\
+\nonumber & L(i+1,i) = -\frac{i}{i+1}, \quad \forall i=1,\cdots,N-1 \\
+\nonumber & U(i,i) = \frac{i+1}{i}, \quad \forall i=1,\cdots,N \\
+\nonumber & U(i,i+1) = -1, \quad \forall i=1,\cdots,N-1
+\end{align}
+\textit{Proof}: Similarly, write the matrix elements explicitly
+\begin{align}
+\nonumber &L_{ij} = \delta_{ij} - \frac{i-1}{i}\delta_{i,j+1},\\
+\nonumber &U_{ij} = \frac{i+1}{i}\delta_{ij} - \delta_{i,j-1}.
+\end{align}
+Compute the matrix mulplication, $\forall i,j=1,\cdots,N$
+\begin{align}
+\nonumber \left(LU\right)_{ij} &= \sum_{k=1}^{N} L_{ik}U_{kj} \\
+\nonumber &= \sum_{k=1}^{N}  \left( \delta_{ik} - \frac{i-1}{i}\delta_{i,k+1} \right)
+\left( \frac{k+1}{k}\delta_{kj} - \delta_{k,j-1} \right) \\
+\nonumber &= \sum_{k=1}^{N}  \left(  \frac{k+1}{k}\delta_{ik}\delta_{kj}  - \delta_{ik}\delta_{k,j-1} -  \frac{(i-1)(k+1)}{ik}\delta_{i,k+1}\delta_{kj} 
++ \frac{i-1}{i}\delta_{i,k+1}\delta_{k,j-1} \right) \\
+\nonumber &= \frac{i+1}{i}\delta_{ij}  -\delta_{i,j-1} -\delta_{i,j+1}  + \frac{i-1}{i} \delta_{ij} \\
+\nonumber &= 2\delta_{ij} - \delta_{i,j+1} - \delta_{i,j-1}\\
+\nonumber &= B_N(i,j).
+\end{align}
+
+Since we know that $B_N$ is spd matrix so it has $LU$ decomposition and it is unique. Hence the $L, U$ described here must be the $L, U$ factors of matrix $B_N$.
+
+\newpage
+
+\section{Pseudocode of $LU$ Linear Solver for a Special Matrix}
+Let $B_N$, $L$, and $U$ be the matrices given in the previous problem.\\
+(i) Give the pseudocode for computing the solution to a linear system $B_N x =b$, where $b$ and $x$ are $N\times 1$ column vectors.\\
+\textit{Solution}: Solving the linear system $B_N x =b$ is equivalent to solving the following two linear systems successively
+\begin{align}
+\nonumber & L y = b,\\
+\nonumber & U x = y.
+\end{align}
+Using the explicit matrix elements of $L$ and $U$ given in the previous problem, we can write down the pseudocode
+\begin{algorithm}
+\caption{$LU$ Linear Solve of $B_N$}\label{lulsb}
+\begin{algorithmic}
+\STATE \textbf{Input}: $b: N\times 1$ column vector
+\STATE \textbf{Output}: $x: $ solution to $B_N x =b$
+\STATE $y_1 = \frac{b_1}{L_{11}}= b_1$
+\STATE \textbf{For} $i=2:N$
+    \STATE $\quad\quad y_i = \frac{b_i - L_{i,i-1}y_{i-1}}{L_{ii}}= b_i + y_{i-1}\frac{i-1}{i}$
+\STATE \textbf{End}
+\STATE $x_N =\frac{y_N}{U_{NN}} = y_N\frac{N}{N+1}$
+\STATE \textbf{For} $i=N-1:1$
+    \STATE $\quad\quad x_i = \frac{y_i - U_{i,i+1}x_{i+1}}{U_{ii}} = \frac{i}{i+1} \left(y_i + x_{i+1}\right).$
+\STATE \textbf{End}
+\end{algorithmic}
+\end{algorithm}
+
+(ii) Give the operation count of the pseudocode above. How does it compare to $8n+O(1)$.
+\textit{Solution}: The operation count is
+$$
+ (N-1)\times 4 + 3 + (N-1)\times 4 = 8N + O(1),
+$$
+where the $4$ operations per interation include addition/subtraction and multiplication/division. Hence the algorithm has the same op count as $8n+O(1)$.
+
+\newpage
+
+\section{Optimal Pseudocode for Tridiagonal S.P.D. Solver}
+Write an explicit optimal pseudocode for solving linear systems corresponding to
+the same tridiagonal symmetric positive definite matrix. In other words, write a
+psedudocode for solving $p$ linear systems $Ax_i = b_i$, $\forall i=1:p$, where $A$
+is an $n\times n$ tridiagonal symmetric positive definite matrix.\\
+
+\begin{algorithm}
+\caption{$LU$ Linear Solve of Tridiagonal Symmetric Positive Definite Matrix}\label{lstspdm}
+\begin{algorithmic}
+\STATE \textbf{Input}: 
+\STATE \quad $A: N\times N$ tridiagonal symmetric positive definite matrix
+\STATE \quad $b^i: N\times 1$ column vectors, $i=1,\cdots, p$
+\STATE \textbf{Output}: $x^i: N\times 1$ column vectors, solution to $A x^i =b^i$, $i=1,\cdots, p$
+\newline
+\STATE $L=0, U=0$
+\STATE \textbf{For} $i=1:N-1$
+\STATE \quad $L_{ii} = 1$
+\STATE \quad $U_{ii} = A_{ii}$
+\STATE \quad $U_{i,i+1} = A_{i,i+1}$
+\STATE \quad $L_{i+1,i} = \frac{A_{i+1,i}}{A_{ii}}$
+\STATE \quad $A_{i+1,i+1} = A_{i+1,i+1} - L_{i+1,i}U_{i,i+1}$
+\STATE \textbf{End}
+\STATE $L_{NN}=1, U_{NN}=A_{NN}$
+\newline
+\STATE \textbf{For} $i=1:p$
+\STATE \quad $y_1 = b^i_1$
+\STATE \quad \textbf{For} $j=2:N$
+    \STATE \quad $\quad\quad y_j = \frac{b^i_j - L_{j,j-1}y_{j-1}}{L_{jj}}$
+\STATE \quad \textbf{End}
+\newline
+\STATE \quad $x^i_N =\frac{y_N}{U_{NN}}$
+\STATE \quad \textbf{For} $j=N-1:1$
+    \STATE \quad $\quad\quad x^i_j = \frac{y_j - U_{j,j+1}x^i_{j+1}}{U_{jj}}$
+\STATE \quad \textbf{End}
+\STATE \textbf{End}
+\end{algorithmic}
+\end{algorithm}
+\begin{align}
+\begin{split}
+\nonumber\text{Operation Count} &= (n-1)\cdot3 + p\cdot((n-1)\cdot2+1+(n-1)\cdot3)\\
+&= 3n-3+p\cdot (5n-4)\\
+&=5np - 4p + 3n -3.
+\end{split}
+\end{align}
+\newpage
+
+\section{Pseudocode for Cholesky Decomposition of Banded S.P.D.}
+Write the pseudocode for the Cholesky decomposition of symmetric positive definite
+banded matrices of band $m$. What is the corresponding operation count?
+
+\begin{algorithm}
+\caption{Cholesky Decomposition of Banded S.P.D.}\label{lstspdm}
+\begin{algorithmic}
+\STATE \textbf{Input}: $A: N\times N$ banded symmetric positive definite matrix with band width $m$
+\STATE \textbf{Output}: $U: N\times N$ upper triangular matrix $U^T U= A$
+\newline
+\STATE $U=0$
+\STATE \textbf{For} $k=1:N-1$
+\STATE \quad $U_{kk} = \sqrt{A_{kk}}$
+\STATE \quad \textbf{For} $i=k+1:\min(k+m,n)$
+\STATE \quad \quad $U_{ki} = \frac{A_{ki}}{U_{kk}}$
+\STATE \quad \textbf{End}
+\newline
+\STATE \quad \textbf{For} $i=k+1:\min(k+m,n)$
+\STATE \quad \quad \textbf{For} $j=i:\min(k+m,n)$
+\STATE \quad \quad \quad $A_{i,j} = A_{i,j} - U_{k,i}U_{k,j}$
+\STATE \quad \quad \quad $A_{j,i} = A_{i,j}$
+\STATE \quad \quad \textbf{End}
+\STATE \quad \textbf{End}
+\STATE \textbf{End}
+\STATE $U_{NN}=\sqrt{A_{NN}}$
+\end{algorithmic}
+\end{algorithm}
+The operation count
+\begin{align}
+\nonumber &(n-1)+m\times(n-m) + \frac{m(m-1)}{2} + \frac{m(m+1)}{2}\times 2(n-m) + \frac{m(m-1)(m+1)}{3} + 1\\
+\nonumber =&\left(m^2+2m+1\right)n - \frac{2}{3}m^3 +O\left(m^2\right).
+\end{align}
+\newpage
+
+\section{Cholesky Linear Solve of Banded S.P.D.}
+What is the operation count for solving a linear system corresponding to
+a symmetric positive definite banded matrix of band $m$ using a Cholesky linear
+solver?\\
+\textit{Solution}: The Cholesky linear solve for $U^T U x =b$ is carried out in the following two steps in succession:
+\begin{align}
+\nonumber & U^T y = b,\\
+\nonumber & U x = y.
+\end{align}
+We write down the pseudocode
+\begin{algorithm}
+\caption{Cholesky Linear Solve of Banded Symmetric Positive Definite Matrix}\label{clsb}
+\begin{algorithmic}
+\STATE \textbf{Input}:
+\STATE \quad Cholesky decomposition of an S.P.D. matrix with band width $m$: $A=U^T U$ 
+\STATE \quad $b: N\times 1$ column vector
+\STATE \textbf{Output}: $x: $ solution to $U^T U x =b$
+\newline
+\STATE $y_1 = \frac{b_1}{U_{11}}$
+\STATE \textbf{For} $i=2:n$
+\STATE \quad sum=0
+\STATE \quad \textbf{For} $j=\max(0,i-m):(i-1)$
+    \STATE $\quad\quad \text{sum} = \text{sum} + U_{ji}y_{j}$
+\STATE \quad \textbf{End}
+\STATE \quad $y_i = \frac{b_i-\text{sum}}{U_{ii}}$
+\STATE \textbf{End}
+\newline
+\STATE $x_n =\frac{y_n}{U_{nn}}$
+\STATE \textbf{For} $i=n-1:1$
+\STATE \quad sum=0
+\STATE \quad \textbf{For} $j=i+1:\min(n,i+m+1)$
+    \STATE $\quad\quad \text{sum} = \text{sum} + U_{ij}x_{j}$
+\STATE \quad \textbf{End}
+\STATE \quad $x_i = \frac{y_i - \text{sum}}{U_{ii}}$
+\STATE \textbf{End}
+\end{algorithmic}
+\end{algorithm}
+\newline
+The operation count corresponding to the above pseudocode for the Cholesky linear solve of banded symmetric positive definite matrix
+is given in Problem 4 and Problem 5 in Homework One:
+$$
+2\times(2mn-m^2)+O(m) = 4mn - 2m^2 +O(m).
+$$
+Including the operation count corresponding to the Cholesky decomposition from the previous problem, we obtain the total operation count for solving one linear
+system
+$$
+\left(m^2+2m+1\right)n - \frac{2}{3}m^3 +O\left(m^2\right) + \left(4mn - 2m^2\right) + O(m)
+ = \left(m^2+6m+1\right)n - \frac{2}{3}m^3 +O\left(m^2\right).
+$$
+\newpage
+
+\section{Cubic Spline Interpolation of Zero Rates}
+The following discount factors were obtained from market data:
+
+\begin{center}
+\begin{tabular}{l*{6}{c}r}
+Date              & Discount Factor \\
+\hline
+2 months & 0.9980 \\
+5 months            & 0.9935   \\
+11 months          & 0.9820   \\
+15 months     & 0.9775   \\
+\end{tabular}
+\end{center}
+The overnight rate is $0.75\%$.\\
+\newline
+\textbf{(i)} What are the corresponding 2 months, 5 months, 11 months, and 15 months zero rates?
+\textit{Solution}: Since
+$$
+\text{disc}(t) = e^{-r(0,t)t}
+$$
+we have
+$$
+r(0,t) = \frac{\ln\left(\text{disc}(t)\right)}{-t}
+$$
+thus we have
+\begin{equation}
+\begin{split}
+\nonumber &r\left(0,0\right) = 0.0075,\\
+&r\left(0,\frac{2}{12}\right) = 0.01201202, \\
+&r\left(0,\frac{5}{12}\right) = 0.01565092, \\
+&r\left(0,\frac{11}{12}\right) = 0.01981524, \\
+&r\left(0,\frac{15}{12}\right) = 0.01820559.
+\end{split}
+\end{equation}
+In tabular form,
+\begin{center}
+\begin{tabular}{l*{6}{c}r}
+Date              & Discount Factor & Zero Rate \\
+\hline
+2 months & 0.9980 & 0.01201202 \\
+5 months            & 0.9935 & 0.01565092 \\
+11 months          & 0.9820  & 0.01981524 \\
+15 months     & 0.9775  & 0.01820559 \\
+\end{tabular}
+\end{center}
+
+
+
+\textbf{(ii)} What is the tridiagonal system that must be solved in the efficient implementation
+of the natural cubic spline interpolation for finding the zero rate curve for all times less 
+than 15 months?
+
+\textit{Solution}: Following the pseudocode in Table 6.8 in the textbook, we need solve the tridiagonal system:
+
+$$
+W = \begin{pmatrix}
+5/6 & 1/4 & 0 \\
+1/4 & 3/2 & 1/2 \\
+0   & 1/2 & 5/3 \\
+\end{pmatrix}, \quad
+z = \begin{pmatrix}
+0.0750988 & \\
+-0.037361875 & \\
+-0.07894557&\\
+\end{pmatrix}
+$$
+and we have to solve the linear system
+$$
+Mw = z.
+$$
+
+\textbf{(iii)} Use the efficient implementation of the natural cubic spline interpolation
+to find a zero rate curve for all times less than 15 months matching the discount factor above.
+
+\textit{Solution}: Use the C++ implementation of linear solver:
+\[ r(0,t) \approx \begin{cases} 
+      0.0075+0.02963324t-0.09220133t^2, & 0\leq t \leq \frac{2}{12} \\
+      0.006767143 + 0.04282467t - 0.079148546t^2 + 0.066095763t^2, & \frac{2}{12} \leq t \leq \frac{5}{12} \\
+      0.012908145-0.001390545t+0.02096797t^2-0.01879448t^3, &  \frac{5}{12} \leq t \leq \frac{11}{12} \\
+      -0.020615233+0.1083223t-0.0927188t^2+0.024725014t^3, & \frac{11}{12} \leq t \leq \frac{15}{12} \\
+   \end{cases}
+\]
+
+\textbf{(iv)} Find the value of a 14-months quarterly coupon bond with $2.5\%$ coupon rate.
+
+\textit{Solution}:
+\begin{equation}
+\begin{split}
+\nonumber 
+PV &= 0.625\cdot \text{disc}\left(\frac{2}{12}\right)+0.625\cdot \text{disc}\left(\frac{5}{12}\right)+0.625\cdot \text{disc}\left(\frac{8}{12}\right)+0.625\cdot \text{disc}\left(\frac{11}{12}\right) + 100.625\cdot \text{disc}\left(\frac{14}{12}\right)\\
+    & \approx 100.915
+\end{split}
+\end{equation}
+
+\newpage
+
+
+\section{Find Normal Variables with Given Covariance Matrix}
+Given $Z_1,Z_2,Z_3$ independent standard normal variables, find three three normal random variables $X_1,X_2,X_3$ with covariance matrix
+$$
+\begin{pmatrix}
+1&1&0.5\\
+1&4&-2\\
+0.5&-2&9
+\end{pmatrix}.
+$$
+\textit{Solution}: Perform the Cholesky decomposition of the given covariance matrix
+$$
+\begin{pmatrix}
+1&1&0.5\\
+1&4&-2\\
+0.5&-2&9
+\end{pmatrix} = \begin{pmatrix}
+1&1&0.5\\
+0&1.732051&-1.443376\\
+0&0&2.581989
+\end{pmatrix}^T
+\begin{pmatrix}
+1&1&0.5\\
+0&1.732051&-1.443376\\
+0&0&2.581989
+\end{pmatrix}
+$$
+Thus,
+\begin{align}
+\nonumber X_1 &= Z_1, \\
+\nonumber X_2 &= Z_1 + 1.732051 Z_2,  \\
+\nonumber X_3 &= 0.5Z_1 -1.443376 Z_2 + 2.581989 Z_3.
+\end{align}
+\newpage
+
+\section{Estimation of Implied Volatility}
+On May 22, 2014, the bid and ask prices of the S\&P 500 options maturing on January 17, 2015 were given. The spot prices of the index corresponding to these option prices was 1,894.\\
+
+\textbf{(i)} Compute the mid prices of the options, i.e., the average of the bid price and ask price of the options.
+Use ordinary least squares to compute the present value of the forward price PVF and the discount factor disc corresponding
+to the mid prices of the options.\\
+\textit{Solution}: The mid prices are listed in the following table\\
+{\footnotesize
+\pgfplotstabletypeset[
+    col sep=comma,
+    string type,
+    columns/natural/.style={column name=natural, column type={|l}},
+    columns/two/.style={column name=two, column type={|l}},
+    columns/three/.style={column name=three, column type={|c|}},
+    every head row/.style={before row=\hline,after row=\hline},
+    every last row/.style={after row=\hline},
+    ]{options.csv}
+}
+
+The problem is equivalent to finding the least square solution to $\bar{C} - \bar{P} = \text{PVF} - K\times \text{disc}$:
+$$
+\begin{pmatrix}
+1& -1450 \\
+1& -1500 \\
+1& -1550 \\
+1& -1600 \\
+1& -1675 \\
+1& -1700 \\
+1& -1750 \\
+1& -1775 \\
+1& -1800 \\
+1& -1825 \\
+1& -1850 \\
+1& -1875 \\
+1& -1900 \\
+1& -1925 \\
+1& -1975 \\
+1& -2000 \\
+1& -2050 \\
+1& -2100 \\
+\end{pmatrix}
+\times
+\begin{pmatrix}
+\text{PVF} \\
+\text{disc}
+\end{pmatrix}
+\approx
+\begin{pmatrix}
+423.25 \\
+373.4 \\
+323.5 \\
+273.65 \\
+199.15 \\
+174.25 \\
+124.35 \\
+99.65 \\
+74.4 \\
+49.6 \\
+24.65 \\
+-0.1 \\
+-25.25 \\
+-50 \\
+-99.9 \\
+-125.35 \\
+-175.3 \\
+-225.15 \\
+\end{pmatrix}
+$$
+The least square solution gives
+$$
+\text{PVF} \approx 1869.403121, \quad \text{disc} \approx 0.997227746.
+$$
+
+\textbf{(ii)} Compute the implied volatilities of these options. How do the implied volatilities of calls and puts with the same strike compare to each other?\\
+\textit{Solution}: Implied volatility $\sigma$ is defined by Black-Scholes formula:
+\begin{align}
+\nonumber C &= +\text{PVF}\cdot N(+d_+) - K\cdot \text{disc}\cdot N(+d_-),\\
+\nonumber P &= -\text{PVF}\cdot  N(-d_+) + K\cdot \text{disc}\cdot N(-d_-),
+\end{align}
+where $N(x)$ is the cumulative standard normal function,
+$$
+d_{\pm} = \frac{ \ln\left( \frac{\text{PVF}}{K\cdot\text{disc} }\right) }{\sigma\sqrt{T}} \pm 
+\frac{\sigma\sqrt{T}}{2},
+$$
+and $T=\frac{166}{252}$. Solve the above equation numerically using market data, we get
+\begin{center}
+{
+\pgfplotstabletypeset[
+    col sep=comma,
+    string type,
+    columns/natural/.style={column name=natural, column type={|l}},
+    columns/two/.style={column name=two, column type={|l}},
+    columns/three/.style={column name=three, column type={|c|}},
+    every head row/.style={before row=\hline,after row=\hline},
+    every last row/.style={after row=\hline},
+    ]{8.3.3.csv}
+}
+\end{center}
+The percentage difference is defined as the different between the call implied volatility and the put implied volatility relative to the call implied volatility. From the above result, we observe that a good agreement between the call implied volatility and the put implied volatility is obtained.
+
+\newpage
+
+\section{Comparison between Least Square, Linear Interpolation, and Cubic Spline Interpolation}
+Recall the example from the book where for 15 consecutive trading days, the yields of the 
+2-year, 3-year, 5-year, and 10-year treasury bonds were, respectively:
+\begin{center}
+{\footnotesize
+\pgfplotstabletypeset[
+    col sep=comma,
+    string type,
+    columns/natural/.style={column name=natural, column type={|l}},
+    columns/two/.style={column name=two, column type={|l}},
+    columns/three/.style={column name=three, column type={|c|}},
+    every head row/.style={before row=\hline,after row=\hline},
+    every last row/.style={after row=\hline},
+    ]{bonds.csv}
+}
+\end{center}
+Denote by $T_2$, $T_3$, $T_5$, and $T_{10}$ the time series data  vectors corresponding to
+the yield of the 2-year, 3-year, 5-year, and 10-year treaury bonds, respectively.
+
+\textbf{(i)} Find the coefficients $a$, $b_1$, $b_2$, $b_3$ of the linear regression for the yield
+of the 3-year bond in terms of  the yields of the 2-year, 5-year, and 10-year bonds, i.e., find
+ $a$, $b_1$, $b_2$, $b_3$ corresponding to the solution to the ordinary least squares problem
+$$
+T_3 \approx a\mathbf{1} + b_1 T_2 + b_2 T_5 + b_3 T_{10},
+$$
+where $\mathbf{1}$ is the $15\times 1$ column vector with all entries equal to 1. Let
+$$
+T_{3,LR} = a\mathbf{1} + b_1 T_2 + b_2 T_5 + b_3 T_{10}.
+$$
+Find the approxmation error
+$$
+\text{error}_{LR} \triangleq \parallel T_3 - T_{3,LR} \parallel.
+$$
+\textit{Solution}: Let
+$$
+A = \left( \mathbf{1}, T_1, T_5, T_{10} \right), \quad x = \begin{pmatrix}
+a\\b_1\\b_2\\b_3
+\end{pmatrix}, \quad y = T_3.
+$$
+We are looking for the least square solution to
+$$
+Ax \approx y.
+$$
+In other words,
+$$
+A^T A x = A^T y.
+$$
+Use the C++ code implementation of the linear solve for S.P.D. matrix, we get the following numerical result
+$$
+x = \begin{pmatrix}
+a\\b_1\\b_2\\b_3
+\end{pmatrix}
+= 
+\begin{pmatrix}
+0.01232\\0.127208\\0.334045\\0.529777
+\end{pmatrix}.
+$$
+The approximation error
+$$
+\text{error}_{LR} \triangleq \parallel T_3 - T_{3,LR} \parallel \approx 0.043.
+$$
+
+\textbf{(ii)} Compute the linear interpolation values of the 3-year yield by doing
+linear interpolation between the 2-year yield and the 5-year yield at each
+data point. Denote by 
+$$
+T_{3,\text{linear interp}} \triangleq \frac{2}{3}T_2 + \frac{1}{3}T_5.
+$$
+Find the approximation error
+$$
+\text{error}_{\text{linear interp}} = \parallel T_3 - T_{3,\text{linear interp}}  \parallel
+$$
+of the linear interpolation.
+
+\textit{Solution}: The three year interpolated values are listed in the table given in the problem statement. The approximation error
+$$
+\text{error}_{\text{linear interp}} = \parallel T_3 - T_{3,\text{linear interp}}  \parallel  \approx 0.207.
+$$
+
+\textbf{(iii)} Compute the cubic interpolation values of the 3-year yield by doing cubic spline interpolation between the 2-year, 5-year, and 10-year yield at each data point. Denote by
+$T_{3,\text{cubic interp}}$ the time series vector of these values. Find the approximation error
+$$
+\text{error}_{\text{cubic interp}} = \parallel T_3 - T_{3,\text{cubic interp}}  \parallel
+$$
+of the cubic spline interpolation.
+
+\textit{Solution}: Basically, we are doing cubic spline interpolation over the domain 
+$$
+x =\begin{pmatrix}
+2, 5, 10
+\end{pmatrix}
+$$
+for 15 independent datasets
+$$
+y^{(i)} = \begin{pmatrix}
+T_2(i),T_5(i),T_{10}(i)
+\end{pmatrix}, \quad \forall i=1,\cdots,15.
+$$
+For example,
+\begin{align}
+\nonumber &y^{(1)} = \begin{pmatrix}
+4.69, 4.57, 4.63
+\end{pmatrix}\\
+\nonumber &y^{(2)} = \begin{pmatrix}
+4.81, 4.69, 4.73
+\end{pmatrix}\\
+\nonumber &\cdots
+\end{align}
+The cubic spline interpolated values are listed in the table given in the problem statement. The approximation error
+$$
+\text{error}_{\text{cubic interp}} = \parallel T_3 - T_{3,\text{cubic interp}}  \parallel
+\approx 0.186.
+$$
+
+\textbf{(iv)} The ordinary least square method gives the lowest error. Cubic spline interplation gives relatively lower error compared to linear interpolation method.
+
+ 
+ 
+\newpage
+
+\section{Chapter 8, Exercise 8}
+The file \textit{financials2012.xlsx} from www.fepress.org/nla-primer contains the end of week
+adjusted closing prices for the stocks of the following financial companies: JPM; GS;
+MS; BAC; RBS; CS; UBS; RY; BCS between January 11, 2012 and October 15, 2012.\\
+
+\textbf{(i)} Compute the weekly percentage returns of these stocks.
+
+\textit{Solution}: The percentage return table:\\
+
+{\tiny
+\pgfplotstabletypeset[
+    col sep=comma,
+    string type,
+    columns/natural/.style={column name=natural, column type={|l}},
+    columns/two/.style={column name=two, column type={|l}},
+    columns/three/.style={column name=three, column type={|c|}},
+    every head row/.style={before row=\hline,after row=\hline},
+    every last row/.style={after row=\hline},
+    ]{p8_percentage.csv}
+}
+
+
+\textbf{(ii)} Find the linear regression of the JPM returns with respect
+to the returns of the other stocks. What is the approximation error of this 
+linear regression?
+
+\textit{Solution}: The regression formula:
+\begin{equation}
+\begin{split}
+\nonumber
+\text{JPM} &\approx 0.766295\times\text{GS} -0.077765\times\text{MS} + 0.297951\times\text{BAC} + 0.281170\times\text{RBS}\\
+    &  -0.057614\times\text{CS}  -0.414045\times\text{UBS} + 0.147594\times\text{RY}  -0.0008806 \times\text{BCS}-0.003353 \\
+\end{split}
+\end{equation}
+
+the approximation error is $\sum\limits_{i}e_i^2 = 0.01675761$. 
+
+
+\textbf{(iii)} Find the linear regression of the JPM returns with respect to the retusn of the other American financial companies, i.e.
+with respect to GS, MS, and BAC. What is the approximation error of this linear regression?
+
+\textit{Solution}: The regression formula:
+\begin{equation}
+\begin{split}
+\nonumber
+\text{JPM} &\approx 0.653710\times\text{GS}  -0.037504\times\text{MS} + 0.261285S \times\text{BAC} -0.001394.
+\end{split}
+\end{equation}
+
+the approximation error is $\sum\limits_{i}e_i^2 = 0.02246522$.
+
+\textbf{(iv)} Find the linear regression of the JPM stock prices with respect to
+the prices of the other stocks. What is the approximation error of this linear regression?
+How does it compare with the approximation error of the linear regression of the JPM
+returns computed at (ii)?
+
+\textit{Solution}: The regression formula reads
+
+\begin{equation}
+\begin{split}
+\nonumber
+\text{JPM} &\approx 0.0166\times\text{GS} +0.06682\times\text{MS} + 1.47131\times\text{BAC} + 1.20743\times\text{RBS}\\
+    &  0.8990\times\text{CS}  -2.53732\times\text{UBS} + 0.35021\times\text{RY}  -0.17046\times\text{BCS}+8.81655 \\
+\end{split}
+\end{equation}
+
+the approximation error is $\sum\limits_{i}e_i^2 = 42.35296$. Compare to the error when regression with the return data, the approximation error is much larger in terms of absolute value.
+\newpage
+
+
+
+\end{document}

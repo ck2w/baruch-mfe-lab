@@ -1,0 +1,241 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Short Sectioned Assignment
+% LaTeX Template
+% Version 1.0 (5/5/12)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Original author:
+% Frits Wenneker (http://www.howtotex.com)
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[paper=a4, fontsize=10pt,]{scrartcl} % A4 paper and 11pt font size
+
+
+\usepackage{geometry}
+ \geometry{
+ a4paper,
+ total={170mm,257mm},
+ left=30mm,
+ right=30mm,
+ top=20mm,
+ }
+
+
+
+\usepackage[T1]{fontenc} % Use 8-bit encoding that has 256 glyphs
+%\usepackage{fourier} % Use the Adobe Utopia font for the document - comment this line to return to the LaTeX default
+\usepackage[english]{babel} % English language/hyphenation
+\usepackage{amsmath,amsfonts,amsthm, amssymb} % Math packages
+\usepackage{enumitem}
+\usepackage{cancel}
+\usepackage{graphicx} % Required to insert images
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{theorem}
+\newtheorem{definition}{Definition}[section]
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+\theoremstyle{example}
+\newtheorem{example}{Example}[section]
+ 
+\usepackage{hhline}
+\usepackage{sectsty} % Allows customizing section commands
+\allsectionsfont{\centering \normalfont\normalsize\scshape} % Make all sections centered, the default font and small caps
+
+\usepackage{fancyhdr} % Custom headers and footers
+\pagestyle{fancyplain} % Makes all pages in the document conform to the custom headers and footers
+\fancyhead{} % No page header - if you want one, create it in the same way as the footers below
+\fancyfoot[L]{} % Empty left footer
+\fancyfoot[C]{} % Empty center footer
+\fancyfoot[R]{\thepage} % Page numbering for right footer
+\renewcommand{\headrulewidth}{0pt} % Remove header underlines
+\renewcommand{\footrulewidth}{0pt} % Remove footer underlines
+\setlength{\headheight}{13.6pt} % Customize the height of the header
+
+\numberwithin{equation}{section} % Number equations within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{figure}{section} % Number figures within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{table}{section} % Number tables within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+
+\setlength\parindent{0pt} % Removes all indentation from paragraphs - comment this line for an assignment with lots of text
+
+
+
+
+\begin{document}
+
+	
+\begin{center}
+\scshape\fontseries{bx}\selectfont \textsc{\textbf{ MTH9821. Implicit Finite Difference Method for American Options Based on Projected $LU$-Decomposition }}
+\end{center}
+
+\begin{center}
+\footnotesize{ShengQuan Zhou}\\
+\today
+\end{center}
+
+
+\begin{abstract}
+   \textsc{Abstract}. This note outlines an implicit finite difference method based on $LU$-decomposition and projected backward substitution
+   for American options.
+   Unlike the projected SOR method which iteratively improves the solution to a given tolerance, this algorithm
+    takes a finite number of operations to complete and yields full arithmetic precision. 
+   Numerical tests on an example of American option in Homework Assignment \#9 are given at the end.
+\end{abstract}
+
+
+\section{Matrix Inequalities for Backward Euler Method}
+The backward Euler method for American options involves the solution of the following matrix inequalities at each time step:
+\begin{align}\label{ineq1}
+\mathbf{A}\cdot\mathbf{u} &\ge \mathbf{b}, \\
+\label{ineq11}\mathbf{u} &\ge \mathbf{g},
+\end{align}
+while entry-wise, one of two inequalities is an equality. Here, 
+$$
+\mathbf{A} = \begin{pmatrix}
+1+2\alpha & -\alpha & 0 & \cdots & 0\\
+-\alpha & 1+2\alpha & -\alpha &  & 0\\
+0 & -\alpha &\ddots & \ddots & 0\\
+\vdots & & \ddots & 1+2\alpha & -\alpha\\
+0&\cdots & 0 &-\alpha & 1+2\alpha
+\end{pmatrix},
+$$
+the vector $\mathbf{b}$ is given by a combination of the state vector at the previous time step and the boundary conditions, and
+the vector $\mathbf{g}$ is the early exercise premium.\\
+
+The $LU$-decomposition of the matrix $\mathbf{A}$ can be written as
+$$
+\begin{pmatrix}
+1+2\alpha & -\alpha & 0 & \cdots & 0\\
+-\alpha & 1+2\alpha & -\alpha &  & 0\\
+0 & -\alpha &\ddots & \ddots & 0\\
+\vdots & & \ddots & 1+2\alpha & -\alpha\\
+0&\cdots & 0 &-\alpha & 1+2\alpha
+\end{pmatrix}
+= \underbrace{\begin{pmatrix}
+1 & 0 & 0 & \cdots & 0\\
+-\frac{\alpha}{y_0} & 1 & \ddots &  & 0\\
+0 & \ddots &\ddots & \ddots & 0\\
+\vdots & & \ddots & \ddots & 0\\
+0&\cdots & 0 &-\frac{\alpha}{y_{N-1}} & 1
+\end{pmatrix}}_{\triangleq \mathbf{L}}\cdot
+\underbrace{\begin{pmatrix}
+y_0 & -\alpha & 0 & \cdots & 0\\
+0 & y_1 & \ddots &  & 0\\
+0 & \ddots &\ddots & \ddots & 0\\
+\vdots & & \ddots & \ddots & -\alpha\\
+0&\cdots & 0 &0 & y_{N}
+\end{pmatrix}}_{\triangleq \mathbf{U}},
+$$
+where
+\begin{align}\label{recursion}
+y_0 &= 1+2\alpha,\\
+y_n &= (1+2\alpha) -\frac{\alpha^2}{y_{n-1}}, \quad n=1,\cdots,N;
+\end{align}
+
+\section{Transformation to Triangular Matrix Inequalities}
+
+\begin{lemma}
+The matrix inequality \ref{ineq1} is equivalent to the upper-triangular matrix inequalities:
+\begin{align}\label{ineq2}
+\mathbf{v} &\triangleq \mathbf{U}\cdot\mathbf{u} \ge \mathbf{L}^{-1}\cdot\mathbf{b}
+\end{align}
+if $\alpha$ is sufficiently small.
+\end{lemma}
+\begin{proof}
+The above statement amounts to saying that $y_n>0$, $n=0,\cdots,N$, so that the following sequence
+of inequalities hold true:
+\begin{align*}
+v_0 &\ge b_0,\\
+v_1 &\ge b_1 + \frac{\alpha}{y_0}v_0 \ge b_1 + \frac{\alpha}{y_0}b_0,\\
+&\cdots \\
+v_N &\ge b_N + \frac{\alpha}{y_{N-1}}v_{N-1} \ge \cdots \ge b_N + \frac{\alpha}{y_{N-1}}\Big(b_{N-1} + \frac{\alpha}{y_{N-2}}\Big( 
+b_{N-2} + \frac{\alpha}{y_{N-3}}\Big(b_{N-3}+\cdots + \frac{\alpha}{y_{0}}b_0 \Big)\Big)\Big).
+\end{align*}
+Define $Y_n = \Pi_{i=0}^n y_n$, we get a $2^{\text{nd}}$ order linear recurrence relation $Y_n - (1+2\alpha)Y_{n-1} +\alpha^2 Y_{n-2}=0$. 
+The fact that $y_n>0$, $n=0,\cdots,N$ for sufficiently small $\alpha$ can be proved by solving the above recurrence relation 
+explicitly and let $y_n = \frac{Y_n}{Y_{n-1}}$. Detail is omitted.
+\end{proof}
+
+\begin{lemma}
+If the matrix inequiality \ref{ineq1} is an equality for an entry $n$, i.e. $(\mathbf{A}\cdot\mathbf{u} - \mathbf{b})_n=0$, then the
+triangular matrix inequality \ref{ineq2} is also an equality for the same entry, i.e. $(\mathbf{U}\cdot\mathbf{u} - \mathbf{L}^{-1}\cdot\mathbf{b})_n
+=0$.
+\end{lemma}
+\begin{proof}
+The proof is based on the existence of an early exercise boundary entry $\hat{n}$ such that
+\begin{align*}
+&(\mathbf{A}\cdot\mathbf{u} - \mathbf{b})_n=0, \quad (\mathbf{u} - \mathbf{g})_n>0, \quad \text{for } 0\le n < \hat{n};\\
+&(\mathbf{A}\cdot\mathbf{u} - \mathbf{b})_n>0, \quad (\mathbf{u} - \mathbf{g})_n=0, \quad \text{for } \hat{n}\le n\le N,
+\end{align*}
+which is heuristically evident but by itself requires a proof. Detail is omitted. Note that we adopted an indexing convention that in the finite difference
+scheme for an American option, the right boundary of the computational domain is labeled by $n=0$ and the left boundary by $n=N$.
+If the indexing convention is the other way around, we need a $UL$-decomposition instead.\\
+
+Now, for a given $n$, if  $(\mathbf{A}\cdot\mathbf{u} - \mathbf{b})_n=0$, then
+$$
+(\mathbf{A}\cdot\mathbf{u} - \mathbf{b})_{n'}=0, \quad \forall n'<n.
+$$
+thus, invoking the lower-triangularity of $\mathbf{L}^{-1}$, we have
+\begin{align*}
+(\mathbf{U}\cdot\mathbf{u} - \mathbf{L}^{-1}\cdot\mathbf{b})_n &= \left[\mathbf{L}^{-1} \cdot(\mathbf{A}\cdot \mathbf{u} - \mathbf{b})\right]_n\\
+&= \sum_{n'\le n}\mathbf{L}^{-1}_{nn'} \cdot(\mathbf{A}\cdot \mathbf{u} - \mathbf{b})_{n'}\\
+&= 0.
+\end{align*}
+\end{proof}
+The above result establishes the equivalence between the matrix inequalities \ref{ineq1} - \ref{ineq11} and
+\begin{align*}
+\mathbf{U}\cdot\mathbf{u} &\ge \mathbf{L}^{-1}\cdot \mathbf{b}, \\
+\mathbf{u} &\ge \mathbf{g},
+\end{align*}
+while entry-wise, one of two inequalities is an equality.
+
+\begin{lemma}
+Denote $\mathbf{c} \triangleq \mathbf{L}^{-1}\cdot\mathbf{b}$, the triangular matrix inequalities
+\begin{align}\label{ineq3}
+\mathbf{U}\cdot\mathbf{u} &\ge \mathbf{c}, \\
+\label{ineq4} \mathbf{u} &\ge \mathbf{g},
+\end{align}
+while entry-wise, one of two inequalities is an equality, can be solved by the following projected backward substitution procedure:
+\begin{align*}
+u_{N} &= \max\left\{ \frac{c_N}{y_N}, g_N \right\},\\
+u_{n} &=  \max\left\{ \frac{c_n + \alpha u_{n+1}}{y_n}, g_n\right\}, \quad n=N-1,\cdots, 0.
+\end{align*}
+\end{lemma}
+\begin{proof}
+The proof is essentially an induction based on the triangularity of the system and the positiveness of $y_n$, $0\le n\le N$. Detail is omitted.
+\end{proof}
+%The equivalence between the matrix inequalities \ref{ineq1}-\ref{ineq11} and \ref{ineq3}-\ref{ineq4} is established.
+
+\section{Numerical Tests}
+Numerical tests are performed on the example of American option valuation in Homework \#9, focusing on the comparison between backward Euler method by projected $LU$ and by projected SOR. Similar tests are done for Crank-Nicolson. 
+\begin{footnotesize}
+\begin{center}
+\begin{tabular}{l*{6}{c}r}
+Method              &  Error I &  Error II & $\Delta$ & $\Gamma$ & $\Theta$  & Error III \\
+\hhline{=======}
+Backward Euler by $LU$  & 0.003959021	& 0.004001460	& -0.379403240	& 0.030962375	& -2.767599900	& 0.001595845 \\
+Backward Euler by SOR   & 0.003959004	& 0.004001443	& -0.379403240	& 0.030962375	& -2.767599886	& 0.001595643 \\
+\hline
+Crank-Nicolson by $LU$  & 0.001037275	& 0.001079720	& -0.379476930	& 0.030920454	& -2.765847325	& 0.000887689 \\
+Crank-Nicolson by SOR   & 0.001037275	& 0.001079720	& -0.379476930	& 0.030920453	& -2.765847326	& 0.000887694 \\
+\hline
+\end{tabular}
+\end{center}
+Note: The domain in discretized by $M=256$ and $\alpha_{\text{temp}}=0.45$. In SOR method, $\omega=1.2$ and $tol=10^{-6}$.
+\end{footnotesize}
+
+
+
+\end{document}
