@@ -1,0 +1,330 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Short Sectioned Assignment
+% LaTeX Template
+% Version 1.0 (5/5/12)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Original author:
+% Frits Wenneker (http://www.howtotex.com)
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[paper=a4, fontsize=11pt]{scrartcl} % A4 paper and 11pt font size
+
+\usepackage[T1]{fontenc} % Use 8-bit encoding that has 256 glyphs
+\usepackage{fourier} % Use the Adobe Utopia font for the document - comment this line to return to the LaTeX default
+\usepackage[english]{babel} % English language/hyphenation
+\usepackage{amsmath,amsfonts,amsthm, amssymb} % Math packages
+\usepackage{enumitem}
+\usepackage{cancel}
+\usepackage{graphicx} % Required to insert images
+\usepackage{color}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\usepackage{listings}
+\lstset{frame=tb,
+  language=Python,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true
+  tabsize=3
+}
+\usepackage{pgfplotstable}% For inserting csv table
+\usepackage{MnSymbol,wasysym}
+\usepackage{sectsty} % Allows customizing section commands
+\allsectionsfont{\centering \normalfont\scshape} % Make all sections centered, the default font and small caps
+
+\usepackage{fancyhdr} % Custom headers and footers
+\pagestyle{fancyplain} % Makes all pages in the document conform to the custom headers and footers
+\fancyhead{} % No page header - if you want one, create it in the same way as the footers below
+\fancyfoot[L]{} % Empty left footer
+\fancyfoot[C]{} % Empty center footer
+\fancyfoot[R]{\thepage} % Page numbering for right footer
+\renewcommand{\headrulewidth}{0pt} % Remove header underlines
+\renewcommand{\footrulewidth}{0pt} % Remove footer underlines
+\setlength{\headheight}{13.6pt} % Customize the height of the header
+
+\numberwithin{equation}{section} % Number equations within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{figure}{section} % Number figures within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{table}{section} % Number tables within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+
+\setlength\parindent{0pt} % Removes all indentation from paragraphs - comment this line for an assignment with lots of text
+
+\newcommand{\vast}{\bBigg@{4}}
+\newcommand{\Vast}{\bBigg@{5}}
+
+%----------------------------------------------------------------------------------------
+%	TITLE SECTION
+%----------------------------------------------------------------------------------------
+
+\newcommand{\horrule}[1]{\rule{\linewidth}{#1}} % Create horizontal rule command with 1 argument of height
+
+\title{	
+\normalfont \normalsize 
+\textsc{Baruch, MFE} \\ [25pt] % Your university, school and/or department name(s)
+\horrule{0.5pt} \\[0.4cm] % Thin top horizontal rule
+\huge MTH 9876 Assignment Five\\  % The assignment title
+\horrule{2pt} \\[0.5cm] % Thick bottom horizontal rule
+}
+
+
+\author{Zhou, ShengQuan} % Your name
+
+\date{\normalsize\today} % Today's date or a custom date
+
+\begin{document}
+	
+
+
+\maketitle % Print the title
+
+\newpage
+
+\section{A VaR Model for a Portfolio of Equities}
+In this problem you will develop a VaR model for a portfolio of equities, based on histrical simulations 
+(this is essentially the industry standard methodology). It is somewhat data analysis intensive, 
+so give yourself enough time to work on this problem.\\
+
+\textbf{(i)} Download the historical daily prices since January 1, 2004 of the following names: 
+AAPL, HAL, INTC, JPM, PFE, CAT, DE, MSFT, WMT, C. You can use, e.g., Yahoo Finance or Bloomberg as the source
+of data. Make sure to use the \textit{adjusted} prices, this way you don't have to worry about dividends and/or splits. 
+Cosider a model portfolio that consists of 10,000 shares of each of these shares.\\
+\textit{Solution}: See attached spreadsheet \textit{Problem1 VaR Model Equity Portfolio.xlsx} data tab.\\
+
+\textbf{(ii)} Assuming the MPOR of 5 business days, calculate the time series of 5
+day P\&L's of this portfolio, starting on November 1, 2006.\\
+\textit{Solution}: See attached spreadsheet \textit{Problem1 VaR Model Equity Portfolio.xlsx} analysis tab.\\
+
+\textbf{(iii)} Run the EWMA model with $\lambda=0.97$ and $r_t=5$ day portfolio P\&L.
+Remember that you need an extra 6 month (or so) period to prime the model. 
+Scale the time series of the portfolio P\&L by $\sigma_t$ in order to produce a normalized series
+(make sure that you use the correct units!).\\
+\textit{Solution}: See attached spreadsheet \textit{Problem1 VaR Model Equity Portfolio.xlsx} analysis tab.\\
+
+\textbf{(iv)} Assuming a rolling look-back period of 2 years (defined as 500 business days), 
+calculate the portfolio VaR and CoVaR at the 99\% level of confidence for each of the days starting
+ on November 1, 2006.\\
+ \textit{Solution}: See attached spreadsheet \textit{Problem1 VaR Model Equity Portfolio.xlsx} analysis tab.\\
+  
+\textbf{(v)} Back test your VaR model for the period from November 1, 2006. Do
+a detailed statistical analysis of the VaR breaches, and link them to
+specific historic market events. Would using CoVaR instead of VaR
+mitigate the breaches?
+ \textit{Solution}: See attached spreadsheet \textit{Problem1 VaR Model Equity Portfolio.xlsx} analysis tab.\\
+
+\newpage
+
+\section{A Basic Commodity Model}
+Consider the commodity model discussed in class
+\begin{align*}
+S(t) &= \exp\left( f(t) + X(t) \right),\\
+dX(t) &= \lambda\left(\theta - X(t)\right)dt + \sigma dW(t),
+\end{align*}
+where $f(t)$ is a deterministic periodic function, and $\lambda$, $\theta$, and $\theta$ are
+constant parameters. The process $S(t)$ is the spot price of the commodity (this could be a very
+basic model for crude oil).\\
+
+\textbf{(i)} Show that
+$$
+X(t) = X_0 e^{-\lambda t} + \theta (1-e^{-\lambda t}) + \sigma\int_0^t e^{-\lambda (t-s)}dW(s)
+$$
+is a solution to the SDE for $X(t)$ with the initial condition $X(0) = X_0$. Calculate the expected
+value $\mathbb{E}[X(t)]$ and variance $\text{Var}[X(t)]$ of $X(t)$.\\
+\textit{Solution}: Apply It\^o's lemma to $e^{\lambda t}X(t)$,
+\begin{align*}
+d\left( e^{\lambda t}X(t) \right) &= \lambda e^{\lambda t}  X(t) dt +  e^{\lambda t} dX(t) \\
+&= e^{\lambda t} \left( \lambda X(t)dt + dX(t) \right)\\
+&= e^{\lambda t} \left[ \lambda X(t)dt + \lambda\left(\theta - X(t)\right)dt + \sigma dW(t) \right]\\
+&= e^{\lambda t} \left( \lambda\theta dt + \sigma dW(t) \right).
+\end{align*}
+Integrate from $0$ to $t$,
+\begin{align*}
+e^{\lambda t}X(t) - X(0) &=  \theta \int_0^t e^{\lambda s} d(\lambda s) + \sigma \int_0^t e^{\lambda s}dW(s)\\
+& = \theta \left( e^{\lambda t} -1 \right) + \sigma \int_0^t e^{\lambda s}dW(s).
+\end{align*}
+Re-arrange the terms, we get
+\begin{align}\label{xt}
+X(t) = X_0 e^{-\lambda t} + \theta \left( 1- e^{-\lambda t} \right) + \sigma \int_0^t e^{-\lambda (t - s)}dW(s).
+\end{align}
+Given the martingality of the term $\sigma \int_0^t e^{-\lambda (t - s)}dW(s)\sim N\left(0, \sigma^2\int_0^t e^{-2\lambda (t - s)}ds\right)$, we get
+\begin{align*}
+\mathbb{E}\left[X(t)\right] &= X_0 e^{-\lambda t} + \theta \left( 1- e^{-\lambda t} \right) \xrightarrow[]{t \rightarrow \infty} \theta,\\
+\text{Var}\left[X(t)\right] &= \frac{\sigma^2}{2\lambda}\left( 1 - e^{-2\lambda t} \right)\xrightarrow[]{t \rightarrow \infty}  \frac{\sigma^2}{2\lambda}.
+\end{align*}\\
+
+\textbf{(ii)} Consider the forward price on oil for the delivery on date $T$. Its time $t$ price, where $t<T$, is defined by
+$$
+F_T(t) = \mathbb{E}_t\left[S(T)\right].
+$$
+Find an explicit expression for $F_T(t)$ by calculating the expected value above.\\
+\textit{Solution}: Conditioned on information available up to time $t$,
+\begin{align*}
+X(T) &= X(t)e^{-\lambda(T-t)}+ \theta \left( 1- e^{-\lambda (T-t)} \right)+ \sigma \int_t^T e^{-\lambda (T - s)}dW(s).\\
+&\sim N\left( X(t)e^{-\lambda(T-t)}+ \theta \left( 1- e^{-\lambda (T-t)} \right), \frac{\sigma^2}{2\lambda}\left( 1 - e^{-2\lambda (T-t)} \right) \right),
+\end{align*}
+where $S(t) = \exp\left( f(t) + X(t) \right)$. Thus,
+\begin{align*}
+\mathbb{E}_t \left[\exp\left(  X(T) \right)\right] &= \exp\left(\mathbb{E}_t \left[ X(T)\right] + \frac{1}{2}\text{Var}\left[ X(T)\right]\right)\\
+&= \exp\left( X(t)e^{-\lambda(T-t)}+ \theta \left( 1- e^{-\lambda (T-t)} \right) + \frac{\sigma^2}{4\lambda}\left( 1 - e^{-2\lambda (T-t)} \right)\right),
+\end{align*}
+and
+\begin{align}
+\nonumber F_T(t) &= \mathbb{E}_t\left[S(T)\right]\\
+\nonumber &= \mathbb{E}_t\left[\exp\left(f(T) + X(T)\right)\right]\\
+\label{ft}&= \exp\left( f(T) + X(t)e^{-\lambda(T-t)}+ \theta \left( 1- e^{-\lambda (T-t)} \right) + \frac{\sigma^2}{4\lambda}\left( 1 - e^{-2\lambda (T-t)} \right)\right)\\
+\nonumber &= S(t)^{e^{-\lambda(T-t)}}\exp\left( f(T) - f(t)e^{-\lambda(T-t)}+ \theta \left( 1- e^{-\lambda (T-t)} \right) + \frac{\sigma^2}{4\lambda}\left( 1 - e^{-2\lambda (T-t)} \right)\right).
+\end{align}\\
+
+\textbf{(iii)} Consider the payer forward rate agreement (FRA) on crude oil on which the bank (B) agrees to buy crude at $T$ at the price $K$. Find
+the risk neutral price $V_{\text{pay}}(t)$ of this contract.\\
+\textit{Solution}: The pay off of the payer forward rate agreement at time $T$ is $S(T)-K$. The risk-neutral price of the FRA contract 
+is equal to
+\begin{align*}
+V_{\text{pay}}(t) &= e^{-r(T-t)}\mathbb{E}_t\left[ S(T) - K \right]  = e^{-r(T-t)}\left(\mathbb{E}_t\left[ S(T) \right] - K\right),
+\end{align*}
+where $r$ is the risk-free zero rate over the time period $t\rightarrow T$ and $\mathbb{E}_t\left[S(T)\right]$
+is obtained in the previous problem.\\
+
+\underline{Note} that this problem should not be reasoned in the same way as an equity forward contract, where the payoff can be
+replicated by a portfolio consisting of a long position of one share of the underlying asset $S(t)$ and a short position
+of $Ke^{-r(T-t)}$ cash at time $t$. According to the law of one price, the risk-neutral price of the forward contract 
+is equal to the value of the replicating portfolio at time $t$,
+\begin{align*}
+V_{\text{pay}}(t) &= S(t) - K e^{-r(T-t)}.
+\end{align*}
+This above result based on the law of one price is in agreement with the fact that the risk-neutral 
+expectation $e^{-r(T-t)}\mathbb{E}_t\left[ S(T) \right] = S(t)$. Either approach assumes that there 
+is no cost associated with holding the underlying asset, e.g.,
+an equity stock. For commodities, however, there is a convenience yield (cost, premium, etc.) associated with holding
+an underlying product and the equality $e^{-r(T-t)}\mathbb{E}_t\left[ S(T) \right] = S(t)$ is no longer true. By buying
+a forward contract at time $t$, the buyer locks in the price of purchasing the commodity underlying asset at price
+$F_T(t)$ at time $T$. When settled at time $t$, the payoff of
+the FRA contract at time $T$ is $F_T(t)-K$, effectively equivalent to that of a fixed income instrument.\\
+
+
+
+\textbf{(iv)} Recall the stochastic intensity model introduced in Problem \#3 of Assignment \#1:
+$$
+d\lambda_C (t) = \mu_C dt + \nu_C dZ_C(t),
+$$
+where $Z_C(t)$ is a Brownian motion. Assume that this model describes the credit of the bank's counterparty (C).\\
+\textit{Solution}: OK. Recalled. \smiley{} The survival probability is
+\begin{align}\label{survival}
+ S(t,T) &= e^{- \lambda_{C}(0) (T-t) - \frac{1}{2}\mu_C  (T-t)^2 +\frac{1}{6}\nu_C^2 (T-t)^3 }.
+\end{align}
+
+\textbf{(v)} Assume that $W(t)$ and $Z_C(t)$ are uncorrelated (no wrong way risk). Assming that the bank is default-free, 
+calculate explicitly the CVA on the oil FRA (use the discretized CVA formula) and interpret the expression in option
+theoretic terms.\\
+\textit{Solution}: According to the discretized CVA formula without wrong way risk, the
+expected exposure and the counterparty default probability factorize:
+\begin{align*}
+\text{CVA}(t,T) &= (1-\bar{R})\sum_{i=1}^m \text{EE}_t(T_i,T)\left[ Q(t,T_i) - Q(t,T_{i-1}) \right]\\
+&= (1-\bar{R})\sum_{i=1}^m \text{EE}_t(T_i,T)\left[  S(t,T_{i-1}) - S(t,T_i)\right],
+\end{align*}
+where $T_0 = t$ and $T_m = T$. The discounted expected exposure
+\begin{align*}
+\text{EE}_t(T_i,T) &\triangleq \mathbb{E}^{\mathbb{Q}}[P(t,T_i)V(T_i,T)^+]\\
+ &= P(t,T_i)\mathbb{E}^{\mathbb{Q}}[V(T_i,T)^+],
+\end{align*}
+where we assumed that the discount factor $P(t,T_i) \perp V(T_i,T)$, and $V(T_i,T)$ is obtained in Part \textbf{(iii)}:
+\begin{align*}
+V(T_i,T) &= V_{\text{pay}}(T_i)\\
+&=  P(T_i,T)\left(\mathbb{E}_{T_i}\left[ S(T) \right] - K\right)\\
+&=  P(T_i,T)\left(F_T(T_i)- K\right),
+\end{align*}
+where $F_T(t)$ is obtained in Part \textbf{(ii)}. Thus, write $P(t,T_i)P(T_i,T)=P(t,T)$,
+\begin{align*}
+\text{EE}_t(T_i,T) &= P(t,T)\mathbb{E}^{\mathbb{Q}}[ \left(F_T(T_i)- K\right)^+],
+\end{align*}
+and
+\begin{align*}
+\text{CVA}(t,T) &=  (1-\bar{R})P(t,T)\sum_{i=1}^m  \mathbb{E}^{\mathbb{Q}}[ \left(F_T(T_i)- K\right)^+]\cdot\left[  S(t,T_{i-1}) - S(t,T_i)\right].
+\end{align*}
+Notice that $\mathbb{E}^{\mathbb{Q}}[ \left(F_T(T_i)- K\right)^+]$ is the risk-neutral expectation of the payoff of 
+a call option of an FRA contract settled at $T_i$ to buy crude at $T$ at strike price $K$. Thus, the CVA on the crude oil FRA can be
+interpreted as the present value of the unrecovered part of a sum of call options on FRA contracts, settled at intermediate times between $[t,T]$ 
+and weighted by default probabilities for each time periods respectively. Effectively, the bank sells a series of call options to the
+counterparty to be able to default, at various times between $[t,T]$.\\
+
+\textbf{(vi)} Assume now $W(t)$ and $Z_C(t)$ are correlated (the counterparty may be an oil company), i.e.
+$dW(t)dZ_C(t)=\rho dt$. Calculate the CVA under this assumption. What is the impact of the wrong way risk, depending on
+the sign of $\rho$?\\
+\textit{Solution}: Similar to the Part \textbf{(v)} but the exposure and the counterparty default probability no longer factorize:
+\begin{align*}
+\text{CVA}(t,T) &=  (1-\bar{R})P(t,T)\sum_{i=1}^m  
+\mathbb{E}^{\mathbb{Q}}\left[ \left(F_T(T_i)- K\right)^+ \cdot   \left(\mathcal{S}(t,T_{i-1}) - \mathcal{S}(t,T_i)\right)| \tau=T_i\right],
+\end{align*}
+where $\mathcal{S}(t,T)$ denotes a random variable instead of expectation value as in Eq. \ref{survival}: $\mathcal{S}(t,T) \triangleq \exp\left( - \int_t^T\lambda_C(s)ds\right)$. Thus, according to Eq. \ref{ft},
+\begin{align*}
+\text{CVA}(t,T) &=  (1-\bar{R})P(t,T)\\
+\times\sum_{i=1}^m 
+\mathbb{E}^{\mathbb{Q}}\Bigg[ &\left(  
+\exp\left( f(T) + X(T_i)e^{-\lambda(T-T_i)}+ \theta \left( 1- e^{-\lambda (T-T_i)} \right) + \frac{\sigma^2}{4\lambda}\left( 1 - e^{-2\lambda (T-T_i)} \right)\right)
+-K \right)^+\\
+\times & \left(\exp\left( - \int_t^{T_{i-1}}\lambda_C(s)ds\right) - \exp\left( - \int_t^{T_i}\lambda_C(s)ds\right)\right)\Bigg| \tau=T_i\Bigg],
+\end{align*}
+where according to Eq. \ref{xt},
+\begin{align*}
+X(T_i)e^{-\lambda(T-T_i)} &= X_0 e^{-\lambda T } + \theta  \left( e^{-\lambda (T-T_i)} - e^{-\lambda T} \right) + \sigma\int_0^{T_i}  e^{-\lambda (T-s)}dW(s)\\
+\int_t^{T_i}\lambda_C(s)ds &= \lambda_0 (T_i-t) + \frac{1}{2}\theta (T_i-t)^2 + \sigma\int_t^{T_i} Z_C(s)ds.
+\end{align*}
+Written in a fully explicit way,
+{
+\footnotesize{
+\begin{align*}
+&\text{CVA}(t,T) =  (1-\bar{R})P(t,T)\\
+ &\times\sum_{i=1}^m 
+\mathbb{E}^{\mathbb{Q}}\left[\left(  
+\exp\left( \underbrace{f(T) + X_0 e^{-\lambda T } +  \theta \left( 1- e^{-\lambda T}  \right) + \frac{\sigma^2}{4\lambda}\left( 1 - e^{-2\lambda (T-T_i)} \right) }_{\text{deterministic}}
++ \sigma\int_0^{T_i}  e^{-\lambda (T-s)}dW(s)\right)
+-K \right)^+ \right.\\ 
+& \left. \phantom{}\times  \left(\exp\left( \underbrace{- \lambda_0 (T_{i-1}-t) - \frac{1}{2}\theta (T_{i-1}-t)^2}_{\text{deterministic}} - \sigma\int_t^{T_{i-1}} Z_C(s)ds \right) \phantom{}- \exp\left( \underbrace{- \lambda_0 (T_i-t) - \frac{1}{2}\theta (T_i-t)^2}_{\text{deterministic}} - \sigma\int_t^{T_i} Z_C(s)ds  \right)\right)\Bigg| \tau=T_i\right],
+\end{align*}
+}
+}
+where $dW(t)dZ_C(t)=\rho dt$. The impact of the wrong way risk depending on the sign of $\rho$ is unclear from the above expression only.
+
+
+
+\textbf{(vii)} Assume that the bank's credit is given by a stochastic intensity model
+with the same specification but different parameters as in part \textbf{(iv)}:
+$$
+d\lambda_B (t) = \mu_B dt + \nu_B dZ_B(t).
+$$
+Assume that the pairs of Brownian motions $W(t)$ and $Z_B(t)$, and $Z_C(t)$ and $Z_B(t)$ are independent.
+Derive an expression for BCVA on the oil payer FRA. Discuss the results (provide suitable graphs) for various
+ranges of the model parameters.\\
+\textit{Solution}: Assume there is no wrong way risk, the bilateral CVA formula
+\begin{align*}
+\text{BCVA}(t,T) &= (1-\bar{R}_C)\sum_{i=1}^m \text{EE}_t(T_i,T) S_B(t,T_{i-1})\left[ Q_C(t,T_i) - Q_C(t,T_{i-1}) \right]\\
+&\quad +(1-\bar{R}_B)\sum_{i=1}^m \text{NEE}_t(T_i,T)S_C(t,T_{i-1}) \left[ Q_B(t,T_i) - Q_B(t,T_{i-1}) \right] \\
+&= (1-\bar{R}_C)\sum_{i=1}^m \mathbb{E}^{\mathbb{Q}}[P(t,T_i)V(T_i, T)^+] S_B(t,T_{i-1})\left[ Q_C(t,T_i) - Q_C(t,T_{i-1}) \right]\\
+&\quad +(1-\bar{R}_B)\sum_{i=1}^m \mathbb{E}^{\mathbb{Q}}[P(t,T_i)V(T_i, T)^-] S_C(t,T_{i-1})\left[ Q_B(t,T_i) - Q_B(t,T_{i-1}) \right] \\
+&= (1-\bar{R}_C)P(t,T)\sum_{i=1}^m \mathbb{E}^{\mathbb{Q}}[(F_T(T_i)-K)^+] S_B(t,T_{i-1})\left[ Q_C(t,T_i) - Q_C(t,T_{i-1}) \right]\\
+&\quad -(1-\bar{R}_B)P(t,T)\sum_{i=1}^m \mathbb{E}^{\mathbb{Q}}[(K-F_T(T_i))^+] S_C(t,T_{i-1})\left[ Q_B(t,T_i) - Q_B(t,T_{i-1}) \right],
+\end{align*}
+where $S_B(t,T)$, $S_C(t,T)$, $Q_B(t,T)$, and $Q_C(t,T)$ are defined accordingly.
+
+
+
+\end{document}
