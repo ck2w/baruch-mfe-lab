@@ -43,12 +43,6 @@ class KalmanFilter:
                 # R: prediction covariance
                 # Prediction is done starting from the second step
                 # according to the implementation of pykalman
-                #print("G:")
-                #print(self.G)
-                #print("cov:")
-                #print(self.cov)
-                #print("W:")
-                #print(self.W)
                 if i == 0:
                     a = self.mean
                     R = self.cov
@@ -68,13 +62,6 @@ class KalmanFilter:
                 Q = 0.5*(Q + Q.T)
                 FR = np.dot(self.F,R)
                 RF = np.transpose(FR)
-                #print("Q:")
-                #print(Q)
-                #print("F:")
-                #print(self.F)
-                #print("R:")
-                #print(R)
-                #QiFR = np.dot(sp.linalg.pinv(Q),FR)
                 QiFR = sp.linalg.solve(Q,FR,sym_pos=True)
                 AQA = np.dot(RF,QiFR)
                 Qiu = sp.linalg.solve(Q,u,sym_pos=True)
