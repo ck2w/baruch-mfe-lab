@@ -80,6 +80,8 @@
 \usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
 \usepackage{amsmath}
 \usepackage{enumitem}
+
+
 %----------------------------------------------------------------------------------------
 %	TITLE PAGE
 %----------------------------------------------------------------------------------------
@@ -137,7 +139,8 @@ Baruch MFE \\ % Your institution for the title page
 \frac{\partial \rho_B(x,t)}{\partial t} &= -V_t \frac{\partial \rho_B(x,t)}{\partial x}
 + D  \frac{\partial^2 \rho_B(x,t)}{\partial x^2} -\nu \rho_B(x,t) +\lambda \Theta(p_t -x) - \kappa R_{AB}(x,t)\\
 \frac{\partial \rho_A(x,t)}{\partial t} &= \underbrace{-V_t \frac{\partial \rho_A(x,t)}{\partial x}
-+ D  \frac{\partial^2 \rho_A(x,t)}{\partial x^2}}_{\text{Drift-Diffusion: price reassessments}} -\underbrace{\nu \rho_A(x,t)}_{\text{Cancellation}} +\underbrace{\lambda \Theta(x-p_t)}_{\text{Deposition}} - \underbrace{\kappa R_{AB}(x,t)}_{\text{Reaction: trades}}
++ D  \frac{\partial^2 \rho_A(x,t)}{\partial x^2}}_{\begin{subarray}{l}\text{\text{Drift-Diffusion: price reassessments;}}\\
+    V_t\sim\text{\text{white noise, uninformed meta-orders}}\end{subarray} } -\underbrace{\nu \rho_A(x,t)}_{\text{Cancellation}} +\underbrace{\lambda \Theta(x-p_t)}_{\text{Deposition}} - \underbrace{\kappa R_{AB}(x,t)}_{\text{Reaction: trades}}
 \end{align*}
 
 }
@@ -150,15 +153,30 @@ Baruch MFE \\ % Your institution for the title page
 {
 \footnotesize{
 Define $\hat{p}_t \triangleq \int_0^t V_s ds$, $y\triangleq x-\hat{p}_t$, the net order density $\phi(x,t)\triangleq \rho_B(x,t)-\rho_A(x,t)$
-$$
-\frac{\partial \phi(y,t)}{\partial t} = D\frac{\partial^2 \phi(y,t)}{\partial y^2} -\nu \phi(y,t) + \lambda
-\text{sign}(p_t - \hat{p}_t - y)
-$$
+\begin{columns}
+\begin{column}{0.7\textwidth}
+   $$
+   \quad\quad\quad\quad\quad\frac{\partial \phi(y,t)}{\partial t} = D\frac{\partial^2 \phi(y,t)}{\partial y^2} -\nu \phi(y,t) + \lambda
+   \text{sign}(p_t - \hat{p}_t - y)
+   $$
+\end{column}
+\begin{column}{0.3\textwidth}  %%<--- here
+     \includegraphics[width=\textwidth,height=.15\textheight]{phist}
+\end{column}
+\end{columns}
 Zoom into the \textit{\color{blue}{universal linear regime}}
-$\nu\rightarrow 0$, $\lambda\rightarrow 0$, $J \triangleq D\left|\partial_y \phi_{\text{s.t.}} \right|_{y=0} = \lambda\sqrt{\frac{D}{\nu}}$ fixed:
+$\nu\rightarrow 0$, $\lambda\rightarrow 0$, $J \triangleq D\left|\partial_y \phi_{\text{s.t.}} \right|_{y=0} = \lambda\sqrt{D/\nu}$ fixed:
+\begin{columns}
+\begin{column}{0.7\textwidth}
 $$
-\phi_{\text{s.t.}} = -\mathcal{L} y,
+\quad\quad\quad\quad\quad\phi_{\text{s.t.}} = -\mathcal{L} y,
 $$
+\end{column}
+\begin{column}{0.3\textwidth}  %%<--- here
+     \includegraphics[width=\textwidth,height=.1\textheight]{linear}
+\end{column}
+\end{columns}
+
 where $\mathcal{L}\triangleq J/D$ is the \textit{\color{blue}{latent liquidity}} of the market. Add \underline{meta-order}
 to the system:
 $$
@@ -191,20 +209,20 @@ m_t = \begin{cases}
 \end{cases}
 $
 
-Define \underline{market impact} $\mathcal{I}(Q,t) \triangleq \langle \epsilon\cdot(p_t - p_0) |Q\rangle
-=  \langle \epsilon\cdot(y_t - y_0) |Q\rangle \underbrace{\textcolor{gray}{+ \langle \epsilon\cdot(\hat{p}_t - \hat{p}_0) |Q\rangle}}_{\text{=0, uninformed meta-order}}$.
+\underline{Market Impact} $\mathcal{I}(Q,t) \triangleq \underbrace{\langle \epsilon\cdot(p_{t+T} - p_t) |Q\rangle}_{\text{Average over order signs } \epsilon}
+=  \langle \epsilon\cdot(y_{t+T} - y_t) |Q\rangle \underbrace{\textcolor{gray}{+ \langle \epsilon\cdot(\hat{p}_{t+T} - \hat{p}_t) |Q\rangle}}_{\text{=0, uninformed meta-order}}$.
 
-Solving the \underline{self-consistency} equation for $y_t$ yields
+Solving the \underline{self-consistency} equation for $y_t$ yields the \textit{\color{blue}{impact profile}}:
 \begin{columns}
 \begin{column}{0.55\textwidth}
 \begin{align*}
 \frac{\mathcal{I}(Q,t)}{\mathcal{I}(Q)} = 
 \begin{cases}
 \sqrt{\frac{t}{T}}, \, &t\in[0,T],\\
-\sqrt{\frac{t}{T}} - \sqrt{\frac{t-T}{T}}, \,  &t>T,
+\underbrace{\sqrt{\frac{t}{T}} - \sqrt{\frac{t-T}{T}}}_{\text{power-law decay as } t\rightarrow\infty}, \,  &t>T,
 \end{cases}
 \end{align*}
-where total market impact gives precisly the celebrated \textit{\color{blue}{square-root impact law}}:
+where the peak market impact gives precisely the celebrated \textit{\color{blue}{square-root impact law}}:
 $$
 \mathcal{I}(Q) = \mathcal{I}(Q,T) \approx \begin{cases}
 \sqrt{\frac{m_0}{\pi J}}\times\sqrt{\frac{Q}{\mathcal{L}}}, \, & m_0 \ll J,\\
@@ -224,38 +242,71 @@ $$
 \end{frame}
 
 \begin{frame}
-\frametitle{Absence of Price Manipulation \& Extensions}
+\frametitle{Reversions, Informational Impact \& No Price Manipulation}
 {
 \footnotesize{
-Average cost of a \underline{closed price trajectory}:
-$\mathcal{C} = \int_0^T ds\, m_s y_s$, with $\int_0^T ds\,m_s = 0$. 
 
+$\square$ For a meta-order of size $Q$ \underline{reverted} after $T$,
+$
+m_t = \begin{cases}
+ m_0 = Q/T, \, &t\in[0,T],\\
+ -m_0 = -Q/T, \, &t\in (T,2T].
+\end{cases}
+$
+
+$\square$ \underline{Informative order flow} $m_t$ correlated with order book drift $V_{t'>t}$: \textit{\color{blue}{permanent impact}}.
+
+\begin{columns}
+\begin{column}{0.05\textwidth}  %%<--- here
+\end{column}
+%\begin{column}{0.33\textwidth}
+%    \begin{center}
+%     \includegraphics[width=0.89\textwidth,height=.3\textheight]{impact}
+%    \end{center}
+%\end{column}
+\begin{column}{0.45\textwidth}
+    \begin{center}
+     \includegraphics[width=0.93\textwidth,height=.35\textheight]{reversion}
+    \end{center}
+\end{column}
+\begin{column}{0.45\textwidth}  %%<--- here
+    \begin{center}
+     \includegraphics[width=0.85\textwidth,height=.35\textheight]{permanent}
+    \end{center}
+\end{column}
+\begin{column}{0.5\textwidth}  %%<--- here
+\end{column}
+\end{columns}
+
+
+$\square$ Average cost of a \underline{closed price trajectory}: $\int_0^T ds\,m_s = 0$. 
 $$
-\mathcal{C} = \frac{1}{2} \int_0^T \int_0^T ds ds'\,  M(s,s') m_s m_{s'}
+\mathcal{C} = \int_0^T ds\, m_s y_s = \frac{1}{2} \int_0^T \int_0^T ds ds'\,  M(s,s') m_s m_{s'}
 $$
-where 
-$$
+where
+$
 M(s,s') = \frac{1}{\mathcal{L}\sqrt{4\pi|s-s'|}}e^{-\frac{(y_s-y_{s'})^2}{4D|s-s'|}}
-$$
-is a semi-positive definite kernel. Therefore, $\mathcal{C}\ge 0$ for any execution schedule, i.e. price
+$
+is a semi-positive definite kernel $\Rightarrow \mathcal{C}\ge 0$ for any execution schedule, i.e. price
 manipulation is impossible within the model of Locally Linear Order Book (LLOB).
 \newline
 }
-\newline
-\underline{\textbf{Possible Extensions and Open Problems}}
 
-\begin{itemize}[noitemsep]
-\item $\square$ Relax the approximation made in limit of
-    \begin{itemize}[noitemsep]
-        \item (1) slow latent order books $\nu T \ll 1$;
-        \item (2) large liquidity, i.e., meta-order only probes the linear region of order book.
-    \end{itemize}
-\item $\square$ Corrections to the LLOB induced by fluctuations.
-\item $\square$ Introduce random fluctuations in the interacting meta-order flows.
-\item $\square$ Cancellation rate $\nu$ is expected to increase with the intensity of meta-orders.
-\item $\square$ Deposition rate $\lambda$ is expected to increase with the distance $|x-p_t|$.
-\item $\square$ Drift term $V_t$ could be non-Gaussian.
-\end{itemize}
+%\newline
+%\underline{\textbf{Possible Extensions and Open Problems}}
+
+%\begin{itemize}[noitemsep]
+%\item $\square$ Relax the approximation made in limit of
+%    \begin{itemize}[noitemsep]
+%        \item (1) slow latent order books $\nu T \ll 1$;
+%        \item (2) large liquidity, i.e., meta-order only probes the linear region of order book.
+%    \end{itemize}
+%\item $\square$ Corrections to the LLOB induced by fluctuations.
+%\item $\square$ Introduce random fluctuations in the interacting meta-order flows.
+%\item $\square$ Cancellation rate $\nu$ is expected to increase with the intensity of meta-orders.
+%\item $\square$ Deposition rate $\lambda$ is expected to increase with the distance $|x-p_t|$.
+%\item $\square$ Drift term $V_t$ could be non-Gaussian.
+%\end{itemize}
 }
 
 \end{frame}
