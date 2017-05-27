@@ -1,0 +1,289 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Beamer Presentation
+% LaTeX Template
+% Version 1.0 (10/11/12)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND THEMES
+%----------------------------------------------------------------------------------------
+
+\documentclass{beamer}
+
+\mode<presentation> {
+
+% The Beamer class comes with a number of default slide themes
+% which change the colors and layouts of slides. Below this is a list
+% of all the themes, uncomment each in turn to see what they look like.
+
+%\usetheme{default}
+%\usetheme{AnnArbor}
+%\usetheme{Antibes}
+%\usetheme{Bergen}
+%\usetheme{Berkeley}
+%\usetheme{Berlin}
+%\usetheme{Boadilla}
+%\usetheme{CambridgeUS}
+%\usetheme{Copenhagen}
+%\usetheme{Darmstadt}
+%\usetheme{Dresden}
+%\usetheme{Frankfurt}
+%\usetheme{Goettingen}
+%\usetheme{Hannover}
+%\usetheme{Ilmenau}
+%\usetheme{JuanLesPins}
+%\usetheme{Luebeck}
+\usetheme{Madrid}
+%\usetheme{Malmoe}
+%\usetheme{Marburg}
+%\usetheme{Montpellier}
+%\usetheme{PaloAlto}
+%\usetheme{Pittsburgh}
+%\usetheme{Rochester}
+%\usetheme{Singapore}
+%\usetheme{Szeged}
+%\usetheme{Warsaw}
+
+% As well as themes, the Beamer class has a number of color themes
+% for any slide theme. Uncomment each of these in turn to see how it
+% changes the colors of your current slide theme.
+
+%\usecolortheme{albatross}
+%\usecolortheme{beaver}
+%\usecolortheme{beetle}
+%\usecolortheme{crane}
+%\usecolortheme{dolphin}
+%\usecolortheme{dove}
+%\usecolortheme{fly}
+%\usecolortheme{lily}
+%\usecolortheme{orchid}
+%\usecolortheme{rose}
+%\usecolortheme{seagull}
+%\usecolortheme{seahorse}
+%\usecolortheme{whale}
+%\usecolortheme{wolverine}
+
+%\setbeamertemplate{footline} % To remove the footer line in all slides uncomment this line
+%\setbeamertemplate{footline}[page number] % To replace the footer line in all slides with a simple slide count uncomment this line
+
+%\setbeamertemplate{navigation symbols}{} % To remove the navigation symbols from the bottom of all slides uncomment this line
+}
+
+\usepackage{graphicx} % Allows including images
+\usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
+\usepackage{amsmath}
+\usepackage{enumitem}
+\setlist[itemize,1]{label={\fontfamily{cmr}\fontencoding{T1}\selectfont\textbullet}}
+
+
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+
+\title[MTH9899 Machine Learning]{MTH9899 Machine Learning Final Project} 
+
+\author[H.Chu, Y.Qi, L.Shang, S.Q.Zhou]{Hongshan Chu, Yuchen Qi, Linwei Shang, ShengQuan Zhou} % Your name
+\institute[Baruch] 
+{
+Baruch MFE \\ % Your institution for the title page
+}
+
+\date{\today} % Date, can be changed to a custom date
+
+
+\begin{document}
+
+\begin{frame}
+\titlepage % Print the title page as the first slide
+\end{frame}
+
+
+
+\begin{frame}{Overview of Dataset}
+\underline{Training dataset}
+\begin{itemize}[noitemsep]
+\item $\sim$ 140,000 rows;
+\item key: stock ID and a timestamp;
+\item 27 features: 17 quantitative and 10 categorical;
+\item A \textit{weight} column and an output column.
+\end{itemize}
+\underline{General guidelines}
+\begin{itemize}[noitemsep]
+\item Predictions are made based on the information contained in each row, without cross-row reference.
+\item No time series modelling is explored, partly because the data points per ID along the time axis are inhomogeneous and incomplete.
+\item No stock-specific modeling is explored given that the data points per ID are inhomogeneous and incomplete.
+\item Timestamp information is used only for dividing the dataset into training set and test set.
+\item Weighted $R^2$ is used as the final benchmark.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Data Preprocessing}
+The provided dataset is divided into two parts according to timestamp:
+\begin{itemize}[noitemsep]
+\item The first 2/3 are used for training and testing;
+\item The remaining 1/3 are reserved for a production run.
+\end{itemize}
+A series of split points are chosen to divide the first 2/3 of the complete dataset into two parts:
+\begin{itemize}[noitemsep]
+\item The first part for training;
+\item The second part for testing.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Selection of Quantitative Features}
+
+
+Three tests are performed to select \underline{quantitative} features:
+\begin{itemize}[noitemsep]
+\item Pearson correlation coefficient;
+\item Kendall's rank correlation coefficient, also known as Kendall's $\tau$;
+\item Spearman's rank correlation coefficient, also known as Spearman's $\rho$;
+\end{itemize}
+with respect to the training set of output data, based on the criterion that the $p$-value for correlation coefficients being less than $3\%$. \\
+\quad
+	\small
+	\begin{tabular}{lrrrrrrrrr}  
+		\toprule
+		Feature & Pearson & $p$-value & Kendall's $\tau$ & $p$-value & Spearman's $\rho$ & $p$-value  \\
+		\midrule		
+		x0 & 	$-0.019$ & $10^{-6}$	&	$-0.013$ & $10^{-6}$	& $-0.019$	&	$10^{-6}$ \\
+		x17 & $+0.016$	& $10^{-5}$	&	$+0.009$ & $10^{-3}$	& $+0.013$	&	$10^{-3}$ \\
+		x22 & $+0.026$	& $10^{-11}$	&	$+0.014$ & $10^{-7}$	&	$+0.020$ &	$10^{-7}$ \\
+		x49 & $+0.015$	& $10^{-4}$	&	$+0.009$ & $10^{-4}$	& $+0.013$	&	$10^{-4}$ \\
+		x53 & $+0.018$	& $10^{-6}$	&	$+0.012$ & $10^{-6}$	& $+0.018$	&	$10^{-6}$ \\
+		x61 & $-0.009$	& $0.03$	&	$-0.009$ & $10^{-3}$	& $-0.013$	&	$10^{-4}$ \\
+		\bottomrule
+	\end{tabular}
+
+
+\end{frame}
+
+\begin{frame}{Selection of Categorical Features}
+
+Similar tests are performed on \underline{categorical} features:\\
+\quad\\
+{
+	\small
+	\begin{tabular}{lrrrrrrrrr}  
+		\toprule
+		Feature & Pearson & $p$-value & Kendall's $\tau$ & $p$-value & Spearman's $\rho$ & $p$-value  \\
+		\midrule
+		x2 & $-0.038$	& $10^{-22}$	&	$-0.026$ & $10^{-21}$	& $-0.037$	&	$10^{-21}$ \\
+		x6 & $-0.014$	& $10^{-4}$	&	$-0.007$ & $0.02$	&	$-0.010$ &	$0.01$ \\
+		x30 & 	$+0.020$ & $10^{-7}$	&	$+0.014$ & $10^{-6}$	& $+0.018$	&	$10^{-6}$ \\
+		x46 & $+0.026$	& $10^{-11}$	&	$+0.018$ & $10^{-10}$	& $+0.026$	&	$10^{-10}$ \\
+		x51 & $+0.017$	& $10^{-5}$	&	$+0.011$ & $10^{-4}$	& $+0.015$	&	$10^{-4}$ \\
+		\bottomrule
+	\end{tabular}
+	\vspace{2 mm}
+}
+
+A selected list of categorical features are treated as
+\begin{itemize}[noitemsep]
+\item ordinal numbers; or
+\item one-hot dummy variables.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Inspection of Period-by-Period Correlations}
+\footnotesize
+\begin{tabular}{lrrrrrrrrrr}  
+\toprule
+Period & x17	& x49	& x53 &	x22 &		x46	 &	x61	 &	x0 &		x30 &		x42 &		x51\\
+\midrule
+1 & .007	& 	.014	& 	.022	& 	.018	& 	.027	& 	.008	& 	-.013	& 	.005	& 	-.006	& 	.003\\
+2 & .014	& 	.019	& 	.010	& 	.020	& 	.020	& 	-.009	& 	-.029	& 	.012	& 	-.003	& 	-.007\\
+3 & .021	& 	.006	& 	.016	& 	.015	& 	.014	& 	-.014	& 	-.027	& 	-.002	& 	.014	& 	-.027\\
+4 & .018	& 	.017	& 	.025	& 	.045	& 	.032	& 	-.021	& 	-.006	& 	.017	& 	-.017	& 	-.002\\
+5 & .016	& 	.012	& 	.009	& 	.044	& 	.033	& 	-.002	& 	-.007	& 	.019	& 	-.019	& 	-.009\\
+6 & .009	& 	.017	& 	.012	& 	.009	& 	.032	& 	-.008	& 	-.014	& 	-.0004	& 	-.011	& 	.0005\\
+7 & .045	& 	.008	& 	.024	& 	.045	& 	.007	& 	-.004	& 	-.008	& 	.011	& 	-.016	& 	-.003\\
+8 & .015	& 	.012	& 	.011	& 	.021	& 	-.012	& 	.003	& 	-.009	& 	.013	& 	-.014	& 	-.003\\
+9 & .021	& 	-.010	& 	.006	& 	.019	& 	.002	& 	.004	& 	-.016	& 	-.026	& 	.027	& 	-.013\\
+\bottomrule
+\end{tabular}
+
+\end{frame}
+
+
+\begin{frame}{Removal of Outliers}
+As a final step of data cleaning, outliers observed in features and outputs in the \underline{training set} are removed:
+\begin{itemize}[noitemsep]
+\item Remove all data rows with output $|y|>0.05$;
+\item Remove all data rows that have outliers in at least one column, based on the criterion $z$-score $>3$.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Linear Regression \& Random Forest}
+\begin{itemize}
+\item Linear Regression
+\vspace{5 mm}
+
+	\begin{tabular}{lrrrrrrrrr}  
+		\toprule
+		Method & Feature & In-Sample $R^2$(bps) & Out-of-Sample $R^2$(bps) \\
+		\midrule
+	    OLS & all  & $+47.20$	& $-23.37$	 \\
+		OLS & selected  & $+6.28$	& $+7.33$	 \\
+		Ridge & selected  & 	$+3.91$ & $+7.19$	  \\
+		Lasso & selected  & $+3.10$	& $+7.01$	 \\
+		\bottomrule
+	\end{tabular}
+\vspace{5 mm}	
+\item Tree-based Methods
+
+\vspace{5 mm}
+	
+	\begin{tabular}{lrrrrrrrrr}  
+		\toprule
+		Method & In-Sample $R^2$(bps) & Out-of-Sample $R^2$(bps) \\
+		\midrule
+	    Random Forest  & $+5.3$	& $+3.9$	 \\
+		Boosting Trees (2:1) & $+10$	& $+4.7$	 \\
+		Boosting Trees (3:1)  & $+10$	& $+12.7$	 \\
+		\bottomrule
+	\end{tabular}
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Selected Details on Testing Boosting Trees}
+Out-of-sample $R^2$ for the method of boosting trees:
+\vspace{10 mm}
+\small
+	\begin{tabular}{lrrrrrrrrr}  
+		\toprule
+		Train \# / Test \# & $R^2$(bps) No Outlier Removal &  $R^2$(bps) Outlier Removal \\
+		\midrule
+	    1:1 & \color{red}{$+3$}	& \color{red}{$+4$}	 \\
+	    2:1 & \color{red}{$+4$}	& \color{red}{$+5$}	 \\
+	    3:1 & \color{red}{$+15$}	& \color{red}{$+13$}	 \\
+	    4:1 & \color{red}{$+15$}	& \color{red}{$+13$}	 \\
+	    5:1 & \color{red}{$+7$}	& $\sim 1$	 \\
+	    6:1 & $\sim 1$	& $-5$	 \\
+	    7:1 & $-2$	& $-3$	 \\
+	    8:1 & $-1$	& $-2$	 \\
+		\bottomrule
+	\end{tabular}
+\end{frame}
+
+\begin{frame}{Conclusion and Outlook}
+\begin{itemize}
+\item The methods of linear regressions, random forests, and gradient boosting trees are tested.
+\item With a series of procedures including feature selection and data cleaning, a range of values $5\sim 15$(bps) can be reached for the out-of-sample $R^2$ for boosting trees.
+\item Regime shifting behavior are observed where the correlation between the features and the output vary over time.
+\item A mixture of models, for example, boosting trees combind with random forest, is expected to improve the performance.
+\end{itemize}
+
+\end{frame}
+
+\end{document} 
