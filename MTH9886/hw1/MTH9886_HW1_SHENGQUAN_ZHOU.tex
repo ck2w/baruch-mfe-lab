@@ -1,0 +1,186 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Short Sectioned Assignment
+% LaTeX Template
+% Version 1.0 (5/5/12)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Original author:
+% Frits Wenneker (http://www.howtotex.com)
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[paper=a4, fontsize=10pt,]{scrartcl} % A4 paper and 11pt font size
+
+
+\usepackage{geometry}
+ \geometry{
+ a4paper,
+ total={170mm,257mm},
+ left=30mm,
+ right=30mm,
+ top=20mm,
+ }
+
+
+
+\usepackage[T1]{fontenc} % Use 8-bit encoding that has 256 glyphs
+%\usepackage{fourier} % Use the Adobe Utopia font for the document - comment this line to return to the LaTeX default
+\usepackage[english]{babel} % English language/hyphenation
+\usepackage{amsmath,amsfonts,amsthm, amssymb} % Math packages
+\usepackage{enumitem}
+\usepackage{cancel}
+\usepackage{graphicx} % Required to insert images
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{theorem}
+\newtheorem{definition}{Definition}[section]
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+\theoremstyle{example}
+\newtheorem{example}{Example}[section]
+ 
+
+\usepackage{sectsty} % Allows customizing section commands
+\allsectionsfont{\centering \normalfont\normalsize\scshape} % Make all sections centered, the default font and small caps
+
+\usepackage{fancyhdr} % Custom headers and footers
+\pagestyle{fancyplain} % Makes all pages in the document conform to the custom headers and footers
+\fancyhead{} % No page header - if you want one, create it in the same way as the footers below
+\fancyfoot[L]{} % Empty left footer
+\fancyfoot[C]{} % Empty center footer
+\fancyfoot[R]{\thepage} % Page numbering for right footer
+\renewcommand{\headrulewidth}{0pt} % Remove header underlines
+\renewcommand{\footrulewidth}{0pt} % Remove footer underlines
+\setlength{\headheight}{13.6pt} % Customize the height of the header
+
+\numberwithin{equation}{section} % Number equations within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{figure}{section} % Number figures within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{table}{section} % Number tables within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+
+\setlength\parindent{0pt} % Removes all indentation from paragraphs - comment this line for an assignment with lots of text
+
+
+
+
+
+
+
+\begin{document}
+	
+{
+\begin{center}
+\scshape\fontseries{bx}\selectfont \textsc{\textbf{MTH9886 Emerging Markets and Inflation, \hspace{2mm}Fall 2017}}
+\center{ShengQuan Zhou}
+\end{center}
+}
+
+
+
+\section{Variance of Two Assets Exchange Warrant}
+Assume
+\begin{align*}
+\frac{dS_1(t)}{S_1(t)} &= rdt + \sigma_1 dW_1(t),\\
+\frac{dS_2(t)}{S_2(t)} &= rdt + \sigma_2 dW_2(t),
+\end{align*}
+where $\mathbb{E}[dW_1 dW_2] = \rho dt$. Then
+\begin{align*}
+S_1(t) &= S_1(0)e^{\left(r - \frac{\sigma_1^2}{2}\right)t + \sigma_1 W_1(t)} = S_1(0)e^{\left(r - \frac{\sigma_1^2}{2}\right)t + \sigma_1 B_1(t)},\\
+S_2(t) &= S_2(0)e^{\left(r - \frac{\sigma_2^2}{2}\right)t + \sigma_2 W_2(t)} = S_2(0)e^{\left(r - \frac{\sigma_2^2}{2}\right)t + \sigma_2 \rho B_1(t) + \sigma_2 \sqrt{1-\rho^2} B_2(t) },
+\end{align*}
+written in terms of independent Brownian motions $\{B_1(t),B_2(t)\}$
+\begin{align*}
+W_1(t) &= B_1(t),\\
+W_2(t) &= \rho B_1(t) + \sqrt{1-\rho^2} B_2(t).
+\end{align*}
+The exchange rate
+\begin{align*}
+\frac{S_2(t)}{S_1(t)} &= \frac{S_2(0)}{S_1(0)}\exp^{ ( \rho \sigma_2 - \sigma_1)B_1(t) + \sigma_2 \sqrt{1-\rho^2} B_2(t) + \frac{\sigma_1^2 - \sigma_2^2}{2}t}.
+\end{align*}
+Let
+\begin{align*}
+\tilde{B}_1(t) &= B_1(t) - \sigma_1 t,\\
+\tilde{B}_2(t) &= B_2(t),
+\end{align*}
+then
+\begin{align*}
+\frac{S_2(t)}{S_1(t)} &= \frac{S_2(0)}{S_1(0)}\exp^{ (\rho \sigma_2 - \sigma_1)(\tilde{B}_1(t) +\sigma_1 t) + \sigma_2 \sqrt{1-\rho^2} \tilde{B}_2(t) + \frac{\sigma_1^2 - \sigma_2^2}{2}t} \\
+&= \frac{S_2(0)}{S_1(0)}\exp^{ (\rho \sigma_2 - \sigma_1)\tilde{B}_1(t) + \sigma_2 \sqrt{1-\rho^2} \tilde{B}_2(t) -\frac{1}{2}(\rho \sigma_2 - \sigma_1)^2 t -\frac{1}{2}(1-\rho^2)\sigma_2^2 t}.
+\end{align*}
+Let 
+\begin{align*}
+\tilde{\sigma}_1 &= \rho \sigma_2 - \sigma_1, \\
+\tilde{\sigma}_2 &= \sigma_2 \sqrt{1-\rho^2},
+\end{align*}
+then
+\begin{align*}
+\frac{S_2(t)}{S_1(t)} &= \frac{S_2(0)}{S_1(0)}\exp^{ \tilde{\sigma}_1\tilde{B}_1(t) + \tilde{\sigma}_2 \tilde{B}_2(t) -\frac{1}{2}\tilde{\sigma}_1^2 t -\frac{1}{2}\tilde{\sigma}_2^2 t}.
+\end{align*}
+Thus, define Radon-Nikodym derivative
+$$
+\frac{d\tilde{\mathbb{P}}}{d \mathbb{P}} = e^{\sigma_1 B_1(T) -\frac{1}{2}\sigma_1^2 T},
+$$
+the process $\{\tilde{B}_1(t),\tilde{B}_2(t)\}$ are two-dimensional Brownian motions under $\tilde{\mathbb{P}}$. Moreover, let 
+$$\tilde{\sigma} = \sqrt{\tilde{\sigma}_1^2 + \tilde{\sigma}_2^2} = \sqrt{\sigma_1^2 + \sigma_2^2 -2\rho \sigma_1\sigma_2},$$
+we get
+$$
+\frac{S_2(t)}{S_1(t)} = \frac{S_2(0)}{S_1(0)}\exp^{ \tilde{\sigma}\tilde{B}(t)  -\frac{1}{2}\tilde{\sigma}^2 t},
+$$
+where $\tilde{B}(t) =\frac{\tilde{\sigma}_1\tilde{B}_1(t) + \tilde{\sigma}_2\tilde{B}_2(t)}{\sqrt{\tilde{\sigma}_1^2 + \tilde{\sigma}_2^2}}$ is again a one-dimensional Brownian motion. 
+
+\newpage
+
+\section{Pricing Vanilla Call Option on a Generic Index}
+Given:
+\begin{itemize}
+\item Index is newly created: not much of historical index prices is available.
+\item Index components have been traded for a while and do have historical prices.
+\item Feel free to use earlier discussed GBI-EM index as example to make
+question more detailed.
+\item There is no option market for this index
+\end{itemize}
+Questions:
+\begin{itemize}
+\item Discuss what model we could use to price this option. Can we start with
+Black-Sholes?
+\item Discuss how could we extract or derive parameters for this model: Index volatility?
+\item If we are to deviate from Black-Sholes a bit and to introduce some simple
+Local Vol as vol for strike, how could we mark this smile and where from?
+\item How would we hedge this option if ever traded?
+\end{itemize}
+Answers:
+\begin{itemize}
+\item One can use the available historical prices of the underlying components to calculate (or estimate) historical index price.
+If the resulting historical estimates of the index is close to log normal distribution, one can start with Black-Scholes; otherwise, one needs to look at the
+higher moments (skew/kurtosis) of the distribution. Admittedly, physical distribution is different from risk neutral distribution.
+\item Historical realized volatility can be evaluated from the estimated time series of the index aggregated from its components. Implied volatility, however, is usually higher than realized volatility. There are several possible ways to estimate implied volatility.
+\begin{enumerate}
+\item If index components have volatility market, one can observe from the market how much its implied
+volatility is higher than realized volatilit and apply this spread to the historical realized volatility.
+\item Presumably, the index will have higher volatility when its price goes down. One can evaluate the historical realized volatility in the worst-case scenario and use it as a proxy for the offer price of implied volatility.
+\item Refer to the implied volatility of some other similar indices.
+\end{enumerate}
+\item Several approaches can be considered
+\begin{enumerate}
+\item Refer to the smile of implied volatility surface of the components if that is available.
+\item Calibrate the implied
+volatility smile to match the higher moments, e.g. skew/kurtosis, of the index realized volatility distribution in physical measure. The higher moments are assumed to be invariant under a change of probability measure.
+\item Simulate the cost of delta hedge. One can use historical distribution to
+generate simulated future prices and the associated delta hedges. The cost of delta
+hedge should be reflected in the price. %Presumably, if the strike is on the downside, the cost to hedge is higher because there is higher realized vol on the downside (thus lose more on gamma).
+\end{enumerate}
+\item If the index itself is readily tradable, the delta hedges can be carried out in the usual sense; otherwise, the delta hedages have to be done through trading the underlying components of the index. The same reasoning applies for volatility hedging depending on the existence of volatility market.
+\end{itemize}
+
+
+\end{document}

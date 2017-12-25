@@ -1,0 +1,167 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Short Sectioned Assignment
+% LaTeX Template
+% Version 1.0 (5/5/12)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Original author:
+% Frits Wenneker (http://www.howtotex.com)
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[paper=a4, fontsize=10pt,]{scrartcl} % A4 paper and 11pt font size
+
+
+\usepackage{geometry}
+ \geometry{
+ a4paper,
+ total={170mm,257mm},
+ left=30mm,
+ right=30mm,
+ top=20mm,
+ }
+
+
+
+\usepackage[T1]{fontenc} % Use 8-bit encoding that has 256 glyphs
+%\usepackage{fourier} % Use the Adobe Utopia font for the document - comment this line to return to the LaTeX default
+\usepackage[english]{babel} % English language/hyphenation
+\usepackage{amsmath,amsfonts,amsthm, amssymb} % Math packages
+\usepackage{enumitem}
+\usepackage{cancel}
+\usepackage{graphicx} % Required to insert images
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{theorem}
+\newtheorem{definition}{Definition}[section]
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+\theoremstyle{example}
+\newtheorem{example}{Example}[section]
+ 
+
+\usepackage{sectsty} % Allows customizing section commands
+\allsectionsfont{\centering \normalfont\normalsize\scshape} % Make all sections centered, the default font and small caps
+
+\usepackage{fancyhdr} % Custom headers and footers
+\pagestyle{fancyplain} % Makes all pages in the document conform to the custom headers and footers
+\fancyhead{} % No page header - if you want one, create it in the same way as the footers below
+\fancyfoot[L]{} % Empty left footer
+\fancyfoot[C]{} % Empty center footer
+\fancyfoot[R]{\thepage} % Page numbering for right footer
+\renewcommand{\headrulewidth}{0pt} % Remove header underlines
+\renewcommand{\footrulewidth}{0pt} % Remove footer underlines
+\setlength{\headheight}{13.6pt} % Customize the height of the header
+
+\numberwithin{equation}{section} % Number equations within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{figure}{section} % Number figures within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{table}{section} % Number tables within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+
+\setlength\parindent{0pt} % Removes all indentation from paragraphs - comment this line for an assignment with lots of text
+
+
+
+
+
+
+
+\begin{document}
+	
+{
+\begin{center}
+\scshape\fontseries{bx}\selectfont \textsc{\textbf{MTH9886 Emerging Markets and Inflation, \hspace{2mm}Fall 2017}}
+\center{ShengQuan Zhou}
+\end{center}
+}
+
+
+
+\section{Present value correction for various settlements}
+Estimate price and risk differences when evaluating non-standard
+settling NDFs as standard using market data provided. Use ARS-USD
+FX pair with market data supplied. Estimate present value
+correction for 5, 10, and 30 days of Settlement after the Fixing
+compared to the standard 2 days offset rule coinciding with Spot
+Date rule.\\
+\newline
+\textit{Solution}: Present value of NDF
+\begin{align*}
+\text{pv}^{\$} &=\frac{F(T_{\text{fix}})-K}{K}\cdot Z^{\text{CCY}}(T_{\text{spot}}, T_{\text{fix}} + \text{Spot Date Rule})\cdot Z^{\$}(T_{\text{fix}} + \text{Spot Date Rule}, T_{\text{settle}})\\
+&=\frac{F(T_{\text{fix}})-K}{K}\cdot Z^{\text{CCY}}(T_{\text{spot}}, T_{\text{fix}} + \text{Spot Date Rule})\cdot Z^{\$}(T_{\text{fix}} + \text{Spot Date Rule}, T_{\text{fix}} + \text{Settle Date Offset}).
+\end{align*}
+then
+$$
+\frac{\text{pv}^{\text{\$}}}{\text{pv}^{\text{CCY}}} = \frac{ Z^{\$}(T_{\text{fix}} + \text{Spot Date Rule}, T_{\text{settle}}) }{ Z^{\text{CCY}}(T_{\text{fix}} + \text{Spot Date Rule}, T_{\text{settle}}) }
+$$\\
+Today is assumed to be 2016/09/09, and let $\tau = T_{\text{settle}} - T_{\text{fix}} - \text{Spot Date Rule}$,
+$$
+Z = \exp\left( - \frac{r\tau}{365}\right),
+$$
+for either currency.
+\begin{center}
+\begin{tabular}{lrrrrrrrr}
+\hline
+Days from today              & End date & $r^{\text{\$}}$ & $r^{\text{ARS}}$ & $\tau$ & $Z^{\$}$ & $Z^{\text{ARS}}$ & $\frac{Z^{\$}}{Z^{\text{ARS}}}$ \\
+\hline
+5    & 	2016/09/14	& 	0.58\%	& 19.67\% & 3 & 0.9999523299 & 0.9983845938& 1.0015702727\\
+10  & 	2016/09/19	& 	0.62\%	& 19.67\% & 8 & 0.9998641188 & 0.9956980471& 1.0041840714\\
+30    & 2016/10/09	& 	0.75\%	& 19.59\% & 28 & 0.9994248230 & 0.9850844108& 1.0145575466\\
+\hline
+\end{tabular}
+\end{center}
+In other words, for 5 days, non-standard settling NDF price is 100.16\% of standard NDF price. For 10 days, non-standard price is 100.42\% of standard price. For 30 days, non-standard price is 101.46\% of standard price. 
+
+\newpage
+
+\section{Convexity Adjustment in Forward Starting NDF}
+Make some numerical estimates of the Convexity Adjustment in Forward
+Starting NDF using market data provided. Argue the validity limits.\\
+\newline
+\textit{Solution}: According to lecture notes, $\mathbb{E}\left[ \frac{1}{1+\beta\cdot\mathbf{X}} \right] \propto \exp(\beta^2)$,
+\begin{align*}
+\mathbb{I} \triangleq \mathbb{E}\left[ \frac{S(T_{\text{Strike Set}})}{S(T_{\text{Strike Set}}) + \Delta S} \right] &= 1 -\alpha\cdot \mathbb{E}\left[ \frac{1}{1+\beta\cdot\mathbf{X}} \right] \\
+&= 1 - \frac{\Delta S}{ F(T_{\text{Strike Set}}) + \Delta S} \exp\left( \left[ \frac{F(T_{\text{Strike Set}})}{   F(T_{\text{Strike Set}}) + \Delta S } \right]^2 \sigma^2 T_{\text{Strike Set}}\right),\\
+\mathbb{II}\triangleq\mathbb{E}\left[ \frac{1}{S(T_{\text{Strike Set}}) + \Delta S} \right] &\propto \frac{1}{F(T_{\text{Strike Set}})}\mathbb{E}\left[ \frac{S(T_{\text{Strike Set}})}{S(T_{\text{Strike Set}}) + \Delta S} \right].
+\end{align*}
+Choose $\Delta S = 0.23$, $T_{\text{Strike Set}}=1$, $F(T_{\text{Strike Set}}) = 4.2$,
+\begin{center}
+\begin{tabular}{lrrr}
+\hline
+$\sigma$              & $\mathbb{I}$ & $\mathbb{II}$ & Percentage change of $\mathbb{II}$ \\
+\hline
+0.0\%	& 0.94808		& 0.22573		& \\
+2.00\%	& 	0.94806		& 0.22573		& -0.002\%\\
+4.00\%	& 	0.94801		& 0.22572		& -0.008\%\\
+6.00\%	& 	0.94791		& 0.22569		& -0.018\%\\
+8.00\%	& 	0.94778		& 0.22566		& -0.032\%\\
+10.00\%	& 	0.94761		& 0.22562		& -0.049\%\\
+12.00\%	& 	0.94740		& 0.22557		& -0.071\%\\
+14.00\%	& 	0.94716		& 0.22551		& -0.097\%\\
+16.00\%	& 	0.94687		& 0.22545		& -0.127\%\\
+18.00\%	& 	0.94655		& 0.22537		& -0.162\%\\
+20.00\%	& 	0.94618		& 0.22528		& -0.200\%\\
+22.00\%	& 	0.94577		& 0.22518		& -0.243\%\\
+24.00\%	& 	0.94532		& 0.22508		& -0.291\%\\
+26.00\%	& 	0.94483		& 0.22496		& -0.343\%\\
+28.00\%	& 	0.94429		& 0.22483		& -0.400\%\\
+30.00\%	& 	0.94371		& 0.22469		& -0.461\%\\
+\hline
+\end{tabular}
+\end{center}
+The percentage change in $\mathbb{II}$ is relatively small in magnitude for $\sigma$ up to 30\%, indicating that convexity adjustment
+for short-dated forward starting forward price is negligible.
+
+
+
+\end{document}

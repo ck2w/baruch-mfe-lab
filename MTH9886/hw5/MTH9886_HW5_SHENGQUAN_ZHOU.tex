@@ -1,0 +1,110 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Short Sectioned Assignment
+% LaTeX Template
+% Version 1.0 (5/5/12)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Original author:
+% Frits Wenneker (http://www.howtotex.com)
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[paper=a4, fontsize=10pt,]{scrartcl} % A4 paper and 11pt font size
+
+
+\usepackage{geometry}
+ \geometry{
+ a4paper,
+ total={170mm,257mm},
+ left=30mm,
+ right=30mm,
+ top=20mm,
+ }
+
+
+
+\usepackage[T1]{fontenc} % Use 8-bit encoding that has 256 glyphs
+%\usepackage{fourier} % Use the Adobe Utopia font for the document - comment this line to return to the LaTeX default
+\usepackage[english]{babel} % English language/hyphenation
+\usepackage{amsmath,amsfonts,amsthm, amssymb} % Math packages
+\usepackage{enumitem}
+\usepackage{cancel}
+\usepackage{graphicx} % Required to insert images
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{theorem}
+\newtheorem{definition}{Definition}[section]
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+\theoremstyle{example}
+\newtheorem{example}{Example}[section]
+ 
+
+\usepackage{sectsty} % Allows customizing section commands
+\allsectionsfont{\centering \normalfont\normalsize\scshape} % Make all sections centered, the default font and small caps
+
+\usepackage{fancyhdr} % Custom headers and footers
+\pagestyle{fancyplain} % Makes all pages in the document conform to the custom headers and footers
+\fancyhead{} % No page header - if you want one, create it in the same way as the footers below
+\fancyfoot[L]{} % Empty left footer
+\fancyfoot[C]{} % Empty center footer
+\fancyfoot[R]{\thepage} % Page numbering for right footer
+\renewcommand{\headrulewidth}{0pt} % Remove header underlines
+\renewcommand{\footrulewidth}{0pt} % Remove footer underlines
+\setlength{\headheight}{13.6pt} % Customize the height of the header
+
+\numberwithin{equation}{section} % Number equations within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{figure}{section} % Number figures within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{table}{section} % Number tables within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+
+\setlength\parindent{0pt} % Removes all indentation from paragraphs - comment this line for an assignment with lots of text
+
+
+
+
+
+
+
+\begin{document}
+	
+{
+\begin{center}
+\scshape\fontseries{bx}\selectfont \textsc{\textbf{MTH9886 Emerging Markets and Inflation, \hspace{2mm}Fall 2017}}
+\center{ShengQuan Zhou}
+\end{center}
+}
+
+
+
+\section{Nominal Yield and Real Yield}
+Derive relationship between Nominal and Real yield of a simple semi-annual B/360 bond. Discuss definition of a break-even inflation based
+on Inflation Adjustment differential.\\
+\textit{Solution}: \textit{Break-Even Inflation} is level of inflation required for an inflation-linked bond (CIB) to be of equal value to its Nominal equivalent. According to Lecture \#5, Page \#23,
+$$
+Z_R(t,t_i) \triangleq \text{InflAdj}(t_i)\cdot Z_N(t,t_i) \Rightarrow e^{-y_R (t_i -t)} = \frac{\text{CPI}(t_i-\text{lag})}{\text{CPI}(t-\text{lag})} e^{-y_N (t_i -t)}.
+$$
+Thus,
+$$
+y_R = y_N - \frac{1}{t_i -t}\log \frac{\text{CPI}(t_i-\text{lag})}{\text{CPI}(t-\text{lag})}.
+$$
+For a simple semi-annual B/360 bond, $t_i - t = 1/2$. Or written in terms of simple interest rate
+$$
+(1+y_R)^{-(t_i-t)} = (1+b)^{(t_i -t )}(1+y_N)^{-(t_i-t)} \Rightarrow (1+y_N) = (1+y_R)(1+b),
+$$
+where $b$ is the break-even inflation.
+
+
+
+
+\end{document}
